@@ -1,0 +1,340 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paramètres Généraux de l'Organisation | {{ app_name }}{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-sliders text-primary fs-3 me-2"></i>
+        Paramètres & Identité de l'Organisation
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Configuration centrale, personnalisation visuelle et activation des modules ERP</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Administration</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Paramètres de l'ERP</li>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-header border-0 pt-4 px-6">
+            <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-6 fw-bold" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link text-active-primary active pb-4" data-bs-toggle="tab" href="#kt_tab_general" role="tab">
+                        <i class="bi bi-building me-2"></i> Informations Générales
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#kt_tab_branding" role="tab">
+                        <i class="bi bi-palette me-2"></i> Identité Visuelle & Couleurs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#kt_tab_regional" role="tab">
+                        <i class="bi bi-globe me-2"></i> Paramètres Régionaux
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#kt_tab_modules" role="tab">
+                        <i class="bi bi-grid-fill me-2"></i> Modules ERP
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#kt_tab_documents" role="tab">
+                        <i class="bi bi-file-earmark-text me-2"></i> Documents & Impressions
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <form method="post" action="{{ path('app_admin_settings') }}" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_settings') }}">
+
+            <div class="card-body p-6 pt-4">
+                <div class="tab-content">
+                    <!-- TAB 1 : INFORMATIONS GÉNÉRALES -->
+                    <div class="tab-pane fade show active" id="kt_tab_general" role="tabpanel">
+                        <div class="row g-4">
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold text-gray-800 required" for="name">Nom officiel de l'organisation</label>
+                                <input type="text" class="form-control form-control-solid" id="name" name="settings[name]" value="{{ setting.name }}" required>
+                                <div class="form-text fs-8 text-muted">Ce nom apparaîtra sur les en-têtes officiels, documents et signatures.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="shortName">Sigle / Nom court</label>
+                                <input type="text" class="form-control form-control-solid" id="shortName" name="settings[shortName]" value="{{ setting.shortName }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-gray-800 required" for="appName">Nom de l'application (Logiciel)</label>
+                                <input type="text" class="form-control form-control-solid" id="appName" name="settings[appName]" value="{{ setting.appName }}" required>
+                                <div class="form-text fs-8 text-muted">Titre affiché dans la barre de navigation et la fenêtre du navigateur.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-gray-800 required" for="organizationType">Type d'organisation</label>
+                                <select class="form-select form-select-solid" id="organizationType" name="settings[organizationType]">
+                                    <option value="ministry" {% if setting.organizationType == 'ministry' %}selected{% endif %}>Ministère / Département d'État</option>
+                                    <option value="public_admin" {% if setting.organizationType == 'public_admin' %}selected{% endif %}>Administration publique / Direction</option>
+                                    <option value="public_institution" {% if setting.organizationType == 'public_institution' %}selected{% endif %}>Établissement public / Agence</option>
+                                    <option value="private_company" {% if setting.organizationType == 'private_company' %}selected{% endif %}>Entreprise privée / Société</option>
+                                    <option value="ngo" {% if setting.organizationType == 'ngo' %}selected{% endif %}>Organisation non gouvernementale / Association</option>
+                                    <option value="other" {% if setting.organizationType == 'other' %}selected{% endif %}>Autre entité</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-gray-800" for="description">Description institutionnelle</label>
+                                <textarea class="form-control form-control-solid" id="description" name="settings[description]" rows="3">{{ setting.description }}</textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="email">Email de contact</label>
+                                <input type="email" class="form-control form-control-solid" id="email" name="settings[email]" value="{{ setting.email }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="phone">Téléphone</label>
+                                <input type="text" class="form-control form-control-solid" id="phone" name="settings[phone]" value="{{ setting.phone }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="website">Site web</label>
+                                <input type="url" class="form-control form-control-solid" id="website" name="settings[website]" value="{{ setting.website }}" placeholder="https://...">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="city">Ville</label>
+                                <input type="text" class="form-control form-control-solid" id="city" name="settings[city]" value="{{ setting.city }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="country">Pays</label>
+                                <input type="text" class="form-control form-control-solid" id="country" name="settings[country]" value="{{ setting.country }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="address">Adresse physique</label>
+                                <input type="text" class="form-control form-control-solid" id="address" name="settings[address]" value="{{ setting.address }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2 : IDENTITÉ VISUELLE & COULEURS -->
+                    <div class="tab-pane fade" id="kt_tab_branding" role="tabpanel">
+                        <div class="row g-5">
+                            <div class="col-md-6">
+                                <h6 class="fw-bolder text-gray-900 mb-3"><i class="bi bi-image me-2"></i>Logo de la plateforme</h6>
+                                <div class="d-flex align-items-center gap-4 p-4 rounded-3 border bg-light">
+                                    <div class="symbol symbol-70px symbol-circle bg-white p-2 border shadow-xs d-flex align-items-center justify-content-center">
+                                        <img src="{{ organization_logo() }}" alt="Logo actuel" style="max-height: 55px; max-width: 55px; object-fit: contain;">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <label class="form-label fw-bold text-gray-800 fs-7 mb-1" for="logo">Remplacer le logo (PNG, JPG, WebP)</label>
+                                        <input type="file" class="form-control form-control-sm form-control-solid" id="logo" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                                        <div class="form-text fs-8 text-muted">Format recommandé : carré ou horizontal, max 4 Mo.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6 class="fw-bolder text-gray-900 mb-3"><i class="bi bi-palette2 me-2"></i>Charte Graphique</h6>
+                                <div class="row g-3">
+                                    <div class="col-sm-4">
+                                        <label class="form-label fw-bold text-gray-700 fs-7" for="primaryColor">Couleur Primaire</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="color" class="form-control form-control-color" id="primaryColor" name="settings[primaryColor]" value="{{ setting.primaryColor }}">
+                                            <input type="text" class="form-control form-control-solid fs-7" id="primaryColorText" value="{{ setting.primaryColor }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label fw-bold text-gray-700 fs-7" for="secondaryColor">Couleur Secondaire</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="color" class="form-control form-control-color" id="secondaryColor" name="settings[secondaryColor]" value="{{ setting.secondaryColor }}">
+                                            <input type="text" class="form-control form-control-solid fs-7" id="secondaryColorText" value="{{ setting.secondaryColor }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label fw-bold text-gray-700 fs-7" for="accentColor">Couleur d'Accent</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="color" class="form-control form-control-color" id="accentColor" name="settings[accentColor]" value="{{ setting.accentColor|default('#FECB00') }}">
+                                            <input type="text" class="form-control form-control-solid fs-7" id="accentColorText" value="{{ setting.accentColor|default('#FECB00') }}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 p-3 rounded-2 border" style="background: #FFFFFF;">
+                                    <span class="fs-8 fw-semibold text-muted d-block mb-2">Aperçu en direct :</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-sm text-white" id="previewPrimaryBtn" style="background-color: {{ setting.primaryColor }};">Bouton Principal</button>
+                                        <button type="button" class="btn btn-sm text-white" id="previewSecondaryBtn" style="background-color: {{ setting.secondaryColor }};">Bouton Secondaire</button>
+                                        <span class="badge" id="previewAccentBadge" style="background-color: {{ setting.accentColor|default('#FECB00') }}; color: #000;">Badge d'accent</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3 : PARAMÈTRES RÉGIONAUX -->
+                    <div class="tab-pane fade" id="kt_tab_regional" role="tabpanel">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="locale">Langue du système</label>
+                                <select class="form-select form-select-solid" id="locale" name="settings[locale]">
+                                    <option value="fr" {% if setting.locale == 'fr' %}selected{% endif %}>Français (par défaut)</option>
+                                    <option value="en" {% if setting.locale == 'en' %}selected{% endif %}>English (Anglais)</option>
+                                    <option value="ar" {% if setting.locale == 'ar' %}selected{% endif %}>العربية (Arabe)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="timezone">Fuseau horaire</label>
+                                <select class="form-select form-select-solid" id="timezone" name="settings[timezone]">
+                                    <option value="Africa/Ndjamena" {% if setting.timezone == 'Africa/Ndjamena' %}selected{% endif %}>Africa/Ndjamena (GMT+1)</option>
+                                    <option value="Africa/Douala" {% if setting.timezone == 'Africa/Douala' %}selected{% endif %}>Africa/Douala (GMT+1)</option>
+                                    <option value="Africa/Libreville" {% if setting.timezone == 'Africa/Libreville' %}selected{% endif %}>Africa/Libreville (GMT+1)</option>
+                                    <option value="Africa/Brazzaville" {% if setting.timezone == 'Africa/Brazzaville' %}selected{% endif %}>Africa/Brazzaville (GMT+1)</option>
+                                    <option value="Africa/Kinshasa" {% if setting.timezone == 'Africa/Kinshasa' %}selected{% endif %}>Africa/Kinshasa (GMT+1)</option>
+                                    <option value="Africa/Dakar" {% if setting.timezone == 'Africa/Dakar' %}selected{% endif %}>Africa/Dakar (GMT+0)</option>
+                                    <option value="Africa/Abidjan" {% if setting.timezone == 'Africa/Abidjan' %}selected{% endif %}>Africa/Abidjan (GMT+0)</option>
+                                    <option value="Europe/Paris" {% if setting.timezone == 'Europe/Paris' %}selected{% endif %}>Europe/Paris (CET)</option>
+                                    <option value="UTC" {% if setting.timezone == 'UTC' %}selected{% endif %}>UTC</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-gray-800" for="currency">Devise monétaire</label>
+                                <select class="form-select form-select-solid" id="currency" name="settings[currency]">
+                                    <option value="XAF" {% if setting.currency == 'XAF' %}selected{% endif %}>FCFA (XAF)</option>
+                                    <option value="EUR" {% if setting.currency == 'EUR' %}selected{% endif %}>Euro (€)</option>
+                                    <option value="USD" {% if setting.currency == 'USD' %}selected{% endif %}>Dollar ($)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-gray-800" for="dateFormat">Format de date</label>
+                                <select class="form-select form-select-solid" id="dateFormat" name="settings[dateFormat]">
+                                    <option value="d/m/Y" {% if setting.dateFormat == 'd/m/Y' %}selected{% endif %}>JJ/MM/AAAA (ex: 25/12/2026)</option>
+                                    <option value="Y-m-d" {% if setting.dateFormat == 'Y-m-d' %}selected{% endif %}>AAAA-MM-JJ (ex: 2026-12-25)</option>
+                                    <option value="d F Y" {% if setting.dateFormat == 'd F Y' %}selected{% endif %}>JJ Mois AAAA (ex: 25 décembre 2026)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-gray-800" for="timeFormat">Format de l'heure</label>
+                                <select class="form-select form-select-solid" id="timeFormat" name="settings[timeFormat]">
+                                    <option value="H:i" {% if setting.timeFormat == 'H:i' %}selected{% endif %}>24 Heures (ex: 14:30)</option>
+                                    <option value="h:i A" {% if setting.timeFormat == 'h:i A' %}selected{% endif %}>12 Heures AM/PM (ex: 02:30 PM)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4 : MODULES ERP -->
+                    <div class="tab-pane fade" id="kt_tab_modules" role="tabpanel">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h6 class="fw-bolder text-gray-900 mb-1">Activation modulaire de l'ERP</h6>
+                                <p class="text-muted fs-7 mb-0">Activez ou désactivez les fonctionnalités selon les besoins réels de votre institution.</p>
+                            </div>
+                            <span class="badge badge-light-primary fw-bold">Données préservées lors de la désactivation</span>
+                        </div>
+
+                        <div class="row g-3">
+                            {% set modulesList = {
+                                'employe': {'label': 'Registre des Agents & Personnel', 'desc': 'Dossier unique, état civil, matricule et affectations', 'fixed': true, 'icon': 'bi-people-fill'},
+                                'pointage': {'label': 'Pointage & Émargement Numérique', 'desc': 'Horodatage des présences journalières et retards', 'fixed': false, 'icon': 'bi-clock-history'},
+                                'conges': {'label': 'Gestion des Congés & Permissions', 'desc': 'Circuit de validation et décompte des soldes', 'fixed': false, 'icon': 'bi-calendar-check-fill'},
+                                'absences': {'label': 'Autorisations d\'Absence', 'desc': 'Demandes d\'absence ponctuelle et justificatifs', 'fixed': false, 'icon': 'bi-calendar-x-fill'},
+                                'missions': {'label': 'Ordres de Mission', 'desc': 'Suivi des déplacements professionnels et frais', 'fixed': false, 'icon': 'bi-briefcase-fill'},
+                                'actes': {'label': 'Actes Administratifs & Carrières', 'desc': 'Décrets, arrêtés, nominations et avancements', 'fixed': false, 'icon': 'bi-file-earmark-text-fill'},
+                                'visites': {'label': 'Accueil Public & Visiteurs', 'desc': 'Contrôle des accès et registre des visiteurs', 'fixed': false, 'icon': 'bi-door-open-fill'},
+                                'statistiques': {'label': 'Statistiques & Pilotage RH', 'desc': 'Tableaux de bord consolidés et export de données', 'fixed': false, 'icon': 'bi-bar-chart-line-fill'},
+                                'organisation': {'label': 'Structures & Services', 'desc': 'Organigramme, directions et typologies institutionnelles', 'fixed': false, 'icon': 'bi-diagram-3-fill'}
+                            } %}
+
+                            {% for key, mod in modulesList %}
+                                <div class="col-md-6">
+                                    <div class="p-4 rounded-3 border bg-light d-flex align-items-start justify-content-between h-100">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="symbol symbol-40px symbol-circle bg-white text-primary border d-flex align-items-center justify-content-center mt-1">
+                                                <i class="bi {{ mod.icon }} fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-gray-900 fs-6">{{ mod.label }}</div>
+                                                <div class="text-muted fs-8">{{ mod.desc }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch form-check-custom form-check-solid ms-3">
+                                            <input class="form-check-input h-20px w-35px" 
+                                                   type="checkbox" 
+                                                   name="modules[{{ key }}]" 
+                                                   value="1" 
+                                                   id="mod_{{ key }}"
+                                                   {% if setting.isModuleEnabled(key) %}checked{% endif %}
+                                                   {% if mod.fixed %}disabled{% endif %}>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- TAB 5 : DOCUMENTS & MENTIONS -->
+                    <div class="tab-pane fade" id="kt_tab_documents" role="tabpanel">
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-gray-800" for="pdfHeader">En-tête des documents et états imprimés (PDF)</label>
+                                <textarea class="form-control form-control-solid" id="pdfHeader" name="settings[pdfHeader]" rows="3" placeholder="Ex: RÉPUBLIQUE DU TCHAD — MINISTÈRE DU COMMERCE ET DE L'INDUSTRIE...">{{ setting.pdfHeader }}</textarea>
+                                <div class="form-text fs-8 text-muted">Texte officiel figurant en tête des attestations, actes et états de présence.</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-gray-800" for="pdfFooter">Pied de page institutionnel</label>
+                                <textarea class="form-control form-control-solid" id="pdfFooter" name="settings[pdfFooter]" rows="2" placeholder="Ex: BP 424 N'Djamena — Tchad • contact@organisation.org">{{ setting.pdfFooter }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer border-top py-4 px-6 d-flex align-items-center justify-content-between">
+                <span class="text-muted fs-8">
+                    <i class="bi bi-shield-check me-1"></i> Modifications persistées en base de données et effectives immédiatement.
+                </span>
+                <button type="submit" class="btn btn-mci-primary btn-sm px-5">
+                    <i class="bi bi-check2-circle fs-6 me-1"></i> Enregistrer les modifications
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function bindColorPicker(pickerId, textId, previewCallback) {
+                const picker = document.getElementById(pickerId);
+                const text = document.getElementById(textId);
+                if (picker && text) {
+                    picker.addEventListener('input', function(e) {
+                        const val = e.target.value.toUpperCase();
+                        text.value = val;
+                        if (previewCallback) previewCallback(val);
+                    });
+                }
+            }
+
+            bindColorPicker('primaryColor', 'primaryColorText', function(val) {
+                const btn = document.getElementById('previewPrimaryBtn');
+                if (btn) btn.style.backgroundColor = val;
+            });
+
+            bindColorPicker('secondaryColor', 'secondaryColorText', function(val) {
+                const btn = document.getElementById('previewSecondaryBtn');
+                if (btn) btn.style.backgroundColor = val;
+            });
+
+            bindColorPicker('accentColor', 'accentColorText', function(val) {
+                const badge = document.getElementById('previewAccentBadge');
+                if (badge) badge.style.backgroundColor = val;
+            });
+        });
+    </script>
+{% endblock %}

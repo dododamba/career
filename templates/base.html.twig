@@ -19,6 +19,14 @@
         <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
         <!--end::Global Stylesheets Bundle-->
 
+        <style>
+            :root {
+                --sc-primary: {{ organization.primaryColor|default('#002664') }};
+                --sc-primary-dark: {{ organization.secondaryColor|default('#001844') }};
+                --sc-accent: {{ organization.accentColor|default('#FECB00') }};
+            }
+        </style>
+
         {% block stylesheets %}{% endblock %}
 
         {{ importmap('app') }}

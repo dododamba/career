@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Assistant d'Installation & Configuration Initiale | ERP</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" />
+    <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+        :root {
+            --install-primary: #002664;
+            --install-primary-dark: #001844;
+            --install-bg: #F8FAFC;
+            --install-surface: #FFFFFF;
+            --install-border: rgba(15, 23, 42, 0.08);
+            --install-text: #0F172A;
+            --install-muted: #64748B;
+        }
+
+        body {
+            background-color: var(--install-bg);
+            color: var(--install-text);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+
+        .install-container {
+            max-width: 860px;
+            margin: 2.5rem auto;
+            padding: 0 1rem;
+        }
+
+        .install-card {
+            background: var(--install-surface);
+            border: 1px solid var(--install-border);
+            border-radius: 14px;
+            box-shadow: 0 12px 36px -4px rgba(0, 38, 100, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .install-header {
+            background: linear-gradient(135deg, var(--install-primary) 0%, var(--install-primary-dark) 100%);
+            color: #FFFFFF;
+            padding: 2.5rem 2rem;
+            position: relative;
+        }
+
+        .stepper-nav {
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--install-border);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            overflow-x: auto;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--install-muted);
+            white-space: nowrap;
+        }
+
+        .step-item.active {
+            color: var(--install-primary);
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #E2E8F0;
+            color: #475569;
+            font-size: 0.8rem;
+        }
+
+        .step-item.active .step-number {
+            background: var(--install-primary);
+            color: #FFFFFF;
+        }
+
+        .install-section {
+            border: 1px solid var(--install-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: #FFFFFF;
+        }
+
+        .install-section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--install-text);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #334155;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control, .form-select {
+            border: 1.5px solid var(--install-border);
+            border-radius: 8px;
+            padding: 0.65rem 0.9rem;
+            font-size: 0.9rem;
+            color: var(--install-text);
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--install-primary);
+            box-shadow: 0 0 0 4px rgba(0, 38, 100, 0.08);
+            outline: none;
+        }
+
+        .btn-install-submit {
+            background: linear-gradient(180deg, var(--install-primary) 0%, var(--install-primary-dark) 100%);
+            color: #FFFFFF;
+            border: none;
+            padding: 0.85rem 2rem;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 14px rgba(0, 38, 100, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .btn-install-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 38, 100, 0.35);
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+
+<div class="install-container">
+    <div class="install-card">
+        <!-- Header / Bienvenue -->
+        <div class="install-header text-center">
+            <div class="d-inline-flex align-items-center justify-content-center p-3 rounded-circle mb-3" style="background: rgba(255, 255, 255, 0.12); width: 68px; height: 68px;">
+                <i class="bi bi-gear-wide-connected fs-1 text-white"></i>
+            </div>
+            <h1 class="h2 fw-bold text-white mb-2">Bienvenue dans votre nouvel environnement ERP</h1>
+            <p class="text-white-50 mb-0 mx-auto" style="max-width: 620px;">
+                Configurons ensemble votre plateforme afin de l'adapter à votre organisation. Cette opération rapide ne prendra que quelques minutes.
+            </p>
+        </div>
+
+        <!-- Stepper Visuel -->
+        <div class="stepper-nav">
+            <div class="step-item active">
+                <span class="step-number">1</span>
+                <span>Organisation</span>
+            </div>
+            <div class="step-item active">
+                <span class="step-number">2</span>
+                <span>Identité Visuelle</span>
+            </div>
+            <div class="step-item active">
+                <span class="step-number">3</span>
+                <span>Paramètres</span>
+            </div>
+            <div class="step-item active">
+                <span class="step-number">4</span>
+                <span>Administrateur</span>
+            </div>
+            <div class="step-item active">
+                <span class="step-number">5</span>
+                <span>Finalisation</span>
+            </div>
+        </div>
+
+        <!-- Formulaire Global d'Installation -->
+        <div class="p-4 p-md-5">
+            {% if error %}
+                <div class="alert alert-danger d-flex align-items-center p-4 mb-4 rounded-3 border-0 shadow-xs" role="alert">
+                    <i class="bi bi-exclamation-octagon-fill fs-3 text-danger me-3"></i>
+                    <div>
+                        <div class="fw-bold">Erreur de validation</div>
+                        <div class="fs-7">{{ error }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_install_index') }}" enctype="multipart/form-data">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('install_wizard') }}">
+
+                <!-- ÉTAPE 1 : IDENTITÉ DE L'ORGANISATION -->
+                <div class="install-section">
+                    <div class="install-section-title">
+                        <i class="bi bi-building text-primary fs-5"></i>
+                        <span>Étape 1 — Identité de l'Organisation</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label required" for="org_name">Nom officiel de l'organisation</label>
+                            <input type="text" class="form-control" id="org_name" name="organization[name]" placeholder="Ex: Ministère, Entreprise SA, Établissement Public..." required autofocus>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="org_short_name">Nom court / Sigle</label>
+                            <input type="text" class="form-control" id="org_short_name" name="organization[shortName]" placeholder="Ex: MCI, ACME, DRH...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required" for="org_type">Type d'organisation</label>
+                            <select class="form-select" id="org_type" name="organization[organizationType]" required>
+                                <option value="ministry">Ministère / Département ministériel</option>
+                                <option value="public_admin" selected>Administration publique / Direction</option>
+                                <option value="public_institution">Établissement public / Agence</option>
+                                <option value="private_company">Entreprise privée / Société</option>
+                                <option value="ngo">Organisation non gouvernementale / Association</option>
+                                <option value="other">Autre institution</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="org_email">Email institutionnel de contact</label>
+                            <input type="email" class="form-control" id="org_email" name="organization[email]" placeholder="contact@organisation.org">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="org_phone">Téléphone</label>
+                            <input type="text" class="form-control" id="org_phone" name="organization[phone]" placeholder="+235 ...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="org_city">Ville</label>
+                            <input type="text" class="form-control" id="org_city" name="organization[city]" placeholder="N'Djamena">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="org_country">Pays</label>
+                            <input type="text" class="form-control" id="org_country" name="organization[country]" placeholder="Tchad">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="org_address">Adresse officielle</label>
+                            <input type="text" class="form-control" id="org_address" name="organization[address]" placeholder="Avenue ou quartier officiel...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 2 : IDENTITÉ VISUELLE & APPLICATION -->
+                <div class="install-section">
+                    <div class="install-section-title">
+                        <i class="bi bi-palette text-primary fs-5"></i>
+                        <span>Étape 2 — Identité Visuelle & Application</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <label class="form-label required" for="app_name">Nom de l'application / Logiciel</label>
+                            <input type="text" class="form-control" id="app_name" name="organization[appName]" value="Suivi des Carrières" placeholder="Ex: Suivi des Carrières, Portail RH..." required>
+                            <div class="form-text fs-8 text-muted mt-1">Vous pouvez nommer la plateforme indépendamment du nom de l'organisation.</div>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="org_logo">Logo de l'organisation (PNG, JPG, WebP)</label>
+                            <input type="file" class="form-control" id="org_logo" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="primary_color">Couleur principale</label>
+                            <div class="input-group">
+                                <input type="color" class="form-control form-control-color" id="primary_color" name="organization[primaryColor]" value="#002664" style="width: 50px;">
+                                <input type="text" class="form-control" id="primary_color_text" value="#002664" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="secondary_color">Couleur secondaire</label>
+                            <div class="input-group">
+                                <input type="color" class="form-control form-control-color" id="secondary_color" name="organization[secondaryColor]" value="#001844" style="width: 50px;">
+                                <input type="text" class="form-control" id="secondary_color_text" value="#001844" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="accent_color">Couleur d'accent</label>
+                            <div class="input-group">
+                                <input type="color" class="form-control form-control-color" id="accent_color" name="organization[accentColor]" value="#FECB00" style="width: 50px;">
+                                <input type="text" class="form-control" id="accent_color_text" value="#FECB00" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 3 : PARAMÈTRES RÉGIONAUX -->
+                <div class="install-section">
+                    <div class="install-section-title">
+                        <i class="bi bi-globe text-primary fs-5"></i>
+                        <span>Étape 3 — Paramètres Régionaux</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label" for="locale">Langue par défaut</label>
+                            <select class="form-select" id="locale" name="organization[locale]">
+                                <option value="fr" selected>Français</option>
+                                <option value="en">English (Anglais)</option>
+                                <option value="ar">العربية (Arabe)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="timezone">Fuseau horaire</label>
+                            <select class="form-select" id="timezone" name="organization[timezone]">
+                                <option value="Africa/Ndjamena" selected>Africa/Ndjamena (GMT+1)</option>
+                                <option value="Africa/Douala">Africa/Douala (GMT+1)</option>
+                                <option value="Africa/Libreville">Africa/Libreville (GMT+1)</option>
+                                <option value="Africa/Brazzaville">Africa/Brazzaville (GMT+1)</option>
+                                <option value="Africa/Kinshasa">Africa/Kinshasa (GMT+1)</option>
+                                <option value="Africa/Dakar">Africa/Dakar (GMT+0)</option>
+                                <option value="Africa/Abidjan">Africa/Abidjan (GMT+0)</option>
+                                <option value="Europe/Paris">Europe/Paris (CET)</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="currency">Devise</label>
+                            <select class="form-select" id="currency" name="organization[currency]">
+                                <option value="XAF" selected>FCFA (XAF)</option>
+                                <option value="EUR">Euro (€)</option>
+                                <option value="USD">Dollar ($)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 4 : PREMIER ADMINISTRATEUR -->
+                <div class="install-section" style="border-left: 4px solid var(--install-primary);">
+                    <div class="install-section-title">
+                        <i class="bi bi-shield-lock text-primary fs-5"></i>
+                        <span>Étape 4 — Premier Compte Administrateur Principal</span>
+                    </div>
+                    <p class="text-muted fs-8 mb-3">Ce compte aura les privilèges d'administration complète sur la plateforme.</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label required" for="admin_firstname">Prénom de l'administrateur</label>
+                            <input type="text" class="form-control" id="admin_firstname" name="admin[firstname]" placeholder="Prénom" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required" for="admin_lastname">Nom de l'administrateur</label>
+                            <input type="text" class="form-control" id="admin_lastname" name="admin[lastname]" placeholder="Nom" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label required" for="admin_email">Adresse email de connexion</label>
+                            <input type="email" class="form-control" id="admin_email" name="admin[email]" placeholder="admin@organisation.org" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required" for="admin_password">Mot de passe (8 car. min.)</label>
+                            <input type="password" class="form-control" id="admin_password" name="admin[password]" placeholder="Mot de passe sécurisé" minlength="8" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required" for="admin_password_confirm">Confirmer le mot de passe</label>
+                            <input type="password" class="form-control" id="admin_password_confirm" name="admin[password_confirm]" placeholder="Répéter le mot de passe" minlength="8" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions de validation -->
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 pt-3">
+                    <span class="text-muted fs-8">
+                        <i class="bi bi-info-circle me-1"></i> L'assistant verrouillera automatiquement cette page après configuration.
+                    </span>
+                    <button type="submit" class="btn btn-install-submit">
+                        <i class="bi bi-check-circle-fill me-2"></i> Terminer l'installation et démarrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const primaryPicker = document.getElementById('primary_color');
+        const primaryText = document.getElementById('primary_color_text');
+        if (primaryPicker && primaryText) {
+            primaryPicker.addEventListener('input', (e) => primaryText.value = e.target.value.toUpperCase());
+        }
+
+        const secondaryPicker = document.getElementById('secondary_color');
+        const secondaryText = document.getElementById('secondary_color_text');
+        if (secondaryPicker && secondaryText) {
+            secondaryPicker.addEventListener('input', (e) => secondaryText.value = e.target.value.toUpperCase());
+        }
+
+        const accentPicker = document.getElementById('accent_color');
+        const accentText = document.getElementById('accent_color_text');
+        if (accentPicker && accentText) {
+            accentPicker.addEventListener('input', (e) => accentText.value = e.target.value.toUpperCase());
+        }
+    });
+</script>
+</body>
+</html>

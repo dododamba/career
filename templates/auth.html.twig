@@ -23,9 +23,9 @@
 
         <style>
             :root {
-                --sc-primary: #002664;
-                --sc-primary-dark: #001844;
-                --sc-gold: #FECB00;
+                --sc-primary: {{ organization.primaryColor|default('#002664') }};
+                --sc-primary-dark: {{ organization.secondaryColor|default('#001844') }};
+                --sc-gold: {{ organization.accentColor|default('#FECB00') }};
                 --sc-red: #C60C30;
                 --sc-bg: #F8FAFC;
                 --sc-surface: #FFFFFF;
@@ -162,7 +162,7 @@
 
                 <footer class="text-center mt-5">
                     <p class="text-muted fs-8 mb-0">
-                        &copy; {{ "now"|date("Y") }} {{ app_institution }} &bull; {{ app_country }}
+                        &copy; {{ "now"|date("Y") }} {{ app_institution }}{% if app_country %} &bull; {{ app_country }}{% endif %}
                     </p>
                 </footer>
             </div>

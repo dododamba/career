@@ -212,6 +212,7 @@
                 </div>
 
                 <!-- 6. STATISTIQUES -->
+                {% if is_module_enabled('statistiques') %}
                 <div class="menu-item">
                     <a class="menu-link {% if 'stat' in current_route %}active{% endif %}" href="{{ path('app_stats_index') }}">
                         <span class="menu-icon">
@@ -220,6 +221,7 @@
                         <span class="menu-title">Statistiques RH</span>
                     </a>
                 </div>
+                {% endif %}
 
                 <!-- 7. ADMINISTRATION -->
                 {% if is_granted('ROLE_ADMIN') %}
@@ -229,7 +231,7 @@
                         </div>
                     </div>
 
-                    {% set isAdminActive = ('user' in current_route or 'role' in current_route or 'institution' in current_route or 'log' in current_route) %}
+                    {% set isAdminActive = ('user' in current_route or 'role' in current_route or 'institution' in current_route or 'log' in current_route or current_route == 'app_admin_settings') %}
                     <div class="menu-item menu-accordion {% if isAdminActive %}here show{% endif %}" data-controller="sidebar-menu">
                         <span class="menu-link cursor-pointer" 
                               data-sidebar-menu-target="trigger" 
@@ -244,6 +246,12 @@
                             <span class="menu-arrow"></span>
                         </span>
                         <div class="menu-sub menu-sub-accordion" data-sidebar-menu-target="submenu">
+                            <div class="menu-item">
+                                <a class="menu-link {% if current_route == 'app_admin_settings' %}active{% endif %}" href="{{ path('app_admin_settings') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title"><i class="bi bi-sliders fs-7 me-2"></i>Paramètres ERP</span>
+                                </a>
+                            </div>
                             <div class="menu-item">
                                 <a class="menu-link {% if 'user' in current_route %}active{% endif %}" href="{{ path('app_user_index') }}">
                                     <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>

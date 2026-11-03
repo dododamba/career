@@ -11,7 +11,7 @@
         <!--begin::Mobile logo-->
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0 min-w-0 overflow-hidden">
             <a href="{{ path('app_dashboard') }}" class="d-lg-none d-flex align-items-center text-dark text-decoration-none min-w-0">
-                <img alt="Armoirie de la République du Tchad" src="{{ asset('images/brand/armoirie-96.png') }}" class="me-2 flex-shrink-0" style="height: 32px; width: 32px; object-fit: contain;"/>
+                <img alt="{{ organization.name }}" src="{{ organization_logo() }}" class="me-2 flex-shrink-0" style="height: 32px; width: 32px; object-fit: contain;"/>
                 <span class="fw-bolder fs-5 text-gray-900 text-truncate">{{ app_name }}</span>
             </a>
         </div>
@@ -25,11 +25,11 @@
                     <div class="menu menu-lg-rounded menu-column menu-lg-row fw-bold my-5 my-lg-0 align-items-stretch min-w-0">
                         <div class="menu-item me-lg-1 d-flex align-items-center min-w-0">
                             <span class="fs-4 fw-bolder text-gray-900 d-flex align-items-center min-w-0">
-                                <img src="{{ asset('images/brand/armoirie-96.png') }}" alt="Armoirie Tchad" class="me-3 d-none d-lg-inline-block flex-shrink-0" style="height: 38px; width: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));" />
+                                <img src="{{ organization_logo() }}" alt="{{ organization.name }}" class="me-3 d-none d-lg-inline-block flex-shrink-0" style="height: 38px; width: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));" />
                                 <span class="text-gray-900 fw-bolder fs-4 text-truncate">{{ app_name }}</span>
-                                {% if app.user and app.user.institution %}
+                                {% if organization.name %}
                                     <span class="badge ms-4 fs-8 fw-semibold py-1 px-3 d-none d-sm-inline-flex align-items-center" style="background: rgba(0, 38, 100, 0.04); color: var(--sc-primary, #002664); border: 1px solid rgba(0, 38, 100, 0.08); border-radius: 999px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                                        <i class="bi bi-building me-1" style="color: var(--sc-primary, #002664);"></i>{{ app.user.institution.nom }}
+                                        <i class="bi bi-building me-1" style="color: var(--sc-primary, #002664);"></i>{{ organization.name }}{% if organization.shortName %} • {{ organization.shortName }}{% endif %}
                                     </span>
                                 {% endif %}
                             </span>

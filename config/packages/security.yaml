@@ -50,6 +50,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         # Public access
+        - { path: ^/install, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/logout$, roles: PUBLIC_ACCESS }
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
@@ -59,6 +60,7 @@ security:
         - { path: ^/2fa$, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
 
         # Admin only areas
+        - { path: ^/admin/settings, roles: ROLE_ADMIN }
         - { path: ^/admin/user, roles: ROLE_ADMIN }
         - { path: ^/admin/institution, roles: ROLE_ADMIN }
         - { path: ^/admin/type-institution, roles: ROLE_ADMIN }

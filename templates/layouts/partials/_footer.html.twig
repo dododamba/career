@@ -3,7 +3,9 @@
         <div class="text-dark order-2 order-md-1 text-center text-md-start">
             <span class="text-muted fw-bold me-1">&copy; {{ "now"|date("Y") }}</span>
             <a href="{{ path('app_dashboard') }}" class="text-gray-800 text-hover-primary fw-bolder">{{ app_name }}</a>
-            <span class="text-muted ms-1">— {{ app_institution }} • {{ app_country }}</span>
+            {% if app_institution %}
+                <span class="text-muted ms-1">— {{ app_institution }}{% if app_country %} • {{ app_country }}{% endif %}</span>
+            {% endif %}
         </div>
         <ul class="menu menu-gray-600 menu-hover-primary fw-bold order-1">
             <li class="menu-item">
