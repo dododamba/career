@@ -28,14 +28,7 @@
             <div class="auth-container">
                 <!--begin::En-tête institutionnel-->
                 <header class="auth-header text-center">
-                    <a href="{{ path('app_login') }}" class="d-inline-flex flex-column align-items-center text-decoration-none" title="{{ app_name }} — {{ app_institution }}">
-                        <img src="{{ asset('images/brand/armoirie-240.png') }}" 
-                             alt="Armoirie de la République du Tchad" 
-                             class="auth-brand-logo mb-3" 
-                             width="84" 
-                             height="74" />
-                        <h1 class="auth-brand-title mb-1">{{ app_name }}</h1>
-                        <p class="auth-brand-subtitle mb-2">Gestion des agents et suivi de carrière</p>
+                    <a href="{{ path('app_login') }}" class="d-inline-flex flex-column align-items-center text-decoration-none" title="{{ app_institution }} — {{ app_country }}">
                         <div class="auth-brand-badge">
                             <span class="auth-flag-dot" aria-hidden="true"></span>
                             <span>{{ app_institution }} &bull; {{ app_country }}</span>
