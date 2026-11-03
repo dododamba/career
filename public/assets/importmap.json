@@ -1,0 +1,82 @@
+{
+    "app": {
+        "path": "\/assets\/app-d5545152085781dcd8687624a04ad884.js",
+        "type": "js"
+    },
+    "\/assets\/bootstrap.js": {
+        "path": "\/assets\/bootstrap-7ce5b03b10a148221ac9e3e6cac974c9.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/stimulus-bundle\/controllers.js": {
+        "path": "\/assets\/@symfony\/stimulus-bundle\/controllers-255a87e3dc45559e9a39c89f549e0598.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/ux-chartjs\/controller.js": {
+        "path": "\/assets\/@symfony\/ux-chartjs\/controller-87505189a09837820eaba68bc1fe21a3.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/ux-lazy-image\/controller.js": {
+        "path": "\/assets\/@symfony\/ux-lazy-image\/controller-888a830fb2881572020d3f9e795c864f.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/ux-live-component\/live_controller.js": {
+        "path": "\/assets\/@symfony\/ux-live-component\/live_controller-64f51caa9e8bfee28249a576457f914f.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/ux-live-component\/live.min.css": {
+        "path": "\/assets\/@symfony\/ux-live-component\/live.min-64907418e2da12691d8fa3c70a509e08.css",
+        "type": "css"
+    },
+    "\/assets\/@symfony\/ux-turbo\/turbo_controller.js": {
+        "path": "\/assets\/@symfony\/ux-turbo\/turbo_controller-f3040d8b6a5a81530e1ea5ec500d1142.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/sidebar_menu_controller.js": {
+        "path": "\/assets\/controllers\/sidebar_menu_controller-66002362ea55c8bb721d9fa1e29b3885.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/hello_controller.js": {
+        "path": "\/assets\/controllers\/hello_controller-55882fcad241d2bea50276ea485583bc.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/dropdown_controller.js": {
+        "path": "\/assets\/controllers\/dropdown_controller-c9cfe51613e6e5c604a3236855faaec8.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/notification_controller.js": {
+        "path": "\/assets\/controllers\/notification_controller-bc23789865a157e8e5abcf920d1b8456.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/modal_controller.js": {
+        "path": "\/assets\/controllers\/modal_controller-978cdddf246b4e5fe78910e0cfba2417.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/table_controller.js": {
+        "path": "\/assets\/controllers\/table_controller-33e09c38b8479d864b7413a0b8a895c9.js",
+        "type": "js"
+    },
+    "\/assets\/styles\/app.css": {
+        "path": "\/assets\/styles\/app-4548316f8bad9850bda7f4cc39bcf44c.css",
+        "type": "css"
+    },
+    "@hotwired\/stimulus": {
+        "path": "\/assets\/vendor\/@hotwired\/stimulus\/stimulus.index-b5b1d00e42695b8959b4a1e94e3bc92a.js",
+        "type": "js"
+    },
+    "@symfony\/stimulus-bundle": {
+        "path": "\/assets\/@symfony\/stimulus-bundle\/loader-5751ad1ee2975e725a94d8121d153d17.js",
+        "type": "js"
+    },
+    "@hotwired\/turbo": {
+        "path": "\/assets\/vendor\/@hotwired\/turbo\/turbo.index-810f44ef1a202a441e4866b7a4c72d11.js",
+        "type": "js"
+    },
+    "@symfony\/ux-live-component": {
+        "path": "\/assets\/@symfony\/ux-live-component\/live_controller-64f51caa9e8bfee28249a576457f914f.js",
+        "type": "js"
+    },
+    "chart.js": {
+        "path": "\/assets\/vendor\/chart.js\/chart.js.index-d3a4cd32499b49a07abf29cf42de1161.js",
+        "type": "js"
+    }
+}

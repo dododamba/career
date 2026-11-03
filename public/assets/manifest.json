@@ -1,0 +1,23 @@
+{
+    "@symfony\/stimulus-bundle\/controllers.js": "\/assets\/@symfony\/stimulus-bundle\/controllers-255a87e3dc45559e9a39c89f549e0598.js",
+    "@symfony\/stimulus-bundle\/loader.js": "\/assets\/@symfony\/stimulus-bundle\/loader-5751ad1ee2975e725a94d8121d153d17.js",
+    "@symfony\/ux-chartjs\/controller.js": "\/assets\/@symfony\/ux-chartjs\/controller-87505189a09837820eaba68bc1fe21a3.js",
+    "@symfony\/ux-lazy-image\/controller.js": "\/assets\/@symfony\/ux-lazy-image\/controller-888a830fb2881572020d3f9e795c864f.js",
+    "@symfony\/ux-live-component\/live.min.css": "\/assets\/@symfony\/ux-live-component\/live.min-64907418e2da12691d8fa3c70a509e08.css",
+    "@symfony\/ux-live-component\/live_controller.js": "\/assets\/@symfony\/ux-live-component\/live_controller-64f51caa9e8bfee28249a576457f914f.js",
+    "@symfony\/ux-turbo\/turbo_controller.js": "\/assets\/@symfony\/ux-turbo\/turbo_controller-f3040d8b6a5a81530e1ea5ec500d1142.js",
+    "@symfony\/ux-turbo\/turbo_stream_controller.js": "\/assets\/@symfony\/ux-turbo\/turbo_stream_controller-2dc2b209912de93ed8105ab931271bb3.js",
+    "app.js": "\/assets\/app-d5545152085781dcd8687624a04ad884.js",
+    "bootstrap.js": "\/assets\/bootstrap-7ce5b03b10a148221ac9e3e6cac974c9.js",
+    "bundles\/datatables\/js\/datatables.js": "\/assets\/bundles\/datatables\/js\/datatables-93a339d95d3db5f65b27c6679641f7da.js",
+    "controllers\/dropdown_controller.js": "\/assets\/controllers\/dropdown_controller-c9cfe51613e6e5c604a3236855faaec8.js",
+    "controllers\/hello_controller.js": "\/assets\/controllers\/hello_controller-55882fcad241d2bea50276ea485583bc.js",
+    "controllers\/modal_controller.js": "\/assets\/controllers\/modal_controller-978cdddf246b4e5fe78910e0cfba2417.js",
+    "controllers\/notification_controller.js": "\/assets\/controllers\/notification_controller-bc23789865a157e8e5abcf920d1b8456.js",
+    "controllers\/sidebar_menu_controller.js": "\/assets\/controllers\/sidebar_menu_controller-66002362ea55c8bb721d9fa1e29b3885.js",
+    "controllers\/table_controller.js": "\/assets\/controllers\/table_controller-33e09c38b8479d864b7413a0b8a895c9.js",
+    "styles\/app.css": "\/assets\/styles\/app-4548316f8bad9850bda7f4cc39bcf44c.css",
+    "vendor\/@hotwired\/stimulus\/stimulus.index.js": "\/assets\/vendor\/@hotwired\/stimulus\/stimulus.index-b5b1d00e42695b8959b4a1e94e3bc92a.js",
+    "vendor\/@hotwired\/turbo\/turbo.index.js": "\/assets\/vendor\/@hotwired\/turbo\/turbo.index-810f44ef1a202a441e4866b7a4c72d11.js",
+    "vendor\/chart.js\/chart.js.index.js": "\/assets\/vendor\/chart.js\/chart.js.index-d3a4cd32499b49a07abf29cf42de1161.js"
+}

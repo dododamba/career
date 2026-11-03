@@ -1,0 +1,24 @@
+<IfModule mod_negotiation.c>
+    Options -MultiViews
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 🔐 Forcer HTTPS sur o2switch (Proxy/LiteSpeed)
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Redirection transparente de toutes les requêtes vers le dossier public/
+    # (utile si le DocumentRoot pointe sur la racine du projet ou public_html)
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# 🚫 Bloquer l'accès aux fichiers sensibles et configuration
+<FilesMatch "^\.(env|git|lock|yml|yaml|sql|json|dist)|composer\.(json|lock)|package\.json">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes

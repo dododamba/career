@@ -8,10 +8,11 @@
     RewriteEngine On
 
     ##############################################
-    # 🔐 OPTIONNEL : Forcer HTTPS en mutualisé
+    # 🔐 Forcer HTTPS sur o2switch (Proxy/LiteSpeed)
     ##############################################
-    #RewriteCond %{HTTPS} !=on
-    #RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     ##############################################
     # 📌 Redirige toutes les requêtes vers index.php

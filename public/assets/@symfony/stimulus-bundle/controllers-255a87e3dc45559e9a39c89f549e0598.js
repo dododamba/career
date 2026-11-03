@@ -1,0 +1,14 @@
+import controller_0 from "../ux-chartjs/controller.js";
+import controller_1 from "../ux-lazy-image/controller.js";
+import controller_2 from "../ux-live-component/live_controller.js";
+import "../ux-live-component/live.min.css";
+import controller_3 from "../ux-turbo/turbo_controller.js";
+import controller_4 from "../../controllers/sidebar_menu_controller.js";
+import controller_5 from "../../controllers/hello_controller.js";
+import controller_6 from "../../controllers/dropdown_controller.js";
+import controller_7 from "../../controllers/notification_controller.js";
+import controller_8 from "../../controllers/modal_controller.js";
+import controller_9 from "../../controllers/table_controller.js";
+export const eagerControllers = {"symfony--ux-chartjs--chart": controller_0, "symfony--ux-lazy-image--lazy-image": controller_1, "live": controller_2, "symfony--ux-turbo--turbo-core": controller_3, "sidebar-menu": controller_4, "hello": controller_5, "dropdown": controller_6, "notification": controller_7, "modal": controller_8, "table": controller_9};
+export const lazyControllers = {};
+export const isApplicationDebug = true;
