@@ -1,0 +1,25 @@
+<div class="toolbar py-3 py-lg-6" id="kt_toolbar">
+    <div id="kt_toolbar_container" class="container-fluid d-flex flex-stack flex-wrap gap-4">
+        <!--begin::Page title-->
+        <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+            {% block page_title %}{% endblock %}
+            <!--begin::Breadcrumb-->
+            <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                <li class="breadcrumb-item text-muted">
+                    <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">
+                        <i class="bi bi-house-door fs-7 me-1"></i>Accueil
+                    </a>
+                </li>
+                {% block breadcrumb %}{% endblock %}
+            </ul>
+            <!--end::Breadcrumb-->
+        </div>
+        <!--end::Page title-->
+
+        <!--begin::Actions-->
+        <div class="d-flex align-items-center gap-2 gap-lg-3">
+            {% block page_actions %}{% endblock %}
+        </div>
+        <!--end::Actions-->
+    </div>
+</div>

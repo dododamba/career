@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Configurer la Double Authentification (2FA) — PRIMATECH{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Header & Action Toolbar -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body py-5 px-6">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge badge-light-primary fw-bold text-uppercase px-3 py-2">
+                            <i class="ki-outline ki-shield-tick fs-7 me-1 text-primary"></i> Sécurité du Compte
+                        </span>
+                    </div>
+                    <h1 class="text-gray-900 fw-bolder fs-2 mb-1">Configuration de la Vérification en Deux Étapes</h1>
+                    <p class="text-gray-600 fs-7 mb-0">Associez une application d'authentification mobile (Google Authenticator, Microsoft Authenticator) à votre compte.</p>
+                </div>
+                <div>
+                    <a href="{{ path('app_account_security') }}" class="btn btn-sm btn-light">
+                        <i class="ki-outline ki-arrow-left fs-6 me-1"></i> Retour à la sécurité
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire Setup -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="card card-mci border-0 shadow-sm">
+                <div class="card-body p-8">
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ label == 'error' or label == 'danger' ? 'danger' : 'info' }} mb-5">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    <!-- Étape 1 -->
+                    <div class="mb-7 pb-6 border-bottom">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="badge badge-circle badge-primary fs-7 fw-bold">1</span>
+                            <h2 class="fs-5 fw-bolder text-gray-900 mb-0">Ajoutez la clé dans votre application</h2>
+                        </div>
+                        <p class="text-gray-600 fs-7 ps-8 mb-4">
+                            Ouvrez votre application TOTP (Google Authenticator, Microsoft Authenticator, FreeOTP) et saisissez manuellement la clé secrète ci-dessous :
+                        </p>
+                        <div class="p-4 bg-light rounded text-center border ms-8">
+                            <span class="text-muted fs-8 d-block mb-1 text-uppercase fw-semibold">Clé secrète de configuration</span>
+                            <code class="fs-4 fw-bolder text-primary letter-spacing-2 font-monospace" style="word-break: break-all;">{{ secret }}</code>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2 -->
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="badge badge-circle badge-primary fs-7 fw-bold">2</span>
+                            <h2 class="fs-5 fw-bolder text-gray-900 mb-0">Confirmez avec un code généré</h2>
+                        </div>
+                        <p class="text-gray-600 fs-7 ps-8 mb-4">
+                            Entrez le code à 6 chiffres temporaire actuellement affiché sur votre application pour valider la synchronisation :
+                        </p>
+
+                        <form action="{{ path('app_2fa_enable') }}" method="post" class="ps-8">
+                            <div class="fv-row mb-6">
+                                <label for="code" class="form-label fs-7 fw-bold text-gray-700">Code de vérification (6 chiffres) :</label>
+                                <input type="text" name="code" id="code" class="form-control form-control-solid form-control-lg text-center fw-bolder letter-spacing-3 font-monospace fs-2" 
+                                       placeholder="123456" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" required autofocus>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                                <a href="{{ path('app_account_security') }}" class="btn btn-light">
+                                    Annuler
+                                </a>
+                                <button type="submit" class="btn btn-mci-primary">
+                                    <i class="ki-outline ki-shield-tick fs-6 me-1"></i> Valider et activer la 2FA
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

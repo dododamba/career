@@ -1,0 +1,475 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Congés — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Gestion des Congés
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Suivi, circuit d'approbation et décompte des soldes</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Temps & Absences</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Congés</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_pointage_dashboard') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-clock-history fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Tableau des pointages</span>
+        </a>
+        <a href="{{ path('app_conges_new') }}" class="btn btn-mci-primary btn-sm">
+            <i class="bi bi-plus-circle fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Nouvelle demande</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- KPIs Row -->
+    <div class="row g-4 g-xl-6">
+        <!-- Total congés -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Demandes</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.total }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-calendar-range me-1 text-mci-blue"></i>
+                            Toutes demandes confondues
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-calendar-week-fill fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- En attente -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">En attente</span>
+                        <span class="fs-2hx fw-bolder text-warning mb-1">{{ stats.pending }}</span>
+                        <span class="fs-8 text-warning fw-semibold">
+                            <i class="bi bi-hourglass-split me-1"></i>
+                            {{ stats.total > 0 ? (stats.pending / stats.total * 100)|round : 0 }}% en instruction
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-gold-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-hourglass-top fs-2 text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approuvés -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Approuvés</span>
+                        <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.approved }}</span>
+                        <span class="fs-8 text-success fw-semibold">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            {{ stats.total > 0 ? (stats.approved / stats.total * 100)|round : 0 }}% accordés
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-success">
+                        <span class="symbol-label">
+                            <i class="bi bi-check2-circle fs-2 text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejetés -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Refusés</span>
+                        <span class="fs-2hx fw-bolder text-danger mb-1">{{ stats.rejected }}</span>
+                        <span class="fs-8 text-danger fw-semibold">
+                            <i class="bi bi-x-circle-fill me-1"></i>
+                            {{ stats.total > 0 ? (stats.rejected / stats.total * 100)|round : 0 }}% rejetés
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-danger">
+                        <span class="symbol-label">
+                            <i class="bi bi-x-circle fs-2 text-danger"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-6">
+        <!-- Tableau des congés -->
+        <div class="col-lg-8">
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-calendar-check fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Demandes de congés</h3>
+                        <span class="badge badge-mci-blue ms-3">{{ conges|length }}</span>
+                    </div>
+                    <div class="card-toolbar">
+                        <div class="d-flex gap-2">
+                            <select id="status-filter" class="form-select form-select-solid form-select-sm fs-7 w-150px">
+                                <option value="all" {{ currentFilters.status == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                                <option value="0" {{ currentFilters.status == '0' ? 'selected' : '' }}>En attente</option>
+                                <option value="1" {{ currentFilters.status == '1' ? 'selected' : '' }}>Approuvé</option>
+                                <option value="2" {{ currentFilters.status == '2' ? 'selected' : '' }}>Refusé</option>
+                                <option value="3" {{ currentFilters.status == '3' ? 'selected' : '' }}>Annulé</option>
+                            </select>
+
+                            <select id="employee-filter" class="form-select form-select-solid form-select-sm fs-7 w-200px">
+                                <option value="all">Tous les agents</option>
+                                {% for employee in employees %}
+                                    <option value="{{ employee.id }}" {{ currentFilters.employee == employee.id ? 'selected' : '' }}>{{ employee.nomComplet }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body py-4">
+                    <div class="table-responsive">
+                        <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
+                            <thead>
+                                <tr class="fw-bolder text-muted bg-light text-uppercase fs-8 tracking-wide">
+                                    <th class="ps-4 min-w-180px rounded-start">Agent</th>
+                                    <th class="min-w-130px">Type de congé</th>
+                                    <th class="min-w-100px">Période</th>
+                                    <th class="min-w-80px text-center">Durée</th>
+                                    <th class="min-w-110px">Statut</th>
+                                    <th class="pe-4 text-end min-w-110px rounded-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-semibold text-gray-600 fs-7">
+                                {% for conge in conges %}
+                                    <tr>
+                                        <!-- Agent -->
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="symbol symbol-35px symbol-circle me-3 bg-light-primary text-primary fw-bold fs-7 d-flex align-items-center justify-content-center">
+                                                    {{ conge.employe ? (conge.employe.prenom|slice(0, 1)|upper ~ conge.employe.nom|slice(0, 1)|upper) : 'NA' }}
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <span class="text-dark fw-bolder fs-7">
+                                                        {{ conge.employe ? conge.employe.nomComplet : 'Employé inconnu' }}
+                                                    </span>
+                                                    <span class="text-muted fs-8">
+                                                        {{ conge.employe and conge.employe.service ? conge.employe.service.nom : (conge.employe and conge.employe.matricule ? conge.employe.matricule : 'Service non défini') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Type -->
+                                        <td>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <span class="badge" style="background-color: {{ conge.typeConge.couleur|default('#0C2340') }}; color: #fff;">
+                                                    {{ conge.typeConge.libelle }}
+                                                </span>
+                                                {% if conge.document %}
+                                                    <span class="badge badge-mci-light text-muted p-1" title="Justificatif certifié joint">
+                                                        <i class="bi bi-paperclip fs-7"></i>
+                                                    </span>
+                                                {% endif %}
+                                                {% if conge.acte %}
+                                                    <span class="badge badge-mci-light text-success p-1" title="Titre de congé officiel généré">
+                                                        <i class="bi bi-stamp fs-7"></i>
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+
+                                        <!-- Dates -->
+                                        <td>
+                                            <div class="fs-8">
+                                                <span>{{ conge.dateDebut ? conge.dateDebut|date('d/m/Y') : '-' }}</span>
+                                                <span class="text-muted mx-1">→</span>
+                                                <span>{{ conge.dateFin ? conge.dateFin|date('d/m/Y') : '-' }}</span>
+                                            </div>
+                                        </td>
+
+                                        <!-- Durée -->
+                                        <td class="text-center">
+                                            <span class="fw-bolder text-dark fs-7">{{ conge.dateDiff }}</span>
+                                            <span class="text-muted fs-8">j</span>
+                                        </td>
+
+                                        <!-- Statut -->
+                                        <td>
+                                            {% if conge.statut == 0 %}
+                                                <span class="badge badge-mci-warning fs-8">
+                                                    <i class="bi bi-hourglass-split me-1"></i>En attente
+                                                </span>
+                                            {% elseif conge.statut == 1 %}
+                                                <span class="badge badge-mci-success fs-8">
+                                                    <i class="bi bi-check-circle-fill me-1"></i>Approuvé
+                                                </span>
+                                            {% elseif conge.statut == 2 %}
+                                                <span class="badge badge-mci-danger fs-8">
+                                                    <i class="bi bi-x-circle-fill me-1"></i>Refusé
+                                                </span>
+                                            {% elseif conge.statut == 3 %}
+                                                <span class="badge bg-secondary text-white fs-8">
+                                                    <i class="bi bi-slash-circle me-1"></i>Annulé
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td class="text-end pe-4">
+                                            <div class="d-flex justify-content-end gap-1">
+                                                {% if is_granted('CONGES_VIEW', conge) %}
+                                                    <a href="{{ path('app_conges_show', {'id': conge.id}) }}" class="btn btn-icon btn-mci-light btn-sm" title="Voir détails">
+                                                        <i class="bi bi-eye-fill fs-6 text-mci-blue"></i>
+                                                    </a>
+                                                {% endif %}
+                                                {% if is_granted('CONGES_EDIT', conge) %}
+                                                    <a href="{{ path('app_conges_edit', {'id': conge.id}) }}" class="btn btn-icon btn-mci-light btn-sm" title="Modifier">
+                                                        <i class="bi bi-pencil-square fs-6 text-warning"></i>
+                                                    </a>
+                                                {% endif %}
+                                                {% if is_granted('CONGES_DELETE', conge) %}
+                                                    <form method="post" action="{{ path('app_conges_delete', {'id': conge.id}) }}" class="d-inline" onsubmit="return confirm('Voulez-vous vraiment supprimer cette demande de congé?');">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ conge.id) }}">
+                                                        <button type="submit" class="btn btn-icon btn-mci-light btn-sm text-danger" title="Supprimer">
+                                                            <i class="bi bi-trash3 fs-6"></i>
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-10">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <div class="symbol symbol-60px symbol-circle bg-light mb-3">
+                                                    <span class="symbol-label">
+                                                        <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                                                    </span>
+                                                </div>
+                                                <h5 class="fw-bolder text-dark mb-1">Aucune demande de congé enregistrée</h5>
+                                                <p class="text-muted fs-8 mb-4">Créez une première demande de congé ou modifiez les filtres de recherche.</p>
+                                                <a href="{{ path('app_conges_new') }}" class="btn btn-mci-primary btn-sm">
+                                                    <i class="bi bi-plus-circle me-1"></i> Déposer une demande
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% if pages_count > 1 %}
+                    <div class="card-footer border-0 pt-0 pb-6">
+                        <div class="d-flex justify-content-center">
+                            <ul class="pagination pagination-circle">
+                                {% if page > 1 %}
+                                    <li class="page-item previous">
+                                        <a class="page-link" href="{{ path('app_conges_index', {'page': page - 1}) }}">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for i in 1..pages_count %}
+                                    <li class="page-item {{ page == i ? 'active' : '' }}">
+                                        <a class="page-link" href="{{ path('app_conges_index', {'page': i}) }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+
+                                {% if page < pages_count %}
+                                    <li class="page-item next">
+                                        <a class="page-link" href="{{ path('app_conges_index', {'page': page + 1}) }}">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Graphiques & Pilotage -->
+        <div class="col-lg-4">
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-pie-chart-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-5">Congés par statut</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div style="height: 220px; position: relative;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-bar-chart-line-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-5">Congés par mois ({{ "now"|date("Y") }})</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div style="height: 220px; position: relative;">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Graphique des congés par statut
+            const statusCtx = document.getElementById('statusChart');
+            if (statusCtx && typeof Chart !== 'undefined') {
+                new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['En attente', 'Approuvé', 'Refusé'],
+                        datasets: [{
+                            data: [{{ stats.pending }}, {{ stats.approved }}, {{ stats.rejected }}],
+                            backgroundColor: [
+                                '#FECB00',
+                                '#28a745',
+                                '#C8102E'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    font: { size: 12 }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+
+            // Graphique des congés par mois
+            const monthlyCtx = document.getElementById('monthlyChart');
+            if (monthlyCtx && typeof Chart !== 'undefined') {
+                new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+                        datasets: [{
+                            label: 'Jours de congés',
+                            data: {{ (monthly_stats|default([0,0,0,0,0,0,0,0,0,0,0,0]))|json_encode|raw }},
+                            backgroundColor: '#0C2340',
+                            borderRadius: 6,
+                            maxBarThickness: 20
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 },
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+
+            // Filtres
+            const statusFilter = document.getElementById('status-filter');
+            const employeeFilter = document.getElementById('employee-filter');
+
+            function applyFilters() {
+                const status = statusFilter.value;
+                const employee = employeeFilter.value;
+                const params = new URLSearchParams(window.location.search);
+
+                if (status !== 'all') {
+                    params.set('status', status);
+                } else {
+                    params.delete('status');
+                }
+
+                if (employee !== 'all') {
+                    params.set('employee', employee);
+                } else {
+                    params.delete('employee');
+                }
+
+                window.location.search = params.toString();
+            }
+
+            if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+            if (employeeFilter) employeeFilter.addEventListener('change', applyFilters);
+        });
+    </script>
+{% endblock %}
+{% endblock %}

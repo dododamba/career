@@ -1,0 +1,152 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirmation de prise de service — {{ affectation.reference }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h2 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-person-check-fill text-success me-3"></i>
+        Confirmation de la Prise de Service
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Mouvement {{ affectation.reference }}</small>
+    </h2>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_affectation_index') }}" class="text-muted text-hover-primary">Mouvements</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_affectation_show', {'id': affectation.id}) }}" class="text-muted text-hover-primary">{{ affectation.reference }}</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Prise de service</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_affectation_show', {'id': affectation.id}) }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Retour au mouvement</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Récapitulatif du mouvement & Formulaire -->
+    <div class="row g-6 justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-file-earmark-text-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Mouvement administratif {{ affectation.reference }}</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Agent concerné :</span>
+                            <div class="fw-bolder fs-6 text-dark">{{ affectation.employe ? affectation.employe.nomComplet : 'N/A' }}</div>
+                            <div class="text-muted fs-8">Matricule : {{ affectation.employe ? affectation.employe.matricule : 'N/C' }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Type de mouvement :</span>
+                            <div><span class="badge badge-mci-blue fs-8">{{ affectation.typeMouvementLabel }}</span></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Poste cible :</span>
+                            <div class="fw-bold text-dark fs-7">{{ affectation.poste ? affectation.poste.intitule : 'Aucun poste spécifique' }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Structure de rattachement :</span>
+                            <div class="fw-bold text-dark fs-7">{{ affectation.structure ? affectation.structure.nom : 'Organisation générale' }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Date d'effet prévue :</span>
+                            <div class="fw-bold text-success fs-7">{{ affectation.dateEffet ? affectation.dateEffet|date('d/m/Y') : 'N/A' }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Référence de l'acte :</span>
+                            <div class="fw-bold text-dark fs-7 font-monospace">{{ affectation.referenceActe ?: 'N/C' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire de confirmation -->
+            <div class="card card-mci border-start border-4 border-success">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-calendar-check-fill fs-2 text-success me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Constatation et Date Effective de Prise de Service</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="alert alert-mci alert-mci-blue d-flex align-items-center p-5 mb-6">
+                        <i class="bi bi-info-circle-fill text-mci-blue fs-1 me-4"></i>
+                        <div class="text-dark fs-7">
+                            <strong>Effet administratif immédiat :</strong>
+                            En validant cette prise de service, l'affectation passera au statut <span class="badge badge-mci-success fs-9">ACTIVE</span>.
+                            L'ancienne affectation et l'ancien poste de l'agent seront automatiquement libérés/clôturés,
+                            et l'agent sera officiellement rattaché à son nouveau poste et à sa nouvelle structure.
+                        </div>
+                    </div>
+
+                    <form method="post" action="{{ path('app_affectation_prise_service', {'id': affectation.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('prise_service' ~ affectation.id) }}">
+
+                        <div class="mb-6">
+                            <label for="date_prise_service" class="form-label fw-bolder fs-7 text-dark">
+                                Date effective de prise de service / Installation au poste *
+                            </label>
+                            <input type="date" id="date_prise_service" name="date_prise_service" class="form-control form-control-solid fs-6" required value="{{ affectation.datePriseService ? affectation.datePriseService|date('Y-m-d') : 'now'|date('Y-m-d') }}">
+                            <div class="text-muted fs-8 mt-1">
+                                Date à laquelle l'agent a physiquement ou administrativement pris ses fonctions au sein du service.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-4 border-top border-gray-200">
+                            <a href="{{ path('app_affectation_show', {'id': affectation.id}) }}" class="btn btn-mci-light">
+                                <i class="bi bi-x-lg me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-success px-6">
+                                <i class="bi bi-check-circle-fill me-1"></i> Confirmer la prise de service
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

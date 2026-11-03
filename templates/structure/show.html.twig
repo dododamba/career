@@ -1,0 +1,250 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Structure {{ structure.nom }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-diagram-2-fill text-mci-blue me-3"></i>
+        {{ structure.nom }}
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">{{ structure.type|replace({'_': ' '}) }}</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Organisation</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_structure_index') }}" class="text-muted text-hover-primary">Structures</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">{{ structure.nom }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_structure_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Liste des structures</span>
+        </a>
+        <a href="{{ path('app_structure_edit', {'id': structure.id}) }}" class="btn btn-mci-warning btn-sm">
+            <i class="bi bi-pencil-square fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Modifier</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Bannière Statut -->
+    <div class="card card-mci p-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="symbol symbol-45px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                    <span class="symbol-label">
+                        <i class="bi bi-diagram-2-fill fs-2 text-mci-blue"></i>
+                    </span>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4 fw-bolder text-dark">{{ structure.nom }}</span>
+                        {% if structure.code %}
+                            <span class="badge badge-light-secondary font-monospace fs-8">{{ structure.code }}</span>
+                        {% endif %}
+                        {% if structure.statut == 'ACTIVE' %}
+                            <span class="badge badge-light-success fs-8">Actif</span>
+                        {% else %}
+                            <span class="badge badge-light-warning fs-8">{{ structure.statut }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="text-muted fs-7">
+                        Type : <strong class="text-dark">{{ structure.type|replace({'_': ' '}) }}</strong>
+                        {% if structure.parent %}
+                            <span class="mx-2">•</span>
+                            Rattachement : <a href="{{ path('app_structure_show', {'id': structure.parent.id}) }}" class="fw-bold text-mci-blue">{{ structure.parent.nom }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ path('app_organigramme_index') }}" class="btn btn-mci-secondary btn-sm">
+                    <i class="bi bi-diagram-3 me-1"></i> Voir dans l'organigramme
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-6">
+        <!-- Informations générales & Responsable -->
+        <div class="col-lg-4">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-info-circle-fill fs-2 text-mci-blue me-3"></i>
+                        <h4 class="fw-bolder text-dark mb-0 fs-5">Fiche signalétique</h4>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="mb-4">
+                        <span class="text-muted d-block fs-8 fw-bold text-uppercase">Nom</span>
+                        <span class="fw-bolder text-dark fs-6">{{ structure.nom }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-muted d-block fs-8 fw-bold text-uppercase">Code administratif</span>
+                        <span class="fw-bold text-dark fs-7">{{ structure.code|default('—') }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-muted d-block fs-8 fw-bold text-uppercase">Type hiérarchique</span>
+                        <span class="badge badge-light-primary fs-8">{{ structure.type|replace({'_': ' '}) }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-muted d-block fs-8 fw-bold text-uppercase">Institution tutelle</span>
+                        <span class="fw-bold text-dark fs-7">{{ structure.institution.nom }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-muted d-block fs-8 fw-bold text-uppercase">Date de création</span>
+                        <span class="text-muted fs-8">{{ structure.createdAt|date('d/m/Y à H:i') }}</span>
+                    </div>
+
+                    <div class="separator separator-dashed my-4"></div>
+
+                    <h5 class="fw-bolder text-dark fs-6 mb-3">Responsable de structure</h5>
+                    {% if structure.responsable %}
+                        <div class="d-flex align-items-center p-3 bg-light rounded">
+                            <div class="symbol symbol-40px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                <span class="symbol-label">
+                                    <i class="bi bi-person-fill text-mci-blue fs-4"></i>
+                                </span>
+                            </div>
+                            <div>
+                                <a href="{{ path('app_employe_show', {'id': structure.responsable.id}) }}" class="fw-bolder text-dark text-hover-primary fs-7 d-block">
+                                    {{ structure.responsable.nom }} {{ structure.responsable.prenom }}
+                                </a>
+                                <span class="text-muted fs-8">{{ structure.responsable.fonction.libelle|default('Responsable') }}</span>
+                                {% if structure.responsable.email %}
+                                    <div class="text-muted fs-9 mt-1"><i class="bi bi-envelope me-1"></i>{{ structure.responsable.email }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-mci alert-mci-light p-3 fs-8 text-muted fst-italic">
+                            Aucun responsable désigné pour le moment.
+                        </div>
+                    {% endif %}
+
+                    {% if structure.description %}
+                        <div class="separator separator-dashed my-4"></div>
+                        <h5 class="fw-bolder text-dark fs-6 mb-2">Missions & Attributions</h5>
+                        <p class="text-muted fs-8 mb-0">{{ structure.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sous-structures -->
+        <div class="col-lg-4">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-diagram-3-fill fs-2 text-mci-blue me-3"></i>
+                        <h4 class="fw-bolder text-dark mb-0 fs-5">Sous-structures ({{ structure.children|length }})</h4>
+                    </div>
+                    <div class="card-toolbar">
+                        <a href="{{ path('app_structure_new') }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Ajouter sous-structure">
+                            <i class="bi bi-plus-lg"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-3">
+                            <tbody class="fs-7 fw-semibold text-gray-600">
+                            {% for child in structure.children %}
+                                <tr>
+                                    <td class="ps-6">
+                                        <a href="{{ path('app_structure_show', {'id': child.id}) }}" class="fw-bold text-dark text-hover-primary d-block">
+                                            {{ child.nom }}
+                                        </a>
+                                        {% if child.code %}
+                                            <span class="badge badge-light-secondary fs-9">{{ child.code }}</span>
+                                        {% endif %}
+                                        <span class="text-muted fs-8 ms-1">{{ child.type|replace({'_': ' '}) }}</span>
+                                    </td>
+                                    <td class="text-end pe-6">
+                                        <span class="badge badge-light-primary fs-8">{{ child.services|length }} serv.</span>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-muted text-center py-6 fs-8">
+                                        Aucune sous-structure rattachée.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services rattachés -->
+        <div class="col-lg-4">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-building fs-2 text-mci-blue me-3"></i>
+                        <h4 class="fw-bolder text-dark mb-0 fs-5">Services rattachés ({{ structure.services|length }})</h4>
+                    </div>
+                    <div class="card-toolbar">
+                        <a href="{{ path('app_service_new') }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Ajouter service">
+                            <i class="bi bi-plus-lg"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-3">
+                            <tbody class="fs-7 fw-semibold text-gray-600">
+                            {% for service in structure.services %}
+                                <tr>
+                                    <td class="ps-6">
+                                        <a href="{{ path('app_service_show', {'id': service.id}) }}" class="fw-bold text-dark text-hover-primary d-block">
+                                            {{ service.nom }}
+                                        </a>
+                                        {% if service.code %}
+                                            <span class="badge badge-light-secondary fs-9">{{ service.code }}</span>
+                                        {% endif %}
+                                        {% if service.responsable %}
+                                            <span class="text-muted fs-8 ms-1">{{ service.responsable.nom }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-6">
+                                        <span class="badge badge-light-primary fs-8">{{ service.employes|length }} agents</span>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-muted text-center py-6 fs-8">
+                                        Aucun service rattaché directement à cette structure.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

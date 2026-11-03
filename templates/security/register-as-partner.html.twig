@@ -1,0 +1,82 @@
+{% extends 'app.html.twig' %}
+
+{% block title %}Devenez partenaire{% endblock %}
+
+{% block body %}
+<section class="breadcrumb-bg pt-200 pb-180" data-background="img/page/page-bg.jpg" style="background-image: url(&quot;img/page/page-bg.jpg&quot;);">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="page-title">
+                    <p class="small-text pb-15">Croix-Rouge du Tchad</p>
+                    <h1>Devenez partenaire</h1>
+                </div>
+            </div>
+            <div class="col-lg-3 d-flex justify-content-start justify-content-md-end align-items-center">
+                <div class="page-breadcumb">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb ">
+                            <li class="breadcrumb-item">
+                                <a href="{{path('app_web')}}">Accueil</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Devenez partenaire</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+ <div class="container">
+
+<div class="card o-hidden border-0 shadow-lg my-5">
+    <div class="card-body p-0">
+        <!-- Nested Row within Card Body -->
+        <div class="row">
+            <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
+            <div class="col-lg-7">
+                <div class="p-5">
+                    <div class="text-center">
+                        <h1 class="h4 text-gray-900 mb-4">Inscrivez-Vous, devenez volontaire!</h1>
+                    </div>
+                    <form class="user">
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input type="text" class="form-control form-control-user" id="exampleFirstName" placeholder="Nom">
+                            </div>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control form-control-user" id="exampleLastName" placeholder="Prénom">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" class="form-control form-control-user" id="exampleInputEmail" placeholder="Address Email">
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input type="password" class="form-control form-control-user" id="exampleInputPassword" placeholder="Mot de pass">
+                            </div>
+                            <div class="col-sm-6">
+                                <input type="password" class="form-control form-control-user" id="exampleRepeatPassword" placeholder="Confirmation Mot de pass">
+                            </div>
+                        </div>
+                        <a href="login.html" class="btn btn-primary btn-user btn-block">
+                            Enregistrer
+                        </a>
+                        <hr>
+                   
+                    </form>
+                    <hr>
+                    
+                    <div class="text-center">
+                        <a class="small" href="{{path('app_login')}}"> Déja inscrit? Connectez-Vous!</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+{% endblock %}

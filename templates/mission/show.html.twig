@@ -1,0 +1,624 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mission {{ mission.reference }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-briefcase-fill text-mci-blue me-3"></i>
+        Mission {{ mission.reference }}
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">{{ mission.destination }} ({{ mission.pays }})</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Carrière & Mobilité</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_mission_index') }}" class="text-muted text-hover-primary">Missions</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">{{ mission.reference }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a href="{{ path('app_mission_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Liste des missions</span>
+        </a>
+
+        {% if is_granted('MISSION_EDIT', mission) %}
+            <a href="{{ path('app_mission_edit', {'id': mission.id}) }}" class="btn btn-mci-warning btn-sm">
+                <i class="bi bi-pencil-square fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Modifier</span>
+            </a>
+        {% endif %}
+
+        {% if is_granted('MISSION_SUBMIT', mission) %}
+            <form method="post" action="{{ path('app_mission_soumettre', {'id': mission.id}) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('mission_soumettre_' ~ mission.id) }}">
+                <button type="submit" class="btn btn-mci-primary btn-sm" onclick="return confirm('Soumettre cette mission pour validation hiérarchique ?');">
+                    <i class="bi bi-send-check fs-5 me-1"></i>
+                    <span class="d-none d-sm-inline">Soumettre</span>
+                </button>
+            </form>
+        {% endif %}
+
+        {% if is_granted('MISSION_VALIDATE', mission) %}
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#validerModal">
+                <i class="bi bi-patch-check-fill fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Valider & Ordre</span>
+            </button>
+        {% endif %}
+
+        {% if is_granted('MISSION_START', mission) %}
+            <form method="post" action="{{ path('app_mission_demarrer', {'id': mission.id}) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('mission_demarrer_' ~ mission.id) }}">
+                <button type="submit" class="btn btn-info text-white btn-sm">
+                    <i class="bi bi-play-fill fs-5 me-1"></i>
+                    <span class="d-none d-sm-inline">Marquer départ</span>
+                </button>
+            </form>
+        {% endif %}
+
+        {% if is_granted('MISSION_COMPLETE', mission) %}
+            <form method="post" action="{{ path('app_mission_terminer', {'id': mission.id}) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('mission_terminer_' ~ mission.id) }}">
+                <button type="submit" class="btn btn-secondary text-white btn-sm">
+                    <i class="bi bi-flag-fill fs-5 me-1"></i>
+                    <span class="d-none d-sm-inline">Marquer retour</span>
+                </button>
+            </form>
+        {% endif %}
+
+        {% if is_granted('MISSION_REPORT', mission) %}
+            <a href="{{ path('app_mission_rapport', {'id': mission.id}) }}" class="btn btn-mci-primary btn-sm">
+                <i class="bi bi-file-earmark-text fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">{% if mission.rapportTexte or mission.documentRapport %}Modifier rapport{% else %}Déposer rapport{% endif %}</span>
+            </a>
+        {% endif %}
+
+        {% if is_granted('MISSION_CLOSE', mission) %}
+            <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#cloturerModal">
+                <i class="bi bi-check-all fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Clôturer</span>
+            </button>
+        {% endif %}
+
+        {% if is_granted('MISSION_REJECT', mission) %}
+            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                <i class="bi bi-x-circle fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Refuser</span>
+            </button>
+        {% endif %}
+
+        {% if is_granted('MISSION_CANCEL', mission) %}
+            <button type="button" class="btn btn-mci-light btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                <i class="bi bi-slash-circle fs-5 me-1 text-danger"></i>
+                <span class="d-none d-sm-inline">Annuler</span>
+            </button>
+        {% endif %}
+
+        {% if is_granted('MISSION_DELETE', mission) %}
+            <button type="button" class="btn btn-icon btn-mci-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Supprimer">
+                <i class="bi bi-trash-fill text-danger"></i>
+            </button>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Bannière Statut -->
+    <div class="card card-mci p-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="symbol symbol-45px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                    <span class="symbol-label">
+                        <i class="bi bi-briefcase-fill fs-2 text-mci-blue"></i>
+                    </span>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4 fw-bolder text-dark">{{ mission.objet }}</span>
+                        <span class="badge {{ mission.statutBadge }} fs-7">{{ mission.statutLabel }}</span>
+                    </div>
+                    <div class="text-muted fs-7">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>Destination : <strong class="text-dark">{{ mission.destination }}</strong> ({{ mission.pays }})
+                        <span class="mx-2">•</span>
+                        Réf. <code>{{ mission.reference }}</code>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-end">
+                    <span class="fs-8 text-muted d-block">Période d'exécution</span>
+                    <span class="fs-6 fw-bold text-dark">{{ mission.dateDebut|date('d/m/Y') }} — {{ mission.dateFin|date('d/m/Y') }}</span>
+                    <span class="badge badge-light-primary ms-1 fs-8">{{ mission.dureeJours }} j</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-6">
+        <!-- Informations principales -->
+        <div class="col-lg-8">
+            <!-- Fiche détaillée -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-info-circle-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Détails de la mission</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Objet</span>
+                            <span class="text-dark fw-bolder fs-6">{{ mission.objet }}</span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Destination & Localité</span>
+                            <div class="fw-bold text-dark fs-6">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ mission.destination }} ({{ mission.pays }})
+                            </div>
+                            {% if mission.lieuPrecis %}
+                                <div class="text-muted fs-8 mt-1">{{ mission.lieuPrecis }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Période & Durée</span>
+                            <div class="fw-bold text-dark">
+                                Du {{ mission.dateDebut|date('d/m/Y') }} au {{ mission.dateFin|date('d/m/Y') }}
+                                <span class="badge badge-light-secondary ms-1 fs-8">{{ mission.dureeJours }} jour(s)</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Mode de transport</span>
+                            <span class="badge badge-light-primary fs-7 mt-1">{{ mission.modeTransport|replace({'_': ' '})|title }}</span>
+                        </div>
+
+                        {% if mission.itineraire %}
+                            <div class="col-12">
+                                <span class="text-muted d-block fs-8 fw-bold text-uppercase">Itinéraire</span>
+                                <div class="p-3 bg-light rounded text-dark fs-7 mt-1">
+                                    <i class="bi bi-signpost-2-fill text-mci-blue me-2"></i>{{ mission.itineraire }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Prise en charge financière</span>
+                            <span class="fw-bold text-dark fs-7">{{ mission.priseEnCharge|replace({'_': ' '})|title }}</span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Budget estimé & Imputation</span>
+                            <div class="fw-bolder text-mci-blue fs-6">
+                                {% if mission.budgetEstime %}
+                                    {{ mission.budgetEstime|number_format(0, ',', ' ') }} F CFA
+                                {% else %}
+                                    <span class="text-muted fs-7">Non chiffré</span>
+                                {% endif %}
+                            </div>
+                            {% if mission.imputationBudgetaire %}
+                                <div class="text-muted fs-8 mt-1">{{ mission.imputationBudgetaire }}</div>
+                            {% endif %}
+                        </div>
+
+                        {% if mission.description %}
+                            <div class="col-12">
+                                <span class="text-muted d-block fs-8 fw-bold text-uppercase">Termes de référence & Objectifs</span>
+                                <div class="p-4 bg-light rounded text-dark fs-7 mt-1">
+                                    {{ mission.description|nl2br }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if mission.commentaireValidation %}
+                            <div class="col-12">
+                                <span class="text-muted d-block fs-8 fw-bold text-uppercase">Instructions hiérarchiques / Décision</span>
+                                <div class="p-4 bg-light rounded border-start border-4 border-primary text-dark fs-7 mt-1">
+                                    {{ mission.commentaireValidation|nl2br }}
+                                    {% if mission.validePar and mission.dateValidation %}
+                                        <div class="text-muted fs-8 mt-2">
+                                            Visa accordé par <strong>{{ mission.validePar.nomComplet }}</strong> le {{ mission.dateValidation|date('d/m/Y à H:i') }}.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Délégation / Participants -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-people-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Délégation de mission ({{ mission.participants|length }} agents)</h3>
+                    </div>
+                    {% if mission.chefMission %}
+                        <div class="card-toolbar">
+                            <span class="badge badge-light-primary fs-7">
+                                <i class="bi bi-person-badge-fill me-1"></i> Chef : {{ mission.chefMission.nomComplet }}
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-4">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0 bg-light">
+                                    <th class="ps-6">Agent</th>
+                                    <th>Rôle</th>
+                                    <th>Service</th>
+                                    <th>Indemnité journalière</th>
+                                    <th>Frais transport</th>
+                                    <th class="text-end pe-6">Fiche</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fs-7 fw-semibold text-gray-600">
+                                {% for part in mission.participants %}
+                                    <tr>
+                                        <td class="ps-6">
+                                            <div class="fw-bolder text-dark fs-6">{{ part.employe.nomComplet }}</div>
+                                            <span class="text-muted fs-8">{{ part.employe.matricule ?: 'Sans matricule' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ part.role == 'CHEF_MISSION' ? 'badge-light-primary' : 'badge-light-secondary' }}">
+                                                {{ part.roleLabel }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-dark">{{ part.employe.service ? part.employe.service.nom : 'Non affecté' }}</span>
+                                        </td>
+                                        <td>
+                                            {% if part.indemniteJournaliere %}
+                                                <span class="fw-bold text-dark">{{ part.indemniteJournaliere|number_format(0, ',', ' ') }} F/j</span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if part.fraisTransport %}
+                                                <span class="fw-bold text-dark">{{ part.fraisTransport|number_format(0, ',', ' ') }} F</span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end pe-6">
+                                            <a href="{{ path('app_employe_show', {'id': part.employe.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Consulter l'agent">
+                                                <i class="bi bi-person-lines-fill"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-6 text-muted">Aucun participant enregistré dans cette délégation.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rapport de fin de mission -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-file-earmark-check-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Rapport & Compte-rendu d'exécution</h3>
+                    </div>
+                    {% if is_granted('MISSION_REPORT', mission) %}
+                        <div class="card-toolbar">
+                            <a href="{{ path('app_mission_rapport', {'id': mission.id}) }}" class="btn btn-mci-primary btn-sm">
+                                <i class="bi bi-pencil-square me-1"></i> Rédiger / Mettre à jour
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body py-4">
+                    {% if mission.rapportTexte or mission.documentRapport %}
+                        {% if mission.dateRapport %}
+                            <div class="text-muted fs-8 mb-3">
+                                <i class="bi bi-clock-history me-1"></i>Déposé le {{ mission.dateRapport|date('d/m/Y à H:i') }}
+                            </div>
+                        {% endif %}
+
+                        {% if mission.rapportTexte %}
+                            <div class="p-4 bg-light rounded text-dark fs-7 mb-4">
+                                {{ mission.rapportTexte|nl2br }}
+                            </div>
+                        {% endif %}
+
+                        {% if mission.documentRapport %}
+                            <div class="d-flex align-items-center justify-content-between p-4 border rounded bg-light">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="symbol symbol-40px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                                        <span class="symbol-label">
+                                            <i class="bi bi-file-earmark-pdf fs-2 text-danger"></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bolder text-dark fs-7">{{ mission.documentRapport.titre }}</div>
+                                        <span class="text-muted fs-8">Document RH officiel rattaché</span>
+                                    </div>
+                                </div>
+                                <a href="{{ path('app_document_show', {'id': mission.documentRapport.id}) }}" class="btn btn-mci-secondary btn-sm">
+                                    <i class="bi bi-eye me-1"></i> Consulter le document
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-mci alert-mci-info d-flex align-items-center p-4 mb-0">
+                            <i class="bi bi-info-circle-fill fs-3 text-info me-3"></i>
+                            <span class="fs-7 text-muted">Aucun rapport de fin de mission n'a encore été déposé pour cette mission.</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar : Ordre de mission officiel & Timeline -->
+        <div class="col-lg-4">
+            <!-- Ordre de mission officiel -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-patch-check-fill fs-2 text-success me-3"></i>
+                        <h4 class="fw-bolder text-dark mb-0 fs-5">Ordre de mission officiel</h4>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    {% if mission.acte %}
+                        <div class="p-4 bg-light rounded border border-success mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge badge-light-success fs-8">Acte authentique</span>
+                                <span class="text-muted fs-8">{{ mission.acte.dateSignature ? mission.acte.dateSignature|date('d/m/Y') : '' }}</span>
+                            </div>
+                            <div class="fw-bolder text-dark fs-6 mb-1">{{ mission.acte.numero }}</div>
+                            <p class="fs-8 text-muted mb-3">{{ mission.acte.objet }}</p>
+                            <a href="{{ path('app_acte_show', {'id': mission.acte.id}) }}" class="btn btn-success btn-sm w-100">
+                                <i class="bi bi-patch-check-fill me-1"></i> Consulter l'ordre de mission
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted fs-7 mb-0">
+                            {% if mission.statut == 0 %}
+                                L'ordre de mission officiel sera généré automatiquement lors de la validation hiérarchique.
+                            {% else %}
+                                Aucun acte officiel d'ordre de mission n'est actuellement rattaché.
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Historique du circuit (Timeline) -->
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-clock-history fs-2 text-mci-blue me-3"></i>
+                        <h4 class="fw-bolder text-dark mb-0 fs-5">Historique du circuit</h4>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    {% if mission.missionLogs|length > 0 %}
+                        <div class="timeline-label">
+                            {% for log in mission.missionLogs %}
+                                <div class="d-flex align-items-start gap-3 mb-4 pb-3 border-bottom border-gray-100">
+                                    <div class="symbol symbol-30px symbol-circle mt-1" style="background-color: var(--mci-blue-subtle);">
+                                        <span class="symbol-label">
+                                            <i class="bi bi-dot fs-1 text-mci-blue"></i>
+                                        </span>
+                                    </div>
+                                    <div class="d-flex flex-column flex-grow-1">
+                                        <span class="fw-bold text-dark fs-7">{{ log.actionLabel }}</span>
+                                        {% if log.description %}
+                                            <span class="text-muted fs-8 mt-1">{{ log.description }}</span>
+                                        {% endif %}
+                                        <span class="text-muted fs-9 mt-1">
+                                            Par {{ log.user ? log.user.nomComplet : 'Système' }} le {{ log.createdAt|date('d/m/Y à H:i') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted fs-8 mb-0">Aucun événement enregistré.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# Modal Validation #}
+{% if is_granted('MISSION_VALIDATE', mission) %}
+    <div class="modal fade" id="validerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_mission_valider', {'id': mission.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('mission_valider_' ~ mission.id) }}">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-patch-check-fill me-2"></i>Valider la mission & générer l'Ordre</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6">Confirmez-vous la validation de la mission <strong>{{ mission.reference }}</strong> à destination de <strong>{{ mission.destination }}</strong> ?</p>
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="genererOrdreShow" name="generer_ordre" value="1" checked>
+                                <label class="form-check-label fw-semibold fs-7" for="genererOrdreShow">Générer automatiquement l'acte officiel d'Ordre de mission</label>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fs-7 fw-bold">Numéro d'acte officiel (laisser vide pour numérotation automatique)</label>
+                            <input type="text" name="numero_ordre" class="form-control form-control-solid fs-7" placeholder="Ex: OM-{{ "now"|date("Y") }}-001">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label fs-7 fw-bold">Observations / Instructions hiérarchiques</label>
+                            <textarea name="commentaire" class="form-control form-control-solid fs-7" rows="2" placeholder="Instructions particulières..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="bi bi-patch-check-fill me-1"></i>Valider & Émettre l'ordre
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Modal Clôture #}
+{% if is_granted('MISSION_CLOSE', mission) %}
+    <div class="modal fade" id="cloturerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_mission_cloturer', {'id': mission.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('mission_cloturer_' ~ mission.id) }}">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-check-all me-2"></i>Clôturer définitivement la mission</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6">Confirmez-vous la validation du rapport et la clôture définitive de la mission <strong>{{ mission.reference }}</strong> ?</p>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold">Observations finales</label>
+                            <textarea name="commentaire" class="form-control form-control-solid fs-7" rows="2" placeholder="Appréciation finale des résultats..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-dark btn-sm">
+                            <i class="bi bi-check-all me-1"></i>Valider le rapport & Clôturer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Modal Refus #}
+{% if is_granted('MISSION_REJECT', mission) %}
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_mission_rejeter', {'id': mission.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('mission_rejeter_' ~ mission.id) }}">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-x-circle-fill me-2"></i>Refuser le projet de mission</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6">Veuillez spécifier le motif du refus pour la mission <strong>{{ mission.reference }}</strong> :</p>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold">Motif du refus <span class="text-danger">*</span></label>
+                            <textarea name="motif_refus" class="form-control form-control-solid fs-7" rows="3" required placeholder="Motif du refus..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Fermer</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-x-circle me-1"></i>Confirmer le refus
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Modal Annulation #}
+{% if is_granted('MISSION_CANCEL', mission) %}
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_mission_annuler', {'id': mission.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('mission_annuler_' ~ mission.id) }}">
+                    <div class="modal-header bg-secondary text-dark">
+                        <h5 class="modal-title"><i class="bi bi-slash-circle me-2"></i>Annuler la mission</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6">Êtes-vous sûr de vouloir annuler cette mission ? Si un ordre de mission officiel a été émis, il sera automatiquement abrogé.</p>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold">Motif de l'annulation (optionnel)</label>
+                            <textarea name="motif_annulation" class="form-control form-control-solid fs-7" rows="2" placeholder="Motif de l'annulation..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Fermer</button>
+                        <button type="submit" class="btn btn-dark btn-sm">
+                            <i class="bi bi-slash-circle me-1"></i>Confirmer l'annulation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Modal Suppression #}
+{% if is_granted('MISSION_DELETE', mission) %}
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_mission_delete', {'id': mission.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('mission_delete_' ~ mission.id) }}">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-trash-fill me-2"></i>Supprimer le projet de mission</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6 mb-0">Êtes-vous sûr de vouloir supprimer définitivement cette mission ? Cette action est irréversible.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash-fill me-1"></i>Confirmer la suppression
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

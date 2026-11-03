@@ -1,0 +1,387 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Organigramme Hiérarchique — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-diagram-3-fill text-mci-blue me-3"></i>
+        Organigramme Hiérarchique
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Architecture administrative, directions, services et rattachements</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Organisation</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Organigramme Hiérarchique</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_structure_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-diagram-2 me-1"></i>
+            <span class="d-none d-sm-inline">Structures</span>
+        </a>
+        <a href="{{ path('app_service_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-building me-1"></i>
+            <span class="d-none d-sm-inline">Services</span>
+        </a>
+        <button class="btn btn-mci-primary btn-sm" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i>
+            <span class="d-none d-sm-inline">Imprimer</span>
+        </button>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .organigramme-container {
+        background-color: var(--bs-body-bg, #f9fafb);
+        border-radius: 12px;
+        padding: 24px;
+        min-height: 500px;
+    }
+    .org-node {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid var(--mci-blue, #0C2340);
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        transition: all 0.2s ease-in-out;
+    }
+    .org-node:hover {
+        box-shadow: 0 4px 12px rgba(12,35,64,0.08);
+        border-left-color: var(--mci-red, #C8102E);
+    }
+    .org-node-inst {
+        border-left-color: var(--mci-gold, #FECB00);
+        background: #fffdf5;
+    }
+    .org-node-struct {
+        border-left-color: var(--mci-blue, #0C2340);
+    }
+    .org-node-service {
+        border-left-color: #0d9488;
+        background: #f0fdfa;
+    }
+    .org-tree, .org-tree ul {
+        list-style-type: none;
+        padding-left: 28px;
+        position: relative;
+    }
+    .org-tree ul::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 12px;
+        bottom: 0;
+        width: 2px;
+        background-color: #cbd5e1;
+    }
+    .org-tree li {
+        position: relative;
+    }
+    .org-tree li::before {
+        content: '';
+        position: absolute;
+        top: 24px;
+        left: -16px;
+        width: 14px;
+        height: 2px;
+        background-color: #cbd5e1;
+    }
+    .badge-type {
+        font-size: 0.72rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Filtres & Recherche -->
+    <div class="card card-mci">
+        <div class="card-body p-6">
+            <div class="row g-3 align-items-center">
+                {% if allInstitutions|length > 1 %}
+                    <div class="col-md-4">
+                        <label class="form-label fs-8 fw-bold text-muted text-uppercase mb-1">Institution :</label>
+                        <form method="get" action="{{ path('app_organigramme_index') }}">
+                            <select name="institution_id" class="form-select form-select-solid fs-7" onchange="this.form.submit()">
+                                {% for inst in allInstitutions %}
+                                    <option value="{{ inst.id }}" {% if institution and institution.id == inst.id %}selected{% endif %}>
+                                        {{ inst.nom }} ({{ inst.code|default('N/A') }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                {% endif %}
+                <div class="col-md-5">
+                    <label class="form-label fs-8 fw-bold text-muted text-uppercase mb-1">Rechercher dans l'organigramme :</label>
+                    <div class="position-relative">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y ms-4 text-muted fs-6"></i>
+                        <input type="text" id="orgSearchInput" class="form-control form-control-solid ps-12 fs-7" placeholder="Rechercher par structure, code, service ou responsable...">
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end justify-content-end gap-2 pt-4 pt-md-0">
+                    <button type="button" class="btn btn-sm btn-mci-secondary" id="btnExpandAll">
+                        <i class="bi bi-arrows-expand me-1"></i> Déplier
+                    </button>
+                    <button type="button" class="btn btn-sm btn-mci-light" id="btnCollapseAll">
+                        <i class="bi bi-arrows-collapse me-1"></i> Replier
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if treeData is not null %}
+        <!-- Statistiques synthétiques -->
+        <div class="row g-4 g-xl-6">
+            <div class="col-sm-6 col-xl-3">
+                <div class="card card-mci h-100 p-5">
+                    <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Institution</span>
+                    <span class="fs-4 fw-bolder text-dark mb-1 text-truncate" title="{{ treeData.name }}">{{ treeData.name }}</span>
+                    <span class="fs-9 text-muted">tutelle centrale</span>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card card-mci h-100 p-5 border-start border-4 border-primary">
+                    <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Structures</span>
+                    <span class="fs-2hx fw-bolder text-mci-blue mb-1">{{ treeData.totalStructures }}</span>
+                    <span class="fs-9 text-muted">directions & départements</span>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card card-mci h-100 p-5">
+                    <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Services</span>
+                    <span class="fs-2hx fw-bolder text-success mb-1">{{ treeData.totalServices }}</span>
+                    <span class="fs-9 text-success fw-semibold">unités opérationnelles</span>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card card-mci h-100 p-5">
+                    <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Effectif</span>
+                    <span class="fs-2hx fw-bolder text-dark mb-1">{{ treeData.totalEmployes }}</span>
+                    <span class="fs-9 text-muted">agents rattachés</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue interactive de l'arbre -->
+        <div class="card card-mci">
+            <div class="card-body p-6">
+                <div class="organigramme-container border">
+                    <!-- Nœud racine Institution -->
+                    <div class="org-node org-node-inst mb-5">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-warning text-dark badge-type">INSTITUTION</span>
+                                <span class="fw-bolder fs-5 text-dark">{{ treeData.name }}</span>
+                                {% if treeData.code %}
+                                    <span class="badge badge-light-secondary fs-8">{{ treeData.code }}</span>
+                                {% endif %}
+                            </div>
+                            {% if treeData.responsable %}
+                                <div class="text-muted fs-7">
+                                    <i class="bi bi-person-badge text-success me-1"></i>
+                                    <strong>Responsable :</strong> {{ treeData.responsable.nomComplet }}
+                                    <span class="badge badge-light-dark ms-1 fs-9">{{ treeData.responsable.fonction }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Arborescence hiérarchique -->
+                    <ul class="org-tree ps-0" id="orgTreeRoot">
+                        {% macro renderStructure(node) %}
+                            {% import _self as self %}
+                            <li class="org-item" data-search="{{ (node.name ~ ' ' ~ node.code ~ ' ' ~ (node.responsable ? node.responsable.nomComplet : ''))|lower }}">
+                                <div class="org-node org-node-struct">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge badge-light-primary badge-type text-uppercase">{{ node.typeLabel }}</span>
+                                            <a href="{{ path('app_structure_show', {'id': node.entityId}) }}" class="fw-bold text-dark text-hover-primary fs-6">
+                                                {{ node.name }}
+                                            </a>
+                                            {% if node.code %}
+                                                <span class="badge badge-light-secondary fs-8">{{ node.code }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            {% if node.responsable %}
+                                                <div class="text-muted fs-8">
+                                                    <i class="bi bi-person-fill text-mci-blue me-1"></i>
+                                                    <strong class="text-dark">{{ node.responsable.nomComplet }}</strong>
+                                                    <span class="badge badge-light-secondary ms-1 fs-9">{{ node.responsable.fonction }}</span>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted fst-italic fs-8">Sans responsable</span>
+                                            {% endif %}
+                                            <a href="{{ path('app_structure_show', {'id': node.entityId}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Voir fiche">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Services rattachés à cette structure -->
+                                {% if node.services|length > 0 %}
+                                    <ul class="org-tree-services">
+                                        {% for srv in node.services %}
+                                            <li class="org-item" data-search="{{ (srv.name ~ ' ' ~ srv.code ~ ' ' ~ (srv.responsable ? srv.responsable.nomComplet : ''))|lower }}">
+                                                <div class="org-node org-node-service">
+                                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="badge bg-info text-white badge-type">SERVICE</span>
+                                                            <a href="{{ path('app_service_show', {'id': srv.entityId}) }}" class="text-dark text-hover-primary fw-bold fs-7">
+                                                                {{ srv.name }}
+                                                            </a>
+                                                            {% if srv.code %}
+                                                                <span class="badge badge-light-secondary fs-9">{{ srv.code }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-3">
+                                                            {% if srv.responsable %}
+                                                                <div class="text-muted fs-8">
+                                                                    <i class="bi bi-person me-1 text-info"></i>
+                                                                    {{ srv.responsable.nomComplet }}
+                                                                </div>
+                                                            {% endif %}
+                                                            <span class="badge badge-light-primary rounded-pill fs-8">{{ srv.employesCount }} agents</span>
+                                                            <a href="{{ path('app_service_show', {'id': srv.entityId}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Consulter le service">
+                                                                <i class="bi bi-eye-fill"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+
+                                <!-- Sous-structures récursives -->
+                                {% if node.children|length > 0 %}
+                                    <ul class="org-tree-children">
+                                        {% for child in node.children %}
+                                            {{ self.renderStructure(child) }}
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endmacro %}
+
+                        {% import _self as macros %}
+
+                        {% for rootStruct in treeData.children %}
+                            {{ macros.renderStructure(rootStruct) }}
+                        {% endfor %}
+
+                        <!-- Services rattachés directement à l'institution -->
+                        {% if treeData.directServices|length > 0 %}
+                            <li class="org-item mt-4">
+                                <div class="text-muted fs-8 fw-bolder text-uppercase mb-2">
+                                    <i class="bi bi-link-45deg me-1"></i> Services directement rattachés à l'institution :
+                                </div>
+                                <ul class="org-tree-services">
+                                    {% for ds in treeData.directServices %}
+                                        <li class="org-item" data-search="{{ (ds.name ~ ' ' ~ ds.code ~ ' ' ~ (ds.responsable ? ds.responsable.nomComplet : ''))|lower }}">
+                                            <div class="org-node org-node-service">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="badge bg-info text-white badge-type">SERVICE DIRECT</span>
+                                                        <a href="{{ path('app_service_show', {'id': ds.entityId}) }}" class="text-dark text-hover-primary fw-bold fs-7">
+                                                            {{ ds.name }}
+                                                        </a>
+                                                        {% if ds.code %}
+                                                            <span class="badge badge-light-secondary fs-9">{{ ds.code }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        {% if ds.responsable %}
+                                                            <div class="text-muted fs-8">
+                                                                <i class="bi bi-person me-1 text-info"></i>
+                                                                {{ ds.responsable.nomComplet }}
+                                                            </div>
+                                                        {% endif %}
+                                                        <span class="badge badge-light-primary rounded-pill fs-8">{{ ds.employesCount }} agents</span>
+                                                        <a href="{{ path('app_service_show', {'id': ds.entityId}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Consulter le service">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-mci alert-mci-info d-flex align-items-center p-5">
+            <i class="bi bi-info-circle-fill fs-3 text-info me-3"></i>
+            <span class="fs-7 text-dark">Aucune donnée d'organisation disponible pour cette institution.</span>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Filtrage dynamique en temps réel
+    const searchInput = document.getElementById('orgSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            const query = e.target.value.toLowerCase().trim();
+            const items = document.querySelectorAll('.org-item');
+
+            items.forEach(item => {
+                const text = item.getAttribute('data-search') || '';
+                if (query === '' || text.includes(query)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Boutons Déplier / Replier
+    const btnExpandAll = document.getElementById('btnExpandAll');
+    const btnCollapseAll = document.getElementById('btnCollapseAll');
+
+    if (btnExpandAll && btnCollapseAll) {
+        btnExpandAll.addEventListener('click', function () {
+            document.querySelectorAll('.org-tree-children, .org-tree-services').forEach(el => {
+                el.style.display = '';
+            });
+        });
+
+        btnCollapseAll.addEventListener('click', function () {
+            document.querySelectorAll('.org-tree-children, .org-tree-services').forEach(el => {
+                el.style.display = 'none';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

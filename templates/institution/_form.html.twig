@@ -1,0 +1,5 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+    <a class="btn btn-default" href="{{path('app_institution_index')}}">Annuler</a>
+{{ form_end(form) }}

@@ -1,0 +1,63 @@
+{% extends 'auth.html.twig' %}
+
+{% block title %}Connexion — MCI e-Circuit{% endblock %}
+
+{% block body %}
+<div class="text-center mb-10">
+    <h1 class="text-gray-900 fw-bolder mb-3 fs-2">Connexion Sécurisée</h1>
+    <div class="text-gray-500 fw-semibold fs-6">
+        Accédez à votre espace institutionnel MCI e-Circuit
+    </div>
+</div>
+
+<form class="form w-100 validate-form" method="post" action="{{ path('app_login') }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+    <div class="fv-row mb-8">
+        <label class="form-label fs-6 fw-bold text-gray-900" for="email">Adresse email institutionnelle</label>
+        <div class="position-relative">
+            <input class="form-control form-control-solid h-50px fs-6" 
+                   type="email" 
+                   value="{{ last_username|default('') }}" 
+                   name="email" 
+                   id="email" 
+                   placeholder="nom.prenom@commerce.gouv.td" 
+                   required 
+                   autocomplete="email" 
+                   autofocus />
+        </div>
+    </div>
+
+    <div class="fv-row mb-7">
+        <div class="d-flex flex-stack mb-2">
+            <label class="form-label fw-bold text-gray-900 fs-6 mb-0" for="password">Mot de passe</label>
+            <a href="{{ path('app_forgot_password_request') }}" class="link-primary fs-7 fw-bold">
+                Mot de passe oublié ?
+            </a>
+        </div>
+        <div class="position-relative">
+            <input class="form-control form-control-solid h-50px fs-6" 
+                   type="password" 
+                   name="password" 
+                   id="password" 
+                   placeholder="Votre mot de passe" 
+                   required 
+                   autocomplete="current-password" />
+        </div>
+    </div>
+
+    <div class="d-grid mb-10">
+        <button type="submit" class="btn btn-mci-primary h-50px fs-6 fw-bold">
+            <i class="ki-duotone ki-entrance-left fs-3 me-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+            Se connecter
+        </button>
+    </div>
+
+    <div class="text-center text-gray-500 fw-semibold fs-7">
+        Plateforme réservée aux agents habilités du Ministère du Commerce et de l'Industrie de la République du Tchad.
+    </div>
+</form>
+{% endblock %}

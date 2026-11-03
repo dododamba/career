@@ -1,0 +1,218 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Visite #{{ visite.id }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Fiche Visiteur #{{ visite.id }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Détails d'accueil et traçabilité d'accès</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_visite_index') }}" class="text-muted text-hover-primary">Visites</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Visite #{{ visite.id }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_visite_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour à la liste
+        </a>
+        <a href="{{ path('app_visite_edit', {'id': visite.id}) }}" class="btn btn-sm btn-mci-primary">
+            <i class="ki-duotone ki-pencil fs-4 me-1"></i> Modifier
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- Card Profil Visiteur Banner -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body p-6">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-60px symbol-circle me-4 bg-light-primary text-primary fw-bolder fs-2 d-flex align-items-center justify-content-center">
+                        {{ visite.visiteur ? visite.visiteur|first|upper : 'V' }}
+                    </div>
+                    <div>
+                        <h2 class="fs-2 fw-bold text-gray-900 mb-1">{{ visite.visiteur ?: 'Visiteur Inconnu' }}</h2>
+                        <div class="d-flex flex-wrap gap-3 text-muted fs-7">
+                            {% if visite.email %}
+                                <span><i class="ki-duotone ki-sms fs-6 text-gray-500 me-1"></i> {{ visite.email }}</span>
+                            {% endif %}
+                            {% if visite.telephone %}
+                                <span><i class="ki-duotone ki-phone fs-6 text-gray-500 me-1"></i> {{ visite.telephone }}</span>
+                            {% endif %}
+                            {% if visite.badge %}
+                                <span><i class="ki-duotone ki-badge fs-6 text-gray-500 me-1"></i> Badge N° <strong>#{{ visite.badge }}</strong></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    {% if visite.statut %}
+                        <span class="badge badge-light-secondary fs-7 fw-bold py-2 px-4">
+                            <i class="ki-duotone ki-check-circle fs-6 text-secondary me-1"></i> Visite terminée
+                        </span>
+                    {% else %}
+                        <span class="badge badge-light-success fs-7 fw-bold py-2 px-4">
+                            <i class="ki-duotone ki-timer fs-6 text-success me-1"></i> Présent dans les locaux
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <!-- Informations Collaborateur rencontré -->
+        <div class="col-lg-6">
+            <div class="card card-flush border-0 shadow-sm h-100">
+                <div class="card-header pt-5">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-4 text-gray-900">Collaborateur Visité</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Agent du Ministère recevant le visiteur</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-2">
+                    {% if visite.employe %}
+                        <div class="d-flex align-items-center p-4 rounded bg-light-subtle border border-gray-200 mb-4">
+                            <div class="symbol symbol-50px symbol-circle me-3 bg-light-primary text-primary fw-bolder d-flex align-items-center justify-content-center">
+                                {{ visite.employe.nom ? visite.employe.nom|first|upper : 'E' }}
+                            </div>
+                            <div class="d-flex flex-column flex-grow-1">
+                                <span class="text-gray-900 fw-bold fs-5">{{ visite.employe.nomComplet }}</span>
+                                <span class="text-muted fs-7">
+                                    Matricule : <strong>{{ visite.employe.matricule|default('N/D') }}</strong>
+                                </span>
+                                <span class="text-muted fs-8">
+                                    Service : {{ visite.employe.service ? visite.employe.service.nom : 'Non défini' }}
+                                </span>
+                            </div>
+                            <a href="{{ path('app_visite_par_employe', {'id': visite.employe.id}) }}" class="btn btn-sm btn-light-primary">
+                                Historique
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="p-4 rounded bg-light text-muted fs-7">
+                            Aucun collaborateur spécifique associé.
+                        </div>
+                    {% endif %}
+
+                    {% if visite.objet %}
+                        <div class="mb-4">
+                            <label class="text-muted fs-8 text-uppercase fw-bold d-block mb-1">Objet de la visite</label>
+                            <div class="p-3 rounded bg-light-subtle border border-dashed border-gray-300 text-gray-900 fw-semibold fs-6">
+                                {{ visite.objet }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if visite.commentaires %}
+                        <div>
+                            <label class="text-muted fs-8 text-uppercase fw-bold d-block mb-1">Observations d'accueil</label>
+                            <div class="p-3 rounded bg-light text-gray-700 fs-7">
+                                {{ visite.commentaires|nl2br }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Horaires & Durée -->
+        <div class="col-lg-6">
+            <div class="card card-flush border-0 shadow-sm h-100">
+                <div class="card-header pt-5">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-4 text-gray-900">Horodatage &amp; Durée</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Contrôle des flux d'accès</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="table-responsive">
+                        <table class="table align-middle table-row-bordered fs-6 gy-4 mb-4">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted min-w-150px">Heure d'arrivée</td>
+                                    <td class="fw-bold text-gray-900">
+                                        <i class="ki-duotone ki-entrance-left fs-5 text-success me-2"></i>
+                                        {{ visite.arrivee ? visite.arrivee|date('d/m/Y H:i') : '—' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Heure de départ</td>
+                                    <td>
+                                        {% if visite.depart %}
+                                            <span class="fw-bold text-gray-900">
+                                                <i class="ki-duotone ki-entrance-right fs-5 text-primary me-2"></i>
+                                                {{ visite.depart|date('d/m/Y H:i') }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-light-warning fw-bold fs-8">Visite en cours</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Durée de présence</td>
+                                    <td>
+                                        {% if visite.duration %}
+                                            <span class="badge badge-light-info fw-bold fs-7">{{ visite.duration }}</span>
+                                        {% else %}
+                                            <span class="text-muted fst-italic">En cours de décompte</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Badge d'accès</td>
+                                    <td>
+                                        {% if visite.badge %}
+                                            <span class="badge badge-light-primary fw-bold font-monospace fs-7">Badge #{{ visite.badge }}</span>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                        {% if not visite.statut %}
+                            <form method="post" action="{{ path('app_visite_terminer', {'id': visite.id}) }}" onsubmit="return confirm('Confirmer la fin de cette visite et la restitution du badge ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('terminer' ~ visite.id) }}">
+                                <button class="btn btn-sm btn-light-success">
+                                    <i class="ki-duotone ki-check fs-4 me-1"></i> Terminer la visite
+                                </button>
+                            </form>
+                        {% else %}
+                            <div></div>
+                        {% endif %}
+
+                        <form method="post" action="{{ path('app_visite_delete', {'id': visite.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette fiche de visite ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ visite.id) }}">
+                            <button class="btn btn-sm btn-light-danger">
+                                <i class="ki-duotone ki-trash fs-5 me-1"></i> Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

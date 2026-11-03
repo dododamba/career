@@ -1,0 +1,468 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vue 360° — {{ institution.nom }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-building text-mci-blue me-3"></i>
+        Vue 360° — {{ institution.nom }}
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Fiche organisationnelle intégrée</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Administration</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_institution_index') }}" class="text-muted text-hover-primary">Institutions</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Vue 360°</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_organigramme_index', {'institution_id': institution.id}) }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-diagram-3 fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Organigramme</span>
+        </a>
+        <a href="{{ path('app_institution_edit', {'id': institution.id}) }}" class="btn btn-mci-warning btn-sm">
+            <i class="bi bi-pencil-square fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Modifier</span>
+        </a>
+        <a href="{{ path('app_institution_index') }}" class="btn btn-mci-light btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Liste</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Bannière Institution -->
+    <div class="card card-mci p-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                    <span class="symbol-label">
+                        <i class="bi bi-building fs-2 text-mci-blue"></i>
+                    </span>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-3 fw-bolder text-dark">{{ institution.nom }}</span>
+                        {% if institution.code %}
+                            <span class="badge badge-light-secondary font-monospace fs-8">{{ institution.code }}</span>
+                        {% endif %}
+                        {% if institution.isActive() %}
+                            <span class="badge badge-light-success fs-8">Actif</span>
+                        {% elseif institution.isSuspended() %}
+                            <span class="badge badge-light-danger fs-8">Suspendu</span>
+                        {% else %}
+                            <span class="badge badge-light-secondary fs-8">Archivé</span>
+                        {% endif %}
+                        {% if institution.typeInstitution %}
+                            <span class="badge badge-light-primary fs-8">{{ institution.typeInstitution.nom }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="text-muted fs-7">
+                        Fiche organisationnelle 360° et gestion intégrée de la structure administrative
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicateurs clés (KPIs) -->
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5 border-start border-4 border-primary">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Structures</span>
+                <span class="fs-2hx fw-bolder text-mci-blue mb-1">{{ overview.structuresCount }}</span>
+                <span class="fs-9 text-muted">directions rattachées</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Services</span>
+                <span class="fs-2hx fw-bolder text-success mb-1">{{ overview.servicesCount }}</span>
+                <span class="fs-9 text-success fw-semibold">unités opérationnelles</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Agents employés</span>
+                <span class="fs-2hx fw-bolder text-dark mb-1">{{ overview.employesCount }}</span>
+                <span class="fs-9 text-muted">effectif total</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Comptes utilisateurs</span>
+                <span class="fs-2hx fw-bolder text-dark mb-1">{{ institution.users|length }}</span>
+                <span class="fs-9 text-muted">accès actifs</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation par Onglets 360° -->
+    <div class="card card-mci">
+        <div class="card-header card-header-stretch">
+            <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x border-transparent fs-6 fw-bold" id="instTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                        <i class="bi bi-card-text me-2"></i> Identité & Contact
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="structures-tab" data-bs-toggle="tab" data-bs-target="#structures" type="button" role="tab">
+                        <i class="bi bi-diagram-2 me-2"></i> Structures ({{ structures|length }})
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" type="button" role="tab">
+                        <i class="bi bi-building me-2"></i> Services ({{ services|length }})
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="agents-tab" data-bs-toggle="tab" data-bs-target="#agents" type="button" role="tab">
+                        <i class="bi bi-people me-2"></i> Agents ({{ employes|length }})
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                        <i class="bi bi-clock-history me-2"></i> Historique organisationnel ({{ history|length }})
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-6">
+            <div class="tab-content" id="instTabsContent">
+                <!-- Onglet 1: Identité & Contact -->
+                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                    <div class="row g-6">
+                        <div class="col-md-6">
+                            <h5 class="fw-bolder text-dark mb-4 fs-6"><i class="bi bi-info-circle-fill text-mci-blue me-2"></i>Informations administratives</h5>
+                            <table class="table table-row-dashed align-middle gs-4 gy-3">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-muted w-35 fs-7">Nom complet</th>
+                                        <td class="fw-bolder text-dark fs-7">{{ institution.nom }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted fs-7">Code officiel</th>
+                                        <td><code>{{ institution.code|default('Non défini') }}</code></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted fs-7">Type d'institution</th>
+                                        <td class="text-dark fs-7">{{ institution.typeInstitution.nom|default('Non renseigné') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted fs-7">Statut opérationnel</th>
+                                        <td>
+                                            {% if institution.isActive() %}
+                                                <span class="badge badge-light-success fs-8">Actif</span>
+                                            {% else %}
+                                                <span class="badge badge-light-warning fs-8">{{ institution.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted fs-7">Date d'enregistrement</th>
+                                        <td class="text-muted fs-8">{{ institution.createdAt ? institution.createdAt|date('d/m/Y H:i') : '—' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            {% if institution.description %}
+                                <div class="mt-4">
+                                    <h6 class="fw-bolder text-dark fs-7 mb-2">Missions & Attributions :</h6>
+                                    <div class="p-4 bg-light rounded text-muted fs-7">{{ institution.description|nl2br }}</div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="fw-bolder text-dark mb-4 fs-6"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Localisation & Coordonnées</h5>
+                            <table class="table table-row-dashed align-middle gs-4 gy-3">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-muted w-35 fs-7">Adresse / Localisation</th>
+                                        <td class="text-dark fs-7">{{ institution.adresse|default('Non renseignée') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted fs-7">Téléphone</th>
+                                        <td class="text-dark fs-7">{{ institution.telephone|default('Non renseigné') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted fs-7">Email officiel</th>
+                                        <td class="text-dark fs-7">{{ institution.email|default('Non renseigné') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted fs-7">Site web</th>
+                                        <td>
+                                            {% if institution.siteWeb %}
+                                                <a href="{{ institution.siteWeb }}" target="_blank" rel="noopener noreferrer" class="text-mci-blue fw-bold">{{ institution.siteWeb }}</a>
+                                            {% else %}
+                                                <span class="text-muted fs-8">Non renseigné</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h5 class="fw-bolder text-dark mt-6 mb-3 fs-6"><i class="bi bi-person-badge-fill text-mci-blue me-2"></i>Direction / Responsable</h5>
+                            {% if institution.responsable %}
+                                <div class="p-4 bg-light rounded d-flex align-items-center">
+                                    <div class="symbol symbol-50px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                        <span class="symbol-label">
+                                            <i class="bi bi-person-fill text-mci-blue fs-2"></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bolder text-dark fs-6">{{ institution.responsable.nom }} {{ institution.responsable.prenom }}</div>
+                                        <div class="text-muted fs-8">{{ institution.responsable.fonction.libelle|default('Directeur / Responsable') }}</div>
+                                        <div class="text-muted fs-9 mt-1">Matricule : <code>{{ institution.responsable.matricule|default('—') }}</code></div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-mci alert-mci-light p-4 text-muted fs-8">
+                                    <i class="bi bi-info-circle me-1"></i> Aucun responsable principal désigné.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onglet 2: Structures -->
+                <div class="tab-pane fade" id="structures" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bolder text-dark mb-0 fs-5">Directions et Départements rattachés</h5>
+                        <a href="{{ path('app_structure_new') }}" class="btn btn-sm btn-mci-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Nouvelle structure
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-3">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-8 text-uppercase gs-0 bg-light">
+                                    <th class="ps-6">Nom & Code</th>
+                                    <th>Type</th>
+                                    <th>Rattachement</th>
+                                    <th>Responsable</th>
+                                    <th>Services</th>
+                                    <th>Statut</th>
+                                    <th class="text-end pe-6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fs-7 fw-semibold text-gray-600">
+                            {% for struct in structures %}
+                                <tr>
+                                    <td class="ps-6">
+                                        <a href="{{ path('app_structure_show', {'id': struct.id}) }}" class="fw-bolder text-dark text-hover-primary">
+                                            {{ struct.nom }}
+                                        </a>
+                                        {% if struct.code %}
+                                            <span class="badge badge-light-secondary font-monospace fs-9 ms-1">{{ struct.code }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="badge badge-light-primary fs-8">{{ struct.type|replace({'_': ' '}) }}</span></td>
+                                    <td>{{ struct.parent ? struct.parent.nom : '— (Racine)' }}</td>
+                                    <td>{{ struct.responsable ? struct.responsable.nom ~ ' ' ~ struct.responsable.prenom : 'Non désigné' }}</td>
+                                    <td><span class="badge badge-light-secondary fs-8">{{ struct.services|length }}</span></td>
+                                    <td>
+                                        {% if struct.statut == 'ACTIVE' %}
+                                            <span class="badge badge-light-success fs-8">Actif</span>
+                                        {% else %}
+                                            <span class="badge badge-light-warning fs-8">{{ struct.statut }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-6">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a href="{{ path('app_structure_show', {'id': struct.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Voir fiche">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                            <a href="{{ path('app_structure_edit', {'id': struct.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Modifier">
+                                                <i class="bi bi-pencil-square text-warning"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-6 fs-8">Aucune structure configurée.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Onglet 3: Services -->
+                <div class="tab-pane fade" id="services" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bolder text-dark mb-0 fs-5">Services opérationnels</h5>
+                        <a href="{{ path('app_service_new') }}" class="btn btn-sm btn-mci-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Nouveau service
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-3">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-8 text-uppercase gs-0 bg-light">
+                                    <th class="ps-6">Nom du service</th>
+                                    <th>Code</th>
+                                    <th>Structure de rattachement</th>
+                                    <th>Chef de service</th>
+                                    <th>Effectif</th>
+                                    <th class="text-end pe-6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fs-7 fw-semibold text-gray-600">
+                            {% for srv in services %}
+                                <tr>
+                                    <td class="ps-6">
+                                        <a href="{{ path('app_service_show', {'id': srv.id}) }}" class="fw-bolder text-dark text-hover-primary">
+                                            {{ srv.nom }}
+                                        </a>
+                                    </td>
+                                    <td><code>{{ srv.code|default('—') }}</code></td>
+                                    <td>{{ srv.structure ? srv.structure.nom : 'Direct institution' }}</td>
+                                    <td>{{ srv.responsable ? srv.responsable.nom ~ ' ' ~ srv.responsable.prenom : 'Non désigné' }}</td>
+                                    <td><span class="badge badge-light-primary rounded-pill fs-8">{{ srv.employes|length }} agents</span></td>
+                                    <td class="text-end pe-6">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a href="{{ path('app_service_show', {'id': srv.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Voir fiche">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                            <a href="{{ path('app_service_edit', {'id': srv.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Modifier">
+                                                <i class="bi bi-pencil-square text-warning"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-6 fs-8">Aucun service enregistré.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Onglet 4: Agents -->
+                <div class="tab-pane fade" id="agents" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bolder text-dark mb-0 fs-5">Personnel et Agents de l'institution</h5>
+                        <a href="{{ path('app_employe_new') }}" class="btn btn-sm btn-mci-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Nouvel agent
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-3">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-8 text-uppercase gs-0 bg-light">
+                                    <th class="ps-6">Matricule</th>
+                                    <th>Nom & Prénom</th>
+                                    <th>Fonction</th>
+                                    <th>Service</th>
+                                    <th>Statut</th>
+                                    <th class="text-end pe-6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fs-7 fw-semibold text-gray-600">
+                            {% for emp in employes %}
+                                <tr>
+                                    <td class="ps-6 font-monospace"><code>{{ emp.matricule|default('—') }}</code></td>
+                                    <td class="fw-bolder text-dark">{{ emp.nom }} {{ emp.prenom }}</td>
+                                    <td>{{ emp.fonction ? emp.fonction.libelle : '—' }}</td>
+                                    <td>{{ emp.service ? emp.service.nom : '—' }}</td>
+                                    <td>
+                                        {% if emp.actif %}
+                                            <span class="badge badge-light-success fs-8">Actif</span>
+                                        {% else %}
+                                            <span class="badge badge-light-secondary fs-8">Inactif</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-6">
+                                        <a href="{{ path('app_employe_show', {'id': emp.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Dossier agent 360°">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-6 fs-8">Aucun employé rattaché.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Onglet 5: Historique organisationnel -->
+                <div class="tab-pane fade" id="history" role="tabpanel">
+                    <h5 class="fw-bolder text-dark mb-4 fs-5">Historique organisationnel & Traçabilité des changements</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-3">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-8 text-uppercase gs-0 bg-light">
+                                    <th class="ps-6">Date</th>
+                                    <th>Entité</th>
+                                    <th>Action</th>
+                                    <th>Élément</th>
+                                    <th>Auteur</th>
+                                    <th class="pe-6">Détails</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fs-7 fw-semibold text-gray-600">
+                            {% for log in history %}
+                                <tr>
+                                    <td class="ps-6 text-muted fs-8">{{ log.createdAt|date('d/m/Y H:i') }}</td>
+                                    <td><span class="badge badge-light-secondary fs-9">{{ log.entityType }}</span></td>
+                                    <td>
+                                        {% if log.action == 'CREATED' %}
+                                            <span class="badge badge-light-success fs-9">Création</span>
+                                        {% elseif log.action == 'UPDATED' %}
+                                            <span class="badge badge-light-primary fs-9">Modification</span>
+                                        {% elseif log.action == 'DELETED' %}
+                                            <span class="badge badge-light-danger fs-9">Suppression</span>
+                                        {% else %}
+                                            <span class="badge badge-light-secondary fs-9">{{ log.action }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="fw-bolder text-dark">{{ log.entityName|default('#' ~ log.entityId) }}</td>
+                                    <td>{{ log.changedBy ? log.changedBy.userIdentifier : 'Système' }}</td>
+                                    <td class="pe-6">
+                                        {% if log.details %}
+                                            <small class="text-muted font-monospace fs-9">{{ log.details|json_encode }}</small>
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-6 fs-8">Aucun historique disponible pour le moment.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

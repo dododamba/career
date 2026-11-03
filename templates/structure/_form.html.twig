@@ -1,0 +1,75 @@
+{{ form_start(form, {'attr': {'novalidate': true}}) }}
+    <div class="row g-5">
+        <div class="col-md-6">
+            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.nom.vars.id }}">
+                <i class="bi bi-diagram-2 me-1 text-mci-blue"></i>Nom de la structure *
+            </label>
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-solid fs-7', 'placeholder': 'Ex: Direction des Ressources Humaines'}}) }}
+            {{ form_errors(form.nom) }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.code.vars.id }}">
+                <i class="bi bi-upc-scan me-1 text-mci-blue"></i>Code / Sigle
+            </label>
+            {{ form_widget(form.code, {'attr': {'class': 'form-control form-control-solid fs-7', 'placeholder': 'Ex: DRH'}}) }}
+            {{ form_errors(form.code) }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.type.vars.id }}">
+                <i class="bi bi-tag-fill me-1 text-mci-blue"></i>Type hiérarchique *
+            </label>
+            {{ form_widget(form.type, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+            {{ form_errors(form.type) }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.parent.vars.id }}">
+                <i class="bi bi-arrow-return-right me-1 text-mci-blue"></i>Structure parente (Rattachement)
+            </label>
+            {{ form_widget(form.parent, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+            <div class="text-muted fs-8 mt-1">Laissez vide s'il s'agit d'une direction générale ou de premier niveau.</div>
+            {{ form_errors(form.parent) }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.responsable.vars.id }}">
+                <i class="bi bi-person-badge-fill me-1 text-mci-blue"></i>Responsable désigné
+            </label>
+            {{ form_widget(form.responsable, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+            {{ form_errors(form.responsable) }}
+        </div>
+
+        <div class="col-md-8">
+            <label class="form-label fw-semibold fs-7 text-dark" for="{{ form.description.vars.id }}">
+                <i class="bi bi-card-text me-1 text-mci-blue"></i>Missions & Attributions
+            </label>
+            {{ form_widget(form.description, {'attr': {'class': 'form-control form-control-solid fs-7', 'rows': 3, 'placeholder': 'Attributions réglementaires et missions clés...'}}) }}
+            {{ form_errors(form.description) }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.statut.vars.id }}">
+                <i class="bi bi-toggle-on me-1 text-mci-blue"></i>Statut opérationnel *
+            </label>
+            {{ form_widget(form.statut, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+            {{ form_errors(form.statut) }}
+        </div>
+
+        {% if form.institution is defined %}
+            <div class="col-12">
+                <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.institution.vars.id }}">
+                    <i class="bi bi-building me-1 text-mci-blue"></i>Institution tutelle
+                </label>
+                {{ form_widget(form.institution, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                {{ form_errors(form.institution) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 pt-6 mt-6 border-top">
+        <a href="{{ path('app_structure_index') }}" class="btn btn-mci-light">
+            <i class="bi bi-x-lg me-1"></i> Annuler
+        </a>
+        <button type="submit" class="btn btn-mci-primary">
+            <i class="bi bi-check2-circle me-1"></i> {{ button_label|default('Enregistrer') }}
+        </button>
+    </div>
+{{ form_end(form) }}

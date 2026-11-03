@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le Type : {{ type_institution.nom }} — PRIMATECH{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Header & Action Toolbar -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body py-5 px-6">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge badge-light-primary fw-bold text-uppercase px-3 py-2">
+                            <i class="ki-outline ki-setting-2 fs-7 me-1 text-primary"></i> Nomenclature Administrative
+                        </span>
+                    </div>
+                    <h1 class="text-gray-900 fw-bolder fs-2 mb-1">Modifier le Type : {{ type_institution.nom }}</h1>
+                    <p class="text-gray-600 fs-7 mb-0">Mise à jour des paramètres et de la désignation officielle.</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ path('app_type_institution_index') }}" class="btn btn-sm btn-light">
+                        <i class="ki-outline ki-arrow-left fs-6 me-1"></i> Retour à la liste
+                    </a>
+                    <a href="{{ path('app_type_institution_show', {'id': type_institution.id}) }}" class="btn btn-sm btn-light-primary">
+                        <i class="ki-outline ki-eye fs-6 me-1"></i> Voir la fiche
+                    </a>
+                    {{ include('type_institution/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire d'édition -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <i class="ki-outline ki-pencil fs-3 text-warning me-2"></i>
+                <span class="fw-bolder fs-5 text-gray-900">Édition des Informations</span>
+            </div>
+        </div>
+        <div class="card-body pt-0">
+            {{ include('type_institution/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

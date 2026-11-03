@@ -1,0 +1,376 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fiche de Poste 360° — {{ poste.intitule }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .poste-hero-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(30, 41, 59, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .poste-hero-card::after {
+            content: '';
+            position: absolute;
+            right: -50px;
+            bottom: -50px;
+            width: 220px;
+            height: 220px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .poste-icon-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-3">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- 1. Hero Banner Poste 360° -->
+    <div class="poste-hero-card mb-4">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <div class="poste-icon-avatar">
+                    <i class="fas fa-briefcase text-warning"></i>
+                </div>
+            </div>
+            <div class="col">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <h2 class="h3 fw-bold mb-0 text-white">{{ poste.intitule }}</h2>
+                    <span class="badge bg-light text-dark fw-bold px-2 py-1 fs-6">
+                        <i class="fas fa-barcode text-primary me-1"></i> {{ poste.reference }}
+                    </span>
+                    <span class="badge {{ statutMeta.badge }} px-2 py-1 fs-6">
+                        <i class="fas {{ statutMeta.icon }} me-1"></i> {{ statutMeta.label }}
+                    </span>
+                </div>
+                <div class="text-white-50 fs-6 mb-2">
+                    <span class="me-3"><i class="fas fa-layer-group me-1"></i> {{ niveauLabel }}</span>
+                    {% if poste.structure %}
+                        <span class="me-3"><i class="fas fa-sitemap me-1"></i> {{ poste.structure.nom }}</span>
+                    {% endif %}
+                    {% if poste.service %}
+                        <span class="me-3"><i class="fas fa-building me-1"></i> Service: {{ poste.service.nom }}</span>
+                    {% endif %}
+                    {% if poste.fonction %}
+                        <span><i class="fas fa-user-tag me-1"></i> Métier: {{ poste.fonction.libelle }}</span>
+                    {% endif %}
+                </div>
+                <div class="text-white-50 small">
+                    <span class="me-3"><i class="fas fa-calendar-alt me-1"></i> Créé le {{ poste.dateCreation ? poste.dateCreation|date('d/m/Y') : 'N/C' }}</span>
+                    {% if poste.dateFermeture %}
+                        <span class="text-danger"><i class="fas fa-calendar-times me-1"></i> Fermé le {{ poste.dateFermeture|date('d/m/Y') }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-auto mt-3 mt-md-0 d-flex flex-md-column gap-2 justify-content-end">
+                <a href="{{ path('app_poste_affecter', {'id': poste.id}) }}" class="btn btn-success fw-semibold">
+                    <i class="fas fa-user-plus me-1"></i> Affecter un agent
+                </a>
+                {% if occupantActuel %}
+                    <form method="post" action="{{ path('app_poste_liberer', {'id': poste.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir libérer ce poste ? L\'agent ne sera plus titulaire.');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('liberer' ~ poste.id) }}">
+                        <button type="submit" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-door-open me-1"></i> Rendre vacant
+                        </button>
+                    </form>
+                {% endif %}
+                <a href="{{ path('app_poste_edit', {'id': poste.id}) }}" class="btn btn-light">
+                    <i class="fas fa-edit me-1"></i> Modifier
+                </a>
+                <a href="{{ path('app_poste_index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i> Catalogue
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Occupant Actuel & Hiérarchie -->
+    <div class="row g-4 mb-4">
+        <!-- Carte Occupant Actuel -->
+        <div class="col-lg-6">
+            <div class="card border shadow-sm h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-user-tie text-primary me-2"></i> Titulaire Actuel du Poste</h5>
+                    {% if occupantActuel %}
+                        <span class="badge bg-success">En fonction</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Vacant</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if occupantActuel %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 me-3 fw-bold fs-4" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                {{ occupantActuel.prenom|slice(0, 1) }}{{ occupantActuel.nom|slice(0, 1) }}
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{{ occupantActuel.nomComplet }}</h5>
+                                <div class="text-muted small">
+                                    <span class="me-2"><i class="fas fa-id-card me-1"></i> {{ occupantActuel.matricule }}</span>
+                                    <span><i class="fas fa-briefcase me-1"></i> {{ occupantActuel.fonction ? occupantActuel.fonction.libelle : 'Fonction N/C' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 p-3 bg-light rounded border mb-3">
+                            <div class="col-sm-6">
+                                <div class="text-muted small">Date de prise de fonction</div>
+                                <div class="fw-semibold">{{ occupationActuelle ? occupationActuelle.dateDebut|date('d/m/Y') : 'N/C' }}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-muted small">Durée d'occupation</div>
+                                <div class="fw-semibold text-primary">{{ dureeOccupation ?: 'En cours' }}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-muted small">Motif d'affectation</div>
+                                <div class="fw-semibold">{{ occupationActuelle ? occupationActuelle.motif : 'N/C' }}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-muted small">Email agent</div>
+                                <div class="fw-semibold">{{ occupantActuel.email }}</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('app_employe_show', {'id': occupantActuel.id}) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-id-badge me-1"></i> Consulter la Fiche Agent 360°
+                            </a>
+                            <a href="{{ path('app_poste_affecter', {'id': poste.id}) }}" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-exchange-alt me-1"></i> Remplacer l'agent
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <div class="text-warning mb-2"><i class="fas fa-door-open fa-3x"></i></div>
+                            <h5 class="fw-bold text-dark">Ce poste est actuellement vacant</h5>
+                            <p class="text-muted mb-3">Aucun agent titulaire n'est actuellement affecté à ce poste de travail.</p>
+                            <a href="{{ path('app_poste_affecter', {'id': poste.id}) }}" class="btn btn-success fw-semibold">
+                                <i class="fas fa-user-plus me-1"></i> Affecter un agent maintenant
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte Rattachement & Fil d'Ariane -->
+        <div class="col-lg-6">
+            <div class="card border shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-sitemap text-warning me-2"></i> Rattachement Hiérarchique</h5>
+                </div>
+                <div class="card-body">
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <div class="text-muted small mb-2"><i class="fas fa-project-diagram me-1"></i> Ligne hiérarchique du poste</div>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                {% if poste.institution %}
+                                    <li class="breadcrumb-item">
+                                        <a href="{{ path('app_institution_show', {'id': poste.institution.id}) }}" class="fw-bold text-primary text-decoration-none">
+                                            {{ poste.institution.nom }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% for st in structurePath %}
+                                    <li class="breadcrumb-item">
+                                        <a href="{{ path('app_structure_show', {'id': st.id}) }}" class="text-decoration-none">
+                                            {{ st.nom }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                                {% if poste.service %}
+                                    <li class="breadcrumb-item active fw-bold text-dark">
+                                        {{ poste.service.nom }}
+                                    </li>
+                                {% endif %}
+                            </ol>
+                        </nav>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="text-muted small">Structure</div>
+                            <div class="fw-bold">{{ poste.structure ? poste.structure.nom : 'Non rattaché' }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-muted small">Service</div>
+                            <div class="fw-bold">{{ poste.service ? poste.service.nom : 'Non rattaché' }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-muted small">Métier / Fonction</div>
+                            <div class="fw-bold">{{ poste.fonction ? poste.fonction.libelle : 'Non assigné' }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-muted small">Niveau de responsabilité</div>
+                            <div class="fw-bold">{{ niveauLabel }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Missions & Compétences -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card border shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-tasks text-primary me-2"></i> Missions & Activités Principales</h5>
+                </div>
+                <div class="card-body">
+                    {% if poste.description %}
+                        <div class="text-secondary" style="white-space: pre-line;">{{ poste.description }}</div>
+                    {% else %}
+                        <p class="text-muted fst-italic">Aucune description ou mission détaillée n'a été renseignée pour ce poste.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-graduation-cap text-success me-2"></i> Compétences & Profil Recherché</h5>
+                </div>
+                <div class="card-body">
+                    {% if poste.competencesRequises %}
+                        <div class="text-secondary" style="white-space: pre-line;">{{ poste.competencesRequises }}</div>
+                    {% else %}
+                        <p class="text-muted fst-italic">Aucune exigence ou compétence spécifique renseignée pour ce poste.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Historique Complet d'Occupation -->
+    <div class="card border shadow-sm mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-history text-secondary me-2"></i>
+                Historique des Occupations du Poste
+            </h5>
+            <span class="badge bg-light text-dark border">{{ totalOccupantsHistorique }} occupation(s) enregistrée(s)</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Agent occupant</th>
+                            <th>Période d'occupation</th>
+                            <th>Durée</th>
+                            <th>Motif d'affectation</th>
+                            <th>Statut</th>
+                            <th>Observations</th>
+                            <th class="text-end">Fiche Agent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for occ in historiqueOccupations %}
+                            <tr class="{{ occ.isActif ? 'table-success bg-opacity-25' : '' }}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-light border p-2 me-2 text-primary fw-bold text-center" style="width: 38px; height: 38px;">
+                                            {{ occ.employe.prenom|slice(0, 1) }}{{ occ.employe.nom|slice(0, 1) }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ occ.employe.nomComplet }}</div>
+                                            <div class="text-muted small"><i class="fas fa-id-badge me-1"></i> {{ occ.employe.matricule }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Du <strong>{{ occ.dateDebut|date('d/m/Y') }}</strong></div>
+                                    <div class="text-muted small">
+                                        {% if occ.dateFin %}
+                                            au {{ occ.dateFin|date('d/m/Y') }}
+                                        {% else %}
+                                            <span class="badge bg-success">Actuel</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ occ.duree }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info-subtle text-info">{{ occ.motif ?: 'Non spécifié' }}</span>
+                                </td>
+                                <td>
+                                    {% if occ.isActif and not occ.dateFin %}
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> En cours</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Terminé</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">
+                                    {{ occ.commentaire ?: '-' }}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ path('app_employe_show', {'id': occ.employe.id}) }}" class="btn btn-sm btn-outline-primary" title="Fiche Agent 360°">
+                                        <i class="fas fa-id-badge"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                                    Aucun historique d'occupation consigné pour ce poste.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions bas de page -->
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+        <a href="{{ path('app_poste_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour au catalogue des postes
+        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_poste_edit', {'id': poste.id}) }}" class="btn btn-warning">
+                <i class="fas fa-edit me-1"></i> Modifier
+            </a>
+            <form method="post" action="{{ path('app_poste_delete', {'id': poste.id}) }}" onsubmit="return confirm('Confirmez-vous la suppression de ce poste ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ poste.id) }}">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i> Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

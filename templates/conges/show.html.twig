@@ -1,0 +1,489 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du congé #{{ conge.id }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h2 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-calendar-check-fill text-mci-blue me-3"></i>
+        Demande de Congé #{{ conge.id }}
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">{{ conge.employe ? conge.employe.nomComplet : 'Agent' }}</small>
+    </h2>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Temps & Absences</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_conges_index') }}" class="text-muted text-hover-primary">Congés</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">#{{ conge.id }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_conges_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Retour à la liste</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Bannière Statut & Agent -->
+    <div class="card card-mci p-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="symbol symbol-45px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                    <span class="symbol-label">
+                        <i class="bi bi-calendar2-week-fill fs-2 text-mci-blue"></i>
+                    </span>
+                </div>
+                <div class="d-flex flex-column">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge" style="background-color: {{ conge.typeConge.couleur|default('#0C2340') }}; color: #fff;">
+                            {{ conge.typeConge.libelle }}
+                        </span>
+                        {% if conge.statut == 0 %}
+                            <span class="badge badge-mci-warning fs-8"><i class="bi bi-hourglass-split me-1"></i>En attente d'approbation</span>
+                        {% elseif conge.statut == 1 %}
+                            <span class="badge badge-mci-success fs-8"><i class="bi bi-check-circle-fill me-1"></i>Approuvé</span>
+                        {% elseif conge.statut == 2 %}
+                            <span class="badge badge-mci-danger fs-8"><i class="bi bi-x-circle-fill me-1"></i>Refusé</span>
+                        {% elseif conge.statut == 3 %}
+                            <span class="badge bg-secondary text-white fs-8"><i class="bi bi-slash-circle me-1"></i>Annulé</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-muted fs-8 mt-1">
+                        Agent : <strong>{{ conge.employe ? conge.employe.nomComplet : 'N/A' }}</strong>
+                        {% if conge.employe and conge.employe.matricule %}
+                            (Matricule : {{ conge.employe.matricule }})
+                        {% endif %}
+                        • Durée : <strong>{{ conge.dateDiff }} jour(s)</strong>
+                    </span>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                {% if is_granted('CONGES_APPROVE', conge) %}
+                    <button type="button" class="btn btn-mci-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalApprove">
+                        <i class="bi bi-check2-circle fs-5 me-1"></i> Approuver
+                    </button>
+                {% endif %}
+
+                {% if is_granted('CONGES_REJECT', conge) %}
+                    <button type="button" class="btn btn-mci-light btn-sm text-danger" data-bs-toggle="modal" data-bs-target="#modalReject">
+                        <i class="bi bi-x-circle fs-5 me-1"></i> Rejeter
+                    </button>
+                {% endif %}
+
+                {% if is_granted('CONGES_CANCEL', conge) %}
+                    <button type="button" class="btn btn-mci-light btn-sm text-warning" data-bs-toggle="modal" data-bs-target="#modalCancel">
+                        <i class="bi bi-slash-circle fs-5 me-1"></i> Annuler le congé
+                    </button>
+                {% endif %}
+
+                {% if is_granted('CONGES_EDIT', conge) %}
+                    <a href="{{ path('app_conges_edit', {'id': conge.id}) }}" class="btn btn-mci-light btn-sm">
+                        <i class="bi bi-pencil-square fs-5 me-1"></i> Modifier
+                    </a>
+                {% endif %}
+
+                {% if is_granted('CONGES_DELETE', conge) %}
+                    <form method="post" action="{{ path('app_conges_delete', {'id': conge.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer définitivement cette demande de congé ?');" class="d-inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ conge.id) }}">
+                        <button type="submit" class="btn btn-mci-light btn-sm text-danger" title="Supprimer">
+                            <i class="bi bi-trash3 fs-5 me-1"></i> Supprimer
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Stepper de cycle de vie institutionnel -->
+    <div class="card card-mci p-6">
+        <div class="d-flex justify-content-between align-items-center position-relative">
+            <!-- Étape 1 -->
+            <div class="d-flex flex-column align-items-center text-center z-index-1">
+                <div class="symbol symbol-45px symbol-circle bg-light-primary text-primary mb-2 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-file-earmark-text-fill fs-3"></i>
+                </div>
+                <span class="fw-bolder text-dark fs-7">Création</span>
+                <span class="text-muted fs-8">{{ conge.createdAt ? conge.createdAt|date('d/m/Y') : '-' }}</span>
+            </div>
+
+            <!-- Connecteur 1-2 -->
+            <div class="flex-grow-1 border-top border-2 border-primary mx-3"></div>
+
+            <!-- Étape 2 -->
+            <div class="d-flex flex-column align-items-center text-center z-index-1">
+                <div class="symbol symbol-45px symbol-circle bg-light-primary text-primary mb-2 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-hourglass-split fs-3"></i>
+                </div>
+                <span class="fw-bolder text-dark fs-7">Instruction</span>
+                <span class="text-success fs-8 fw-semibold">Enregistrée</span>
+            </div>
+
+            <!-- Connecteur 2-3 -->
+            <div class="flex-grow-1 border-top border-2 {{ conge.statut != 0 ? 'border-primary' : 'border-gray-300' }} mx-3"></div>
+
+            <!-- Étape 3 -->
+            <div class="d-flex flex-column align-items-center text-center z-index-1">
+                {% if conge.statut == 1 %}
+                    <div class="symbol symbol-45px symbol-circle bg-light-success text-success mb-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-check-lg fs-2"></i>
+                    </div>
+                    <span class="fw-bolder text-success fs-7">Approuvée</span>
+                    <span class="text-muted fs-8">{{ conge.dateApprobation ? conge.dateApprobation|date('d/m/Y') : '-' }}</span>
+                {% elseif conge.statut == 2 %}
+                    <div class="symbol symbol-45px symbol-circle bg-light-danger text-danger mb-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-x-lg fs-2"></i>
+                    </div>
+                    <span class="fw-bolder text-danger fs-7">Rejetée</span>
+                    <span class="text-muted fs-8">{{ conge.dateApprobation ? conge.dateApprobation|date('d/m/Y') : '-' }}</span>
+                {% elseif conge.statut == 3 %}
+                    <div class="symbol symbol-45px symbol-circle bg-light text-muted mb-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-slash-circle fs-3"></i>
+                    </div>
+                    <span class="fw-bolder text-secondary fs-7">Annulée</span>
+                    <span class="text-muted fs-8">{{ conge.updatedAt ? conge.updatedAt|date('d/m/Y') : '-' }}</span>
+                {% else %}
+                    <div class="symbol symbol-45px symbol-circle bg-light text-muted mb-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-question-lg fs-3"></i>
+                    </div>
+                    <span class="fw-bolder text-muted fs-7">Décision</span>
+                    <span class="text-muted fs-8">En attente</span>
+                {% endif %}
+            </div>
+
+            <!-- Connecteur 3-4 (si approuvé) -->
+            {% if conge.statut == 1 %}
+                <div class="flex-grow-1 border-top border-2 {{ conge.dateFin < date() ? 'border-primary' : 'border-gray-300' }} mx-3"></div>
+
+                <!-- Étape 4 -->
+                <div class="d-flex flex-column align-items-center text-center z-index-1">
+                    <div class="symbol symbol-45px symbol-circle {{ conge.dateFin < date() ? 'bg-light-success text-success' : 'bg-light text-muted' }} mb-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-flag-fill fs-3"></i>
+                    </div>
+                    <span class="fw-bolder {{ conge.dateFin < date() ? 'text-success' : 'text-muted' }} fs-7">Clôture</span>
+                    <span class="text-muted fs-8">{{ conge.dateFin ? conge.dateFin|date('d/m/Y') : '-' }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-6">
+        <!-- Colonne gauche : Détails de la demande -->
+        <div class="col-lg-8">
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-info-circle-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Détails de la demande</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-muted fs-7">Employé :</span>
+                            <span class="fw-bolder fs-7 text-dark">
+                                {% if conge.employe %}
+                                    <a href="{{ path('app_employe_show', {'id': conge.employe.id}) }}" class="text-dark text-hover-primary">
+                                        {{ conge.employe.nomComplet }}
+                                    </a>
+                                    <span class="text-muted fs-8 ms-2">({{ conge.employe.matricule|default('Sans matricule') }})</span>
+                                {% else %}
+                                    <span class="text-muted">Non assigné</span>
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-muted fs-7">Structure / Service :</span>
+                            <span class="fw-semibold text-dark fs-7">
+                                {{ conge.employe and conge.employe.service ? conge.employe.service.nom : 'Non défini' }}
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-muted fs-7">Type de congé :</span>
+                            <div>
+                                <span class="badge" style="background-color: {{ conge.typeConge.couleur|default('#0C2340') }}; color: #fff;">
+                                    {{ conge.typeConge.libelle }}
+                                </span>
+                                {% if conge.typeConge.isDeductible %}
+                                    <span class="badge badge-mci-gold ms-1 fs-9">Déductible du solde</span>
+                                {% else %}
+                                    <span class="badge badge-mci-light text-muted ms-1 fs-9">Non déductible</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-muted fs-7">Période accordée :</span>
+                            <span class="fw-bold text-dark fs-7">
+                                Du {{ conge.dateDebut|date('d/m/Y') }} au {{ conge.dateFin|date('d/m/Y') }}
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-muted fs-7">Durée :</span>
+                            <span class="fs-6 fw-bolder text-mci-blue">{{ conge.dateDiff }} jour(s)</span>
+                        </div>
+
+                        <div class="py-2 border-bottom border-gray-200">
+                            <span class="text-muted fs-7 d-block mb-1">Motif formulé :</span>
+                            <div class="p-4 rounded-3 bg-light text-dark fs-7">
+                                {{ conge.motif|default('<span class="text-muted fst-italic">Aucun motif renseigné</span>')|raw }}
+                            </div>
+                        </div>
+
+                        {% if conge.commentaireRefus %}
+                            <div class="py-2 border-bottom border-gray-200">
+                                <span class="text-danger fs-7 fw-bold d-block mb-1"><i class="bi bi-x-circle me-1"></i> Motif du rejet :</span>
+                                <div class="p-4 rounded-3 bg-light-danger border border-danger border-opacity-20 text-danger fs-7">
+                                    {{ conge.commentaireRefus }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-gray-200">
+                            <span class="text-muted fs-7">Justificatif médical / officiel :</span>
+                            <div>
+                                {% if conge.document %}
+                                    <a href="{{ path('app_document_show', {'id': conge.document.id}) }}" class="btn btn-mci-light btn-sm">
+                                        <i class="bi bi-file-earmark-pdf text-danger me-1"></i> {{ conge.document.titre }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted fs-8 fst-italic">Aucun justificatif joint</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-gray-200">
+                            <span class="text-muted fs-7">Titre / Acte administratif :</span>
+                            <div>
+                                {% if conge.acte %}
+                                    <a href="{{ path('app_acte_show', {'id': conge.acte.id}) }}" class="btn btn-mci-secondary btn-sm">
+                                        <i class="bi bi-stamp text-mci-blue me-1"></i> Acte {{ conge.acte.numero }} ({{ conge.acte.typeActe.libelle }})
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted fs-8 fst-italic">Non généré</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if conge.approuvePar %}
+                            <div class="d-flex justify-content-between py-2">
+                                <span class="text-muted fs-7">Traité par :</span>
+                                <span class="fw-semibold text-dark fs-7">
+                                    {{ conge.approuvePar.nomComplet|default(conge.approuvePar.userIdentifier) }}
+                                    {% if conge.dateApprobation %}
+                                        <span class="text-muted fs-8 ms-2">le {{ conge.dateApprobation|date('d/m/Y à H:i') }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite : Soldes & Historique -->
+        <div class="col-lg-4">
+            <!-- Soldes de l'employé -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-wallet2 fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-5">Soldes de congés de l'agent</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    {% if soldes is not empty %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for s in soldes %}
+                                <div class="d-flex justify-content-between align-items-center p-3 rounded-3 bg-light border">
+                                    <div>
+                                        <span class="fw-bolder text-dark fs-7">{{ s.typeConge.libelle }}</span>
+                                        <div class="text-muted fs-8">Année {{ s.annee|default(date()|date('Y')) }}</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge {{ s.solde > 0 ? 'badge-mci-success' : 'badge-mci-danger' }} fs-7">
+                                            {{ s.solde }} j
+                                        </span>
+                                        <div class="text-muted fs-8 mt-1">{{ s.soldePris }} j pris / {{ s.soldeAcquis }} j</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted fs-8 mb-0 text-center py-4">Aucun solde configuré pour cet agent.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Journal d'audit / Historique -->
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-clock-history fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-5">Journal des actions</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="timeline-label">
+                        {% for log in conge.congesLogs %}
+                            <div class="timeline-item mb-3">
+                                <div class="timeline-label fw-bold text-gray-800 fs-8" style="width: 75px;">
+                                    {{ log.createdAt|date('d/m/Y') }}
+                                </div>
+                                <div class="timeline-badge">
+                                    <i class="bi bi-record-circle-fill text-mci-blue fs-4"></i>
+                                </div>
+                                <div class="timeline-content p-3 rounded-3 bg-light ms-2 flex-grow-1">
+                                    <div class="fw-bolder text-dark fs-8">{{ log.actionLabel }}</div>
+                                    <div class="text-muted fs-9">Par {{ log.user ? log.user.nomComplet|default(log.user.userIdentifier) : 'Système' }} à {{ log.createdAt|date('H:i') }}</div>
+                                    {% if log.description %}
+                                        <div class="text-gray-700 fs-8 mt-1">{{ log.description }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-muted fs-8 text-center py-4">Aucun événement enregistré.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Approbation -->
+{% if is_granted('CONGES_APPROVE', conge) %}
+<div class="modal fade" id="modalApprove" tabindex="-1" aria-labelledby="modalApproveLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{{ path('app_conges_approve', {'id': conge.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('approve' ~ conge.id) }}">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title text-white" id="modalApproveLabel">
+                        <i class="bi bi-check-circle-fill me-2"></i>Approuver la demande de congé
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-6">
+                    <p class="fs-6 text-dark mb-3">Êtes-vous certain de vouloir approuver la demande de congé pour <strong>{{ conge.employe ? conge.employe.nomComplet : 'l\'agent' }}</strong> ?</p>
+                    <div class="alert alert-mci alert-mci-blue p-4 mb-4">
+                        <i class="bi bi-info-circle me-1"></i> Durée : <strong>{{ conge.dateDiff }} jour(s)</strong> du {{ conge.dateDebut|date('d/m/Y') }} au {{ conge.dateFin|date('d/m/Y') }}.
+                        {% if conge.typeConge.isDeductible %}
+                            <br><span class="text-danger fw-semibold">Ces jours seront automatiquement déduits du solde de l'agent.</span>
+                        {% endif %}
+                    </div>
+                    <div class="form-check form-check-custom form-check-solid">
+                        <input class="form-check-input" type="checkbox" name="generer_acte" id="generer_acte" value="1" checked>
+                        <label class="form-check-label fw-bold text-dark fs-7 ms-2" for="generer_acte">
+                            Générer automatiquement un <strong>Titre de congé officiel</strong> dans le module Actes administratifs
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-mci-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i> Confirmer l'approbation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Rejet -->
+{% if is_granted('CONGES_REJECT', conge) %}
+<div class="modal fade" id="modalReject" tabindex="-1" aria-labelledby="modalRejectLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{{ path('app_conges_reject', {'id': conge.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ conge.id) }}">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title text-white" id="modalRejectLabel">
+                        <i class="bi bi-x-circle-fill me-2"></i>Rejeter la demande de congé
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-6">
+                    <div class="mb-3">
+                        <label for="motif_refus" class="form-label fw-bolder fs-7 text-dark">Motif du rejet (obligatoire) :</label>
+                        <textarea class="form-control form-control-solid fs-7" id="motif_refus" name="motif_refus" rows="4" placeholder="Précisez la raison administrative ou opérationnelle du rejet..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-mci-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg me-1"></i> Confirmer le rejet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Annulation -->
+{% if is_granted('CONGES_CANCEL', conge) %}
+<div class="modal fade" id="modalCancel" tabindex="-1" aria-labelledby="modalCancelLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{{ path('app_conges_cancel', {'id': conge.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ conge.id) }}">
+                <div class="modal-header bg-secondary text-white">
+                    <h5 class="modal-title text-white" id="modalCancelLabel">
+                        <i class="bi bi-slash-circle me-2"></i>Annuler le congé
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-6">
+                    <p class="fs-6 text-dark mb-3">Confirmez-vous l'annulation de ce congé ?</p>
+                    {% if conge.statut == 1 and conge.typeConge.isDeductible %}
+                        <div class="alert alert-mci alert-mci-success p-4 mb-4">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Les <strong>{{ conge.dateDiff }} jour(s)</strong> déduits seront automatiquement recrédités au solde de l'agent.
+                        </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="motif_annulation" class="form-label fw-bold fs-7">Motif de l'annulation (optionnel) :</label>
+                        <textarea class="form-control form-control-solid fs-7" id="motif_annulation" name="motif_annulation" rows="3" placeholder="Raison de l'annulation..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-mci-light" data-bs-dismiss="modal">Fermer</button>
+                    <button type="submit" class="btn btn-warning"><i class="bi bi-slash-circle me-1"></i> Annuler définitivement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

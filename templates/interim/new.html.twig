@@ -1,0 +1,221 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Désigner un intérimaire — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-shield-lock-fill text-mci-blue me-3"></i>
+        Désigner un intérimaire
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Suppléance temporaire, délégation de pouvoir ou de signature</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Carrière & Mobilité</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_interim_index') }}" class="text-muted text-hover-primary">Intérim & Délégations</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Nouvelle désignation</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_interim_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Retour à la liste</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'id': 'interim-form', 'class': 'needs-validation', 'novalidate': true}}) }}
+
+    <div class="row g-6">
+        <!-- Formulaire principal -->
+        <div class="col-lg-8">
+            <!-- Section 1 : Acteurs de l'intérim -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-people-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Acteurs de la suppléance</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.titulaire.vars.id }}">
+                                <i class="bi bi-person-x-fill me-1 text-danger"></i>Titulaire remplacé *
+                            </label>
+                            {{ form_widget(form.titulaire, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.titulaire) }}
+                            <div class="text-muted fs-8 mt-1">L'agent titulaire momentanément indisponible ou absent.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.interimaire.vars.id }}">
+                                <i class="bi bi-person-check-fill me-1 text-success"></i>Intérimaire désigné *
+                            </label>
+                            {{ form_widget(form.interimaire, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.interimaire) }}
+                            <div class="text-muted fs-8 mt-1">L'agent assurant le remplacement et la continuité du service.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.typeDelegation.vars.id }}">
+                                <i class="bi bi-shield-shaded me-1 text-mci-blue"></i>Type de délégation *
+                            </label>
+                            {{ form_widget(form.typeDelegation, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.typeDelegation) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7 text-dark" for="{{ form.poste.vars.id }}">
+                                <i class="bi bi-briefcase me-1 text-muted"></i>Poste concerné (optionnel)
+                            </label>
+                            {{ form_widget(form.poste, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.poste) }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold fs-7 text-dark" for="{{ form.structure.vars.id }}">
+                                <i class="bi bi-diagram-3 me-1 text-muted"></i>Direction / Service rattaché
+                            </label>
+                            {{ form_widget(form.structure, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.structure) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2 : Période & Justification -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-calendar-range fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Période & Justification</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.dateDebut.vars.id }}">
+                                <i class="bi bi-calendar-event me-1 text-success"></i>Date de début *
+                            </label>
+                            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control form-control-solid fs-7'}}) }}
+                            {{ form_errors(form.dateDebut) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.dateFin.vars.id }}">
+                                <i class="bi bi-calendar-check me-1 text-danger"></i>Date de fin *
+                            </label>
+                            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control form-control-solid fs-7'}}) }}
+                            {{ form_errors(form.dateFin) }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.motif.vars.id }}">
+                                <i class="bi bi-chat-text me-1 text-mci-blue"></i>Motif de la suppléance *
+                            </label>
+                            {{ form_widget(form.motif, {'attr': {'class': 'form-control form-control-solid fs-7', 'rows': 3, 'placeholder': 'Ex: Absence pour mission officielle, congé annuel du directeur, vacance temporaire...'}}) }}
+                            {{ form_errors(form.motif) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3 : Périmètre des pouvoirs délégués -->
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-key-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Périmètre des pouvoirs délégués</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="p-4 bg-light rounded border mb-2">
+                        <div class="row g-4">
+                            {% for choice in form.perimetre %}
+                                <div class="col-md-6">
+                                    <div class="form-check form-check-custom form-check-solid">
+                                        {{ form_widget(choice, {'attr': {'class': 'form-check-input'}}) }}
+                                        {{ form_label(choice, null, {'label_attr': {'class': 'form-check-label fw-bold text-dark fs-7 ms-2'}}) }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {{ form_errors(form.perimetre) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panneau latéral / Actions -->
+        <div class="col-lg-4">
+            <!-- Rappel institutionnel -->
+            <div class="card card-mci mb-6 p-6">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="symbol symbol-40px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-shield-check fs-3 text-mci-blue"></i>
+                        </span>
+                    </div>
+                    <div>
+                        <h5 class="fw-bolder text-dark mb-0 fs-6">Cadre réglementaire</h5>
+                        <span class="text-muted fs-8">MCI — République du Tchad</span>
+                    </div>
+                </div>
+                <p class="text-muted fs-7 mb-0">
+                    L'intérim confère au remplaçant les prérogatives définies dans l'acte de désignation. Une décision officielle peut être générée automatiquement lors de la validation.
+                </p>
+            </div>
+
+            <!-- Boutons de soumission -->
+            <div class="card card-mci p-6">
+                <div class="d-flex flex-column gap-3">
+                    <button type="submit" name="save_and_submit" class="btn btn-mci-primary w-100 py-3">
+                        <i class="bi bi-send-check me-1"></i> Soumettre pour validation
+                    </button>
+                    <button type="submit" name="save_draft" class="btn btn-mci-secondary w-100 py-3">
+                        <i class="bi bi-save me-1"></i> Enregistrer en brouillon
+                    </button>
+                    <a href="{{ path('app_interim_index') }}" class="btn btn-mci-light w-100">
+                        <i class="bi bi-x-lg me-1"></i> Annuler
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+</div>
+{% endblock %}

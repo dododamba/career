@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier l'agent — {{ employe.nomComplet }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 fw-bold text-dark mb-1">
+                <i class="fas fa-user-edit text-warning me-2"></i>
+                Modifier le profil de l'agent
+            </h2>
+            <p class="text-muted mb-0">Mise à jour des données administratives, d'état civil et d'affectation pour <strong>{{ employe.nomComplet }}</strong> (Matricule: {{ employe.matricule }}).</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_employe_show', {'id': employe.id}) }}" class="btn btn-outline-primary">
+                <i class="fas fa-id-badge me-1"></i> Fiche 360°
+            </a>
+            <a href="{{ path('app_employe_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    {{ include('employe/_form.html.twig', {'button_label': 'Mettre à jour l\'agent'}) }}
+</div>
+{% endblock %}

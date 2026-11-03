@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le document — {{ document.titre }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Modifier les Métadonnées du Document
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">{{ document.titre }}</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_document_index') }}" class="text-muted text-hover-primary">Coffre-fort</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_document_show', {'id': document.id}) }}" class="text-muted text-hover-primary">{{ document.titre|slice(0, 20) }}...</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Modification</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('app_document_show', {'id': document.id}) }}" class="btn btn-sm btn-light">
+        <i class="ki-duotone ki-arrow-left fs-4 me-1">
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+        Retour au document
+    </a>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+    <!-- Formulaire d'édition -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-header border-0 pt-6">
+            <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bold fs-4 text-gray-900">Classification &amp; Métadonnées du Document</span>
+                <span class="text-muted mt-1 fw-semibold fs-7">Mise à jour des informations administratives, catégorie, confidentialité ou statut</span>
+            </h3>
+        </div>
+        <div class="card-body p-8">
+            {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+
+            <div class="row g-5">
+                <div class="col-md-6">
+                    {{ form_label(form.titre, 'Titre ou désignation du document *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.titre, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                    {{ form_errors(form.titre) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_label(form.categorie, 'Catégorie de pièce *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.categorie, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.categorie) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_label(form.niveau_confidentialite, 'Niveau de confidentialité *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.niveau_confidentialite, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.niveau_confidentialite) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.reference, 'Numéro / Référence de la pièce', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.reference, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                    {{ form_errors(form.reference) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.date_document, 'Date d\'émission / Signature', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.date_document, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                    {{ form_errors(form.date_document) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.statut, 'Statut de validation *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.statut, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.statut) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.employe, 'Agent concerné (optionnel)', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.employe, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.employe) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.affectation, 'Mouvement / Affectation lié(e) (optionnel)', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.affectation, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.affectation) }}
+                </div>
+
+                <div class="col-12">
+                    {{ form_label(form.description, 'Observations & Description du document', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control form-control-solid', 'rows': 3}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-8 pt-6 border-top">
+                <a href="{{ path('app_document_show', {'id': document.id}) }}" class="btn btn-light">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-mci-primary px-6">
+                    <i class="ki-duotone ki-check fs-4 me-1"></i>
+                    Enregistrer les modifications
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

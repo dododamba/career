@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau service — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Créer un service
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Ajout d'une unité administrative ou d'une direction</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Administration</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_service_index') }}" class="text-muted text-hover-primary">Services</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Nouveau service</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('app_service_index') }}" class="btn btn-mci-light">
+        <i class="bi bi-arrow-left me-1"></i>Retour à la liste
+    </a>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+        <div class="card card-mci">
+            <!--begin::Card header-->
+            <div class="card-header border-0 pt-6">
+                <div class="card-title d-flex align-items-center">
+                    <div class="symbol symbol-45px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                        <i class="bi bi-diagram-3-fill text-mci-blue fs-2"></i>
+                    </div>
+                    <div>
+                        <h2 class="fs-3 fw-bolder text-dark mb-0">Création d'un service administratif</h2>
+                        <span class="text-muted fs-7">Renseignez les détails d'organisation et de rattachement</span>
+                    </div>
+                </div>
+            </div>
+            <!--end::Card header-->
+
+            <!--begin::Card body-->
+            <div class="card-body pt-4">
+                {{ include('service/_form.html.twig', {'button_label': 'Créer le service'}) }}
+            </div>
+            <!--end::Card body-->
+        </div>
+    </div>
+</div>
+{% endblock %}

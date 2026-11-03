@@ -1,0 +1,26 @@
+{{ form_start(form, {'attr': {'class': 'form d-flex flex-column gap-5'}}) }}
+    {{ form_errors(form) }}
+
+    <div class="fv-row">
+        {{ form_label(form.nom, 'Désignation du type', {'label_attr': {'class': 'required fs-6 fw-bold mb-2 text-gray-800'}}) }}
+        {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Ex: Ministère, Direction Générale, Établissement Public'}}) }}
+        {{ form_errors(form.nom) }}
+    </div>
+
+    {% if form.slug is defined %}
+    <div class="fv-row">
+        {{ form_label(form.slug, 'Identifiant technique (Slug)', {'label_attr': {'class': 'fs-6 fw-bold mb-2 text-gray-800'}}) }}
+        {{ form_widget(form.slug, {'attr': {'class': 'form-control form-control-solid font-monospace', 'placeholder': 'Ex: ministere, direction-generale (généré automatiquement si vide)'}}) }}
+        {{ form_errors(form.slug) }}
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-end gap-3 pt-4 border-top">
+        <a href="{{ path('app_type_institution_index') }}" class="btn btn-light">
+            <i class="ki-outline ki-cross fs-6 me-1"></i> Annuler
+        </a>
+        <button type="submit" class="btn btn-mci-primary">
+            <i class="ki-outline ki-check fs-6 me-1"></i> {{ button_label|default('Enregistrer') }}
+        </button>
+    </div>
+{{ form_end(form) }}

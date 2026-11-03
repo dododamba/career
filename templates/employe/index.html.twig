@@ -1,0 +1,290 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dossier Unique des Agents & Personnel — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Registre des Agents
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Dossier numérique unique, référentiel RH et affectations</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Référentiel RH</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Agents</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_pointage_dashboard') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-clock-history fs-5"></i>
+            <span class="d-none d-sm-inline">Pointages</span>
+        </a>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_employe_new') }}" class="btn btn-mci-primary btn-sm">
+                <i class="bi bi-person-plus fs-5"></i>
+                <span class="d-none d-sm-inline">Nouvel Agent</span>
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6" data-controller="table">
+
+    {# Indicateurs synthétiques du personnel #}
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Agents</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ employes|length }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-people me-1 text-mci-blue"></i>
+                            Effectif sous gestion
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-people-fill fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">En Activité</span>
+                        {% set totalActifs = 0 %}
+                        {% for e in employes %}
+                            {% if e.actif %}{% set totalActifs = totalActifs + 1 %}{% endif %}
+                        {% endfor %}
+                        <span class="fs-2hx fw-bolder text-success mb-1">{{ totalActifs }}</span>
+                        <span class="fs-8 text-success fw-semibold">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Agents en service régulier
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-success">
+                        <span class="symbol-label">
+                            <i class="bi bi-person-check-fill fs-2 text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Postes occupés</span>
+                        {% set totalPostesOccupes = 0 %}
+                        {% for e in employes %}
+                            {% if e.poste %}{% set totalPostesOccupes = totalPostesOccupes + 1 %}{% endif %}
+                        {% endfor %}
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ totalPostesOccupes }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-briefcase me-1 text-primary"></i>
+                            Affectations formelles
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-primary">
+                        <span class="symbol-label">
+                            <i class="bi bi-briefcase-fill fs-2 text-primary"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Dossiers 360°</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">100%</span>
+                        <span class="fs-8 text-warning fw-semibold">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Traçabilité juridique
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-gold-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-folder-check fs-2 text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Carte principale : Tableau des agents #}
+    <div class="card card-mci">
+        <div class="card-header border-0 pt-6 pb-6 d-flex flex-wrap align-items-center justify-content-between gap-4">
+            <!-- Recherche rapide Stimulus -->
+            <div class="d-flex align-items-center position-relative my-1">
+                <i class="bi bi-search fs-4 position-absolute ms-4 text-muted"></i>
+                <input type="text" 
+                       data-table-target="input" 
+                       data-action="input->table#filter" 
+                       class="form-control form-control-mci ps-12 w-250px w-md-350px" 
+                       placeholder="Rechercher par nom, matricule, service..." 
+                       aria-label="Rechercher un agent" />
+            </div>
+
+            <!-- Toolbar & Export -->
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge badge-mci badge-mci-blue fs-7 fw-bold px-3 py-2">
+                    <i class="bi bi-person-badge me-1"></i>
+                    {{ employes|length }} agent(s)
+                </span>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('app_employe_new') }}" class="btn btn-mci-primary d-none d-sm-inline-flex">
+                        <i class="bi bi-plus-lg fs-5"></i>
+                        <span>Ajouter</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table class="table table-mci align-middle table-row-dashed fs-6 gy-4" id="employes-table">
+                    <thead>
+                        <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0">
+                            <th class="w-60px ps-4">#</th>
+                            <th class="min-w-250px">Agent & Identité</th>
+                            <th class="min-w-180px">Structure & Affectation</th>
+                            <th class="min-w-160px">Fonction / Titre</th>
+                            <th class="min-w-120px text-center">Statut RH</th>
+                            <th class="min-w-140px text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 fw-semibold">
+                        {% for employe in employes %}
+                            <tr data-table-target="row">
+                                <td class="ps-4">
+                                    <span class="text-muted fw-bold fs-7">#{{ employe.id }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-45px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                            {% if employe.photo %}
+                                                <img src="{{ asset('uploads/photos/' ~ employe.photo) }}" alt="{{ employe.nomComplet }}" />
+                                            {% else %}
+                                                <span class="symbol-label text-mci-blue fw-bolder fs-6">
+                                                    {{ employe.prenom|slice(0, 1)|upper }}{{ employe.nom|slice(0, 1)|upper }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <a href="{{ path('app_employe_show', {'id': employe.id}) }}" class="text-dark text-hover-primary fw-bolder fs-6 mb-1">
+                                                {{ employe.nomComplet }}
+                                            </a>
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                <span class="badge bg-light text-dark fs-8 fw-bold">
+                                                    <i class="bi bi-upc-scan me-1 text-muted"></i>{{ employe.matricule }}
+                                                </span>
+                                                {% if employe.email %}
+                                                    <span class="text-muted fs-8">{{ employe.email }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-dark fw-bold fs-7">
+                                            {{ employe.structure ? employe.structure.nom : (employe.service ? employe.service.nom : 'Non rattaché') }}
+                                        </span>
+                                        {% if employe.institution %}
+                                            <span class="text-muted fs-8">{{ employe.institution.nom }}</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if employe.fonction %}
+                                        <span class="badge badge-mci badge-mci-blue px-3 py-1 fs-8 fw-semibold">
+                                            <i class="bi bi-briefcase me-1"></i>{{ employe.fonction.libelle }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted fs-8 fst-italic">Non attribuée</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if employe.actif %}
+                                        <span class="badge badge-mci badge-mci-green px-3 py-1 fs-8 fw-bold">
+                                            <i class="bi bi-check-circle me-1"></i>En activité
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-light text-muted px-3 py-1 fs-8 fw-semibold">
+                                            <i class="bi bi-pause-circle me-1"></i>Inactif
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-1">
+                                        <a href="{{ path('app_employe_show', {'id': employe.id}) }}" 
+                                           class="btn btn-sm btn-icon btn-mci-ghost" 
+                                           title="Fiche Agent 360°" 
+                                           data-bs-toggle="tooltip">
+                                            <i class="bi bi-eye fs-5"></i>
+                                        </a>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_employe_edit', {'id': employe.id}) }}" 
+                                               class="btn btn-sm btn-icon btn-mci-ghost" 
+                                               title="Modifier" 
+                                               data-bs-toggle="tooltip">
+                                                <i class="bi bi-pencil fs-5"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-10">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <div class="symbol symbol-65px symbol-circle mb-4" style="background-color: var(--mci-blue-subtle);">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-people fs-2hx text-mci-blue"></i>
+                                            </span>
+                                        </div>
+                                        <h4 class="text-dark fw-bold mb-2">Aucun agent enregistré</h4>
+                                        <p class="text-muted fs-6 mb-4">Le référentiel du personnel ne contient aucun enregistrement pour le moment.</p>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_employe_new') }}" class="btn btn-mci-primary">
+                                                <i class="bi bi-plus-lg fs-5"></i>
+                                                <span>Ajouter le premier agent</span>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Message aucun résultat de recherche -->
+            <div data-table-target="empty" class="text-center py-10" style="display: none;">
+                <i class="bi bi-search fs-2hx text-muted d-block mb-3"></i>
+                <h5 class="text-dark fw-bold mb-1">Aucun agent ne correspond à votre recherche</h5>
+                <p class="text-muted fs-7">Vérifiez l'orthographe du nom ou du matricule saisi.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

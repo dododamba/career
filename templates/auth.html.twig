@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <title>{% block title %}Connexion{% endblock %} | PRIMATECH</title>
+        <meta name="description" content="PRIMATECH - Portail d'accès sécurisé" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <link rel="shortcut icon" href="{{ asset('assets/media/logos/favicon.ico') }}" />
+
+        <!--begin::Fonts-->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" />
+        <!--end::Fonts-->
+
+        <!--begin::Global Stylesheets Bundle(used by all pages)-->
+        <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+        <!--end::Global Stylesheets Bundle-->
+
+        <style>
+            .auth-card {
+                background: #ffffff;
+                border-radius: 0.85rem;
+                box-shadow: 0 0.5rem 1.5rem 0.5rem rgba(0, 0, 0, 0.075);
+            }
+            .wrap-input100 {
+                position: relative;
+                margin-bottom: 1.5rem;
+            }
+            .input100 {
+                display: block;
+                width: 100%;
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+                font-weight: 500;
+                line-height: 1.5;
+                color: #181c32;
+                background-color: #f5f8fa;
+                border: 1px solid #e4e6ef;
+                border-radius: 0.475rem;
+                transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+            }
+            .input100:focus {
+                background-color: #eef3f7;
+                border-color: #009ef7;
+                outline: 0;
+            }
+            .login100-form-title {
+                display: block;
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #181c32;
+                text-align: center;
+            }
+            .login100-form-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+                font-weight: 600;
+                width: 100%;
+                color: #ffffff;
+                background-color: #009ef7;
+                border: none;
+                border-radius: 0.475rem;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+            }
+            .login100-form-btn:hover {
+                background-color: #0095e8;
+            }
+            .btn-show-pass {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+                color: #a1a5b7;
+            }
+        </style>
+
+        {% block stylesheets %}{% endblock %}
+
+        {{ importmap('app') }}
+    </head>
+
+    <body id="kt_body" class="bg-body">
+        <div class="d-flex flex-column flex-root min-vh-100 justify-content-center align-items-center py-10" style="background: linear-gradient(145deg, #001844 0%, #002664 100%);">
+            <div class="container d-flex flex-column align-items-center">
+                <!--begin::Logo & Armoirie-->
+                <div class="mb-8 text-center d-flex flex-column align-items-center">
+                    <img src="{{ asset('assets/media/logos/armoirie_tchad.png') }}" alt="Armoirie de la République du Tchad" class="h-85px mb-3" style="filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));" />
+                    <h1 class="fs-1 fw-bolder text-white tracking-wide text-uppercase mb-1">MCI e-Circuit</h1>
+                    <span class="text-white-50 fs-6 fw-semibold">Plateforme de Traçabilité & Gestion Administrative</span>
+                    <span class="badge mt-2 fs-9 fw-bolder py-1 px-3 text-uppercase" style="background-color: var(--mci-gold); color: #001844 !important; letter-spacing: 0.08em; border-radius: 4px;">
+                        Ministère du Commerce et de l'Industrie • République du Tchad
+                    </span>
+                </div>
+                <!--end::Logo & Armoirie-->
+
+                <!--begin::Card-->
+                <div class="w-100 w-md-500px auth-card p-8 p-lg-12">
+                    {% include 'layouts/partials/_flashes.html.twig' %}
+
+                    {% if error is defined and error %}
+                        <div class="alert alert-danger d-flex align-items-center p-4 mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill fs-3 text-danger me-3"></i>
+                            <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% block body %}{% endblock %}
+                </div>
+                <!--end::Card-->
+
+                <div class="text-center text-white-50 fs-7 mt-8">
+                    &copy; {{ "now"|date("Y") }} Ministère du Commerce et de l'Industrie &bull; République du Tchad
+                </div>
+            </div>
+        </div>
+
+        <!--begin::Javascript-->
+        <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
+        <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
+        {% block javascripts %}{% endblock %}
+        <!--end::Javascript-->
+    </body>
+</html>

@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Présence #{{ presence.id }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Modifier l'Entrée #{{ presence.id }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Mise à jour des horaires et du statut</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_presence_index') }}" class="text-muted text-hover-primary">Registre</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Édition #{{ presence.id }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_presence_show', {'id': presence.id}) }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-eye fs-4 me-1"></i> Voir la fiche
+        </a>
+        <a href="{{ path('app_presence_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour au registre
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card card-flush border-0 shadow-sm">
+            <div class="card-header pt-6">
+                <div class="card-title">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-45px symbol-circle me-3 bg-light-warning text-warning d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-pencil fs-2 text-warning">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                        </div>
+                        <div>
+                            <h2 class="fs-4 fw-bold text-gray-900 mb-0">Modifier la présence</h2>
+                            <span class="text-muted fs-7">
+                                {{ presence.employe ? presence.employe.nomComplet : 'Agent' }} &bull; 
+                                Date : {{ presence.datePresence ? presence.datePresence|date('d/m/Y') : '' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body pt-5">
+                {{ include('presence/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+
+                <div class="d-flex justify-content-end pt-6 mt-4 border-top">
+                    {{ include('presence/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

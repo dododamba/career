@@ -1,0 +1,181 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Types d'Institutions — Configuration Système{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- En-tête & Toolbar -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body py-5 px-6">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge badge-light-primary fw-bold text-uppercase px-3 py-2">
+                            <i class="ki-outline ki-setting-2 fs-7 me-1 text-primary"></i> Nomenclature Administrative
+                        </span>
+                    </div>
+                    <h1 class="text-gray-900 fw-bolder fs-2 mb-1">Typologie des Institutions</h1>
+                    <p class="text-gray-600 fs-7 mb-0">Classification institutionnelle des entités publiques, ministères et organismes d'État.</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ path('app_institution_index') }}" class="btn btn-sm btn-light">
+                        <i class="ki-outline ki-bank fs-6 me-1"></i> Répertoire des Institutions
+                    </a>
+                    <a href="{{ path('app_type_institution_new') }}" class="btn btn-sm btn-mci-primary">
+                        <i class="ki-outline ki-plus fs-6 me-1"></i> Nouveau type
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des Types d'institution -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-outline ki-magnifier fs-3 position-absolute ms-4 text-gray-500"></i>
+                    <input type="text" id="searchTypeInstitution" class="form-control form-control-solid w-250px ps-12" placeholder="Rechercher un type...">
+                </div>
+            </div>
+            <div class="card-toolbar">
+                <span class="badge badge-light-primary fw-bold fs-7">
+                    {{ type_institutions|length }} catégorie(s) définie(s)
+                </span>
+            </div>
+        </div>
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table class="table align-middle table-row-dashed fs-6 gy-4">
+                    <thead>
+                        <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                            <th class="w-60px">#</th>
+                            <th class="min-w-200px">Désignation</th>
+                            <th class="min-w-150px">Identifiant Technique (Slug)</th>
+                            <th class="min-w-120px text-center">Institutions Liées</th>
+                            <th class="text-end min-w-120px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fw-semibold text-gray-600">
+                        {% if types_institution is defined and types_institution|length > 0 %}
+                            {% for item in types_institution %}
+                                {% set type_inst = item.type %}
+                                <tr>
+                                    <td class="text-gray-400 font-monospace fs-7">#{{ type_inst.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="symbol symbol-35px symbol-circle bg-light-primary me-3">
+                                                <span class="symbol-label text-primary fw-bold">
+                                                    <i class="ki-outline ki-abstract-26 fs-6 text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <a href="{{ path('app_type_institution_show', {'id': type_inst.id}) }}" class="text-gray-900 fw-bolder text-hover-primary">
+                                                    {{ type_inst.nom }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-light-secondary font-monospace fs-8">{{ type_inst.slug|default('-') }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-light-info fw-bold fs-8">
+                                            <i class="ki-outline ki-bank fs-8 me-1 text-info"></i> {{ item.institution_count }} institution(s)
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a href="{{ path('app_type_institution_show', {'id': type_inst.id}) }}" 
+                                               class="btn btn-icon btn-light-primary btn-sm" 
+                                               data-bs-toggle="tooltip" 
+                                               title="Consulter les détails">
+                                                <i class="ki-outline ki-eye fs-6"></i>
+                                            </a>
+                                            <a href="{{ path('app_type_institution_edit', {'id': type_inst.id}) }}" 
+                                               class="btn btn-icon btn-light-warning btn-sm" 
+                                               data-bs-toggle="tooltip" 
+                                               title="Modifier">
+                                                <i class="ki-outline ki-pencil fs-6"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            {% for type_inst in type_institutions %}
+                                <tr>
+                                    <td class="text-gray-400 font-monospace fs-7">#{{ type_inst.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="symbol symbol-35px symbol-circle bg-light-primary me-3">
+                                                <span class="symbol-label text-primary fw-bold">
+                                                    <i class="ki-outline ki-abstract-26 fs-6 text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <a href="{{ path('app_type_institution_show', {'id': type_inst.id}) }}" class="text-gray-900 fw-bolder text-hover-primary">
+                                                    {{ type_inst.nom }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-light-secondary font-monospace fs-8">{{ type_inst.slug|default('-') }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-light-info fw-bold fs-8">-</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a href="{{ path('app_type_institution_show', {'id': type_inst.id}) }}" 
+                                               class="btn btn-icon btn-light-primary btn-sm" 
+                                               data-bs-toggle="tooltip" 
+                                               title="Consulter les détails">
+                                                <i class="ki-outline ki-eye fs-6"></i>
+                                            </a>
+                                            <a href="{{ path('app_type_institution_edit', {'id': type_inst.id}) }}" 
+                                               class="btn btn-icon btn-light-warning btn-sm" 
+                                               data-bs-toggle="tooltip" 
+                                               title="Modifier">
+                                                <i class="ki-outline ki-pencil fs-6"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-5">
+                                        <i class="ki-outline ki-information fs-2 text-muted mb-2 d-block"></i>
+                                        Aucun type d'institution enregistré pour le moment.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var searchInput = document.getElementById('searchTypeInstitution');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    var query = this.value.toLowerCase();
+                    var rows = document.querySelectorAll('tbody tr');
+                    rows.forEach(function(row) {
+                        var text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(query) ? '' : 'none';
+                    });
+                });
+            }
+        });
+    </script>
+{% endblock %}

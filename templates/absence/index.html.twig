@@ -1,0 +1,381 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Autorisations d'absence — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Autorisations d'absence
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Gestion, suivi réglementaire et validation des absences exceptionnelles</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Temps & Absences</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Autorisations d'absence</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_absence_new') }}" class="btn btn-mci-primary btn-sm">
+            <i class="bi bi-plus-circle fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Nouvelle demande</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- KPIs Row -->
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-2">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total</span>
+                <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.total }}</span>
+                <span class="fs-9 text-muted">demandes</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">En attente</span>
+                <span class="fs-2hx fw-bolder text-warning mb-1">{{ stats.en_attente }}</span>
+                <span class="fs-9 text-warning fw-semibold">à instruire</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Accordées</span>
+                <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.accordees }}</span>
+                <span class="fs-9 text-success fw-semibold">validées</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Refusées</span>
+                <span class="fs-2hx fw-bolder text-danger mb-1">{{ stats.refusees }}</span>
+                <span class="fs-9 text-danger fw-semibold">rejetées</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Annulées</span>
+                <span class="fs-2hx fw-bolder text-muted mb-1">{{ stats.annulees }}</span>
+                <span class="fs-9 text-muted">sans effet</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card card-mci h-100 p-5 border-start border-4 border-primary">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Volume accordé</span>
+                <span class="fs-4 fw-bolder text-mci-blue mb-1">{{ stats.total_jours_accordes }} j / {{ stats.total_heures_accordees }} h</span>
+                <span class="fs-9 text-muted">cumul</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card card-mci">
+        <div class="card-body p-6">
+            <form method="get" action="{{ path('app_absence_index') }}" class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <div class="position-relative">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y ms-4 text-muted fs-5"></i>
+                        <input type="text" name="search" class="form-control form-control-solid ps-12 fs-7" placeholder="Rechercher agent ou motif..." value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select form-select-solid fs-7">
+                        <option value="">Tous les types d'absence</option>
+                        {% for type in types_absences %}
+                            <option value="{{ type.id }}" {{ current_type == type.id ? 'selected' : '' }}>{{ type.libelle }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select form-select-solid fs-7">
+                        <option value="all">Tous les statuts</option>
+                        <option value="0" {{ current_status == '0' ? 'selected' : '' }}>En attente</option>
+                        <option value="1" {{ current_status == '1' ? 'selected' : '' }}>Accordée</option>
+                        <option value="2" {{ current_status == '2' ? 'selected' : '' }}>Refusée</option>
+                        <option value="3" {{ current_status == '3' ? 'selected' : '' }}>Annulée</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="employee" class="form-select form-select-solid fs-7">
+                        <option value="">Tous les agents</option>
+                        {% for emp in employees %}
+                            <option value="{{ emp.id }}" {{ current_employee == emp.id ? 'selected' : '' }}>{{ emp.nomComplet }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex gap-2">
+                    <button type="submit" class="btn btn-mci-primary btn-sm flex-grow-1" title="Filtrer">
+                        <i class="bi bi-funnel-fill"></i>
+                    </button>
+                    <a href="{{ path('app_absence_index') }}" class="btn btn-mci-light btn-sm" title="Réinitialiser">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card card-mci">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <i class="bi bi-calendar-check-fill fs-2 text-mci-blue me-3"></i>
+                <h3 class="fw-bolder text-dark mb-0 fs-4">Registre des autorisations d'absence</h3>
+                <span class="badge badge-mci-blue ms-3">{{ absences|length }}</span>
+            </div>
+        </div>
+
+        <div class="card-body py-4">
+            <div class="table-responsive">
+                <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
+                    <thead>
+                        <tr class="fw-bolder text-muted bg-light text-uppercase fs-8 tracking-wide">
+                            <th class="ps-4 min-w-180px rounded-start">Agent</th>
+                            <th class="min-w-140px">Type d'absence</th>
+                            <th class="min-w-150px">Période</th>
+                            <th class="min-w-90px">Durée</th>
+                            <th class="min-w-100px">Statut</th>
+                            <th class="min-w-100px">Justificatif</th>
+                            <th class="min-w-110px">Acte officiel</th>
+                            <th class="pe-4 text-end min-w-120px rounded-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fw-semibold text-gray-600 fs-7">
+                        {% for absence in absences %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-30px symbol-circle me-3 bg-light-primary text-primary fw-bold fs-8 d-flex align-items-center justify-content-center">
+                                            {{ absence.employe.prenom|slice(0, 1)|upper }}{{ absence.employe.nom|slice(0, 1)|upper }}
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <a href="{{ path('app_employe_show', {'id': absence.employe.id}) }}" class="text-dark fw-bolder text-hover-primary fs-7">
+                                                {{ absence.employe.nomComplet }}
+                                            </a>
+                                            <span class="text-muted fs-8">{{ absence.employe.matricule ?: 'Sans matricule' }} • {{ absence.employe.service ? absence.employe.service.nom : 'Non affecté' }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background-color: {{ absence.typeAbsence.couleur ?: '#0C2340' }}; color: white;">
+                                        {{ absence.typeAbsence.libelle }}
+                                    </span>
+                                    {% if not absence.typeAbsence.remuneree %}
+                                        <span class="badge badge-mci-light text-muted ms-1 fs-9" title="Non rémunérée">Non rém.</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>Du <strong>{{ absence.dateDebut|date('d/m/Y') }}</strong> au <strong>{{ absence.dateFin|date('d/m/Y') }}</strong></div>
+                                    {% if absence.heureDebut and absence.heureFin %}
+                                        <span class="text-muted fs-8"><i class="bi bi-clock me-1"></i>{{ absence.heureDebut|date('H:i') }} - {{ absence.heureFin|date('H:i') }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="fw-bolder text-dark fs-7">{{ absence.duree }}</span> {{ absence.unite|lower }}
+                                </td>
+                                <td>
+                                    {% if absence.statut == 0 %}
+                                        <span class="badge badge-mci-warning fs-8"><i class="bi bi-hourglass-split me-1"></i>En attente</span>
+                                    {% elseif absence.statut == 1 %}
+                                        <span class="badge badge-mci-success fs-8"><i class="bi bi-check-circle-fill me-1"></i>Accordée</span>
+                                    {% elseif absence.statut == 2 %}
+                                        <span class="badge badge-mci-danger fs-8"><i class="bi bi-x-circle-fill me-1"></i>Refusée</span>
+                                    {% elseif absence.statut == 3 %}
+                                        <span class="badge bg-secondary text-white fs-8"><i class="bi bi-slash-circle me-1"></i>Annulée</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if absence.document %}
+                                        <a href="{{ path('app_document_show', {'id': absence.document.id}) }}" class="badge badge-mci-light text-mci-blue text-decoration-none fs-8" title="{{ absence.document.titre }}">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Justificatif
+                                        </a>
+                                    {% elseif absence.typeAbsence.justificatifRequis %}
+                                        <span class="badge badge-mci-danger fs-9">Requis manquant</span>
+                                    {% else %}
+                                        <span class="text-muted fs-9">Non requis</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if absence.acte %}
+                                        <a href="{{ path('app_acte_show', {'id': absence.acte.id}) }}" class="badge badge-mci-blue text-decoration-none fs-8" title="Acte: {{ absence.acte.numero }}">
+                                            <i class="bi bi-stamp me-1"></i> {{ absence.acte.numero }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted fs-9">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ path('app_absence_show', {'id': absence.id}) }}" class="btn btn-icon btn-mci-light btn-sm" title="Consulter">
+                                            <i class="bi bi-eye-fill fs-6 text-mci-blue"></i>
+                                        </a>
+
+                                        {% if is_granted('ABSENCE_EDIT', absence) %}
+                                            <a href="{{ path('app_absence_edit', {'id': absence.id}) }}" class="btn btn-icon btn-mci-light btn-sm" title="Modifier">
+                                                <i class="bi bi-pencil-square fs-6 text-warning"></i>
+                                            </a>
+                                        {% endif %}
+
+                                        {% if is_granted('ABSENCE_APPROVE', absence) %}
+                                            <button type="button" class="btn btn-icon btn-light-success btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal{{ absence.id }}" title="Accorder">
+                                                <i class="bi bi-check-lg fs-6"></i>
+                                            </button>
+                                        {% endif %}
+
+                                        {% if is_granted('ABSENCE_REJECT', absence) %}
+                                            <button type="button" class="btn btn-icon btn-light-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ absence.id }}" title="Refuser">
+                                                <i class="bi bi-x-lg fs-6"></i>
+                                            </button>
+                                        {% endif %}
+
+                                        {% if is_granted('ABSENCE_CANCEL', absence) %}
+                                            <button type="button" class="btn btn-icon btn-mci-light btn-sm text-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal{{ absence.id }}" title="Annuler">
+                                                <i class="bi bi-slash-circle fs-6"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {# Modal Approbation #}
+                            {% if is_granted('ABSENCE_APPROVE', absence) %}
+                                <div class="modal fade" id="approveModal{{ absence.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="post" action="{{ path('app_absence_approuver', {'id': absence.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('absence_approuver_' ~ absence.id) }}">
+                                                <div class="modal-header bg-success text-white">
+                                                    <h5 class="modal-title text-white"><i class="bi bi-check-circle-fill me-2"></i>Accorder l'autorisation d'absence</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-6">
+                                                    <p class="fs-6 text-dark mb-4">Confirmez-vous l'accord de cette autorisation d'absence pour <strong>{{ absence.employe.nomComplet }}</strong> ?</p>
+                                                    <div class="mb-4">
+                                                        <div class="form-check form-check-custom form-check-solid">
+                                                            <input class="form-check-input" type="checkbox" id="genererActe{{ absence.id }}" name="generer_acte" value="1" checked>
+                                                            <label class="form-check-label fw-bold text-dark fs-7 ms-2" for="genererActe{{ absence.id }}">Générer automatiquement l'acte officiel d'autorisation d'absence</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-4">
+                                                        <label class="form-label fw-semibold fs-7">Numéro d'acte (laisser vide pour numérotation automatique)</label>
+                                                        <input type="text" name="numero_acte" class="form-control form-control-solid fs-7" placeholder="Ex: AA-{{ "now"|date("Y") }}-001">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold fs-7">Observations / Commentaire</label>
+                                                        <textarea name="commentaire" class="form-control form-control-solid fs-7" rows="2" placeholder="Observations éventuelles..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-mci-light" data-bs-dismiss="modal">Annuler</button>
+                                                    <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Accorder</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# Modal Refus #}
+                            {% if is_granted('ABSENCE_REJECT', absence) %}
+                                <div class="modal fade" id="rejectModal{{ absence.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="post" action="{{ path('app_absence_rejeter', {'id': absence.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('absence_rejeter_' ~ absence.id) }}">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title text-white"><i class="bi bi-x-circle-fill me-2"></i>Refuser la demande</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-6">
+                                                    <p class="fs-6 text-dark mb-4">Veuillez spécifier le motif du refus pour la demande de <strong>{{ absence.employe.nomComplet }}</strong> :</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bolder fs-7 text-dark">Motif du refus <span class="text-danger">*</span></label>
+                                                        <textarea name="motif_refus" class="form-control form-control-solid fs-7" rows="3" required placeholder="Motif circonstancié du refus..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-mci-light" data-bs-dismiss="modal">Fermer</button>
+                                                    <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg me-1"></i>Confirmer le refus</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# Modal Annulation #}
+                            {% if is_granted('ABSENCE_CANCEL', absence) %}
+                                <div class="modal fade" id="cancelModal{{ absence.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="post" action="{{ path('app_absence_annuler', {'id': absence.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('absence_annuler_' ~ absence.id) }}">
+                                                <div class="modal-header bg-secondary text-white">
+                                                    <h5 class="modal-title text-white"><i class="bi bi-slash-circle me-2"></i>Annuler l'autorisation d'absence</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-6">
+                                                    <p class="fs-6 text-dark mb-4">Êtes-vous certain de vouloir annuler cette absence ? Si un acte a été émis, il sera automatiquement abrogé.</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold fs-7">Motif de l'annulation (optionnel)</label>
+                                                        <textarea name="motif_annulation" class="form-control form-control-solid fs-7" rows="2" placeholder="Motif de l'annulation..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-mci-light" data-bs-dismiss="modal">Fermer</button>
+                                                    <button type="submit" class="btn btn-secondary">Confirmer l'annulation</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-10">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <div class="symbol symbol-60px symbol-circle bg-light mb-3">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                            </span>
+                                        </div>
+                                        <h5 class="fw-bolder text-dark mb-1">Aucune autorisation d'absence trouvée</h5>
+                                        <p class="text-muted fs-8 mb-4">Aucune demande ne correspond aux critères sélectionnés.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

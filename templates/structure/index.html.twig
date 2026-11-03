@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Structures Organisationnelles — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-diagram-2-fill text-mci-blue me-3"></i>
+        Structures Organisationnelles
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Directions générales, directions techniques et départements</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Organisation</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Structures</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_organigramme_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-diagram-3 fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Organigramme</span>
+        </a>
+        <a href="{{ path('app_structure_new') }}" class="btn btn-mci-primary btn-sm">
+            <i class="bi bi-plus-circle fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Nouvelle Structure</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Table des Structures -->
+    <div class="card card-mci">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <i class="bi bi-diagram-2-fill fs-2 text-mci-blue me-3"></i>
+                <h3 class="fw-bolder text-dark mb-0 fs-4">Répertoire des structures administratives</h3>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-4">
+                    <thead>
+                        <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0 bg-light">
+                            <th class="ps-6">Nom & Code</th>
+                            <th>Type</th>
+                            <th>Rattachement (Parent)</th>
+                            <th>Responsable</th>
+                            <th>Sous-structures</th>
+                            <th>Services</th>
+                            <th>Statut</th>
+                            <th class="text-end pe-6">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fs-7 fw-semibold text-gray-600">
+                    {% for structure in structures %}
+                        <tr>
+                            <td class="ps-6">
+                                <div class="fw-bolder text-dark fs-6">
+                                    {% if structure.parent is not null %}
+                                        <span class="text-muted me-1">↳</span>
+                                    {% endif %}
+                                    <a href="{{ path('app_structure_show', {'id': structure.id}) }}" class="text-dark text-hover-primary">
+                                        {{ structure.nom }}
+                                    </a>
+                                </div>
+                                {% if structure.code %}
+                                    <span class="badge badge-light-secondary font-monospace fs-8 mt-1">{{ structure.code }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-light-primary fs-8">
+                                    {{ structure.type|replace({'_': ' '}) }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if structure.parent %}
+                                    <a href="{{ path('app_structure_show', {'id': structure.parent.id}) }}" class="text-muted text-hover-primary">
+                                        <i class="bi bi-arrow-return-right me-1"></i>{{ structure.parent.nom }}
+                                    </a>
+                                {% else %}
+                                    <span class="badge badge-light-secondary fs-8">Direction Centrale</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if structure.responsable %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-30px symbol-circle me-2" style="background-color: var(--mci-blue-subtle);">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-person-fill text-mci-blue fs-6"></i>
+                                            </span>
+                                        </div>
+                                        <span class="fw-bold text-dark">{{ structure.responsable.nom }} {{ structure.responsable.prenom }}</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted fst-italic fs-8">Non désigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-light-secondary fs-8">
+                                    {{ structure.children|length }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-light-secondary fs-8">
+                                    {{ structure.services|length }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if structure.statut == 'ACTIVE' %}
+                                    <span class="badge badge-light-success fs-8">Actif</span>
+                                {% elseif structure.statut == 'INACTIVE' %}
+                                    <span class="badge badge-light-danger fs-8">Inactif</span>
+                                {% else %}
+                                    <span class="badge badge-light-secondary fs-8">{{ structure.statut }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-6">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a href="{{ path('app_structure_show', {'id': structure.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Détails">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    <a href="{{ path('app_structure_edit', {'id': structure.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Modifier">
+                                        <i class="bi bi-pencil-square text-warning"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-10 text-muted">
+                                <div class="symbol symbol-60px symbol-circle mx-auto mb-3" style="background-color: var(--mci-blue-subtle);">
+                                    <span class="symbol-label">
+                                        <i class="bi bi-diagram-2 fs-1 text-mci-blue"></i>
+                                    </span>
+                                </div>
+                                <div class="fw-bolder fs-5 text-dark">Aucune structure enregistrée</div>
+                                <div class="fs-7 text-muted mt-1 mb-4">Créez votre première direction ou structure administrative.</div>
+                                <a href="{{ path('app_structure_new') }}" class="btn btn-mci-primary btn-sm">
+                                    <i class="bi bi-plus-circle me-1"></i> Créer une structure
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{{ form_start(form, {'attr': {'class': 'form d-flex flex-column gap-6'}}) }}
+
+<div class="row g-5">
+    <div class="col-md-6">
+        <label class="form-label required fw-semibold fs-6 text-gray-700">Libellé du Rôle</label>
+        {{ form_widget(form.name, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Ex: Administrateur'}}) }}
+        <div class="text-danger fs-7 mt-1">{{ form_errors(form.name) }}</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label required fw-semibold fs-6 text-gray-700">Identifiant technique (Slug)</label>
+        {{ form_widget(form.slug, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Ex: ROLE_ADMIN'}}) }}
+        <div class="text-danger fs-7 mt-1">{{ form_errors(form.slug) }}</div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-end gap-3 pt-4 border-top">
+    <a href="{{ path('app_role_index') }}" class="btn btn-light">Annuler</a>
+    <button type="submit" class="btn btn-mci-primary">
+        <i class="ki-duotone ki-check fs-4 me-1"></i> {{ button_label|default('Enregistrer') }}
+    </button>
+</div>
+
+{{ form_end(form) }}

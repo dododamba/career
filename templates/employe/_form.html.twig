@@ -1,0 +1,197 @@
+{{ form_start(form, {'attr': {'id': 'employee_form', 'class': 'needs-validation'}}) }}
+
+<div class="alert alert-info mb-4 d-flex align-items-center">
+    <i class="fas fa-info-circle fs-3 me-3 text-info"></i>
+    <div>
+        <strong>Formulaire Agent :</strong>
+        Veuillez renseigner les informations ci-dessous. Les champs marqués d'un astérisque (<span class="text-danger">*</span>) sont obligatoires.
+    </div>
+</div>
+
+<!-- 1. Informations Personnelles & État Civil -->
+<div class="card card-custom mb-4 border">
+    <div class="card-header bg-light py-3">
+        <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-user text-primary me-2"></i> Informations Personnelles & État Civil</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                {{ form_label(form.nom, 'Nom *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.nom) }}
+                {{ form_errors(form.nom) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_label(form.prenom, 'Prénom *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.prenom) }}
+                {{ form_errors(form.prenom) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.date_naissance, 'Date de naissance', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.date_naissance) }}
+                {{ form_errors(form.date_naissance) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.lieu_naissance, 'Lieu de naissance', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.lieu_naissance) }}
+                {{ form_errors(form.lieu_naissance) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.sexe, 'Sexe', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.sexe) }}
+                {{ form_errors(form.sexe) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.nationalite, 'Nationalité', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.nationalite) }}
+                {{ form_errors(form.nationalite) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.matricule, 'Matricule *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.matricule) }}
+                {{ form_errors(form.matricule) }}
+                <div class="form-text small">Identifiant unique de l'agent.</div>
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.numero, 'Numéro d\'ordre / interne', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.numero) }}
+                {{ form_errors(form.numero) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Coordonnées & Contact -->
+<div class="card card-custom mb-4 border">
+    <div class="card-header bg-light py-3">
+        <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-address-book text-info me-2"></i> Coordonnées & Contact</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                {{ form_label(form.email, 'Email professionnel *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.email) }}
+                {{ form_errors(form.email) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_label(form.numero_telephone, 'Numéro de téléphone', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.numero_telephone) }}
+                {{ form_errors(form.numero_telephone) }}
+            </div>
+            <div class="col-12">
+                {{ form_label(form.adresse, 'Adresse de résidence', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.adresse) }}
+                {{ form_errors(form.adresse) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Organisation & Affectation -->
+<div class="card card-custom mb-4 border">
+    <div class="card-header bg-light py-3">
+        <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-sitemap text-warning me-2"></i> Organisation & Affectation</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                {{ form_label(form.structure, 'Structure de rattachement', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.structure) }}
+                {{ form_errors(form.structure) }}
+                <div class="form-text small">Direction générale, direction, département...</div>
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.service, 'Service d\'affectation', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.service) }}
+                {{ form_errors(form.service) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.fonction, 'Fonction officielle *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.fonction) }}
+                {{ form_errors(form.fonction) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Situation Administrative & Rémunération -->
+<div class="card card-custom mb-4 border">
+    <div class="card-header bg-light py-3">
+        <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-landmark text-success me-2"></i> Situation Administrative & Statut</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                {{ form_label(form.statut_administratif, 'Statut administratif', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.statut_administratif) }}
+                {{ form_errors(form.statut_administratif) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_label(form.situation_administrative, 'Situation administrative', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.situation_administrative) }}
+                {{ form_errors(form.situation_administrative) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.corps, 'Corps', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.corps) }}
+                {{ form_errors(form.corps) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.grade, 'Grade', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.grade) }}
+                {{ form_errors(form.grade) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.echelon, 'Échelon', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.echelon) }}
+                {{ form_errors(form.echelon) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_label(form.categorie, 'Catégorie', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.categorie) }}
+                {{ form_errors(form.categorie) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_label(form.regime, 'Régime', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.regime) }}
+                {{ form_errors(form.regime) }}
+            </div>
+
+            <div class="col-md-4">
+                {{ form_label(form.date_embauche, 'Date d\'embauche / Recrutement *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.date_embauche) }}
+                {{ form_errors(form.date_embauche) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.date_prise_service, 'Date de prise de service', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.date_prise_service) }}
+                {{ form_errors(form.date_prise_service) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_label(form.salaire, 'Salaire mensuel (FCFA) *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.salaire) }}
+                {{ form_errors(form.salaire) }}
+            </div>
+            <div class="col-12">
+                {{ form_label(form.statut, 'Statut d\'activité du compte *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.statut) }}
+                {{ form_errors(form.statut) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+    <a href="{{ path('app_employe_index') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Annuler
+    </a>
+    <div class="d-flex gap-2">
+        <button type="reset" class="btn btn-secondary">
+            <i class="fas fa-undo me-1"></i> Réinitialiser
+        </button>
+        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+            <i class="fas fa-save me-1"></i> {{ button_label|default('Enregistrer') }}
+        </button>
+    </div>
+</div>
+
+{{ form_end(form) }}

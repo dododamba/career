@@ -1,0 +1,1522 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fiche Agent 360° — {{ employe.nomComplet }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .profile-header-card {
+            background: linear-gradient(135deg, var(--mci-blue-dark) 0%, var(--mci-blue) 100%);
+            color: #fff;
+            border-radius: var(--mci-radius-lg);
+            padding: 2.25rem;
+            box-shadow: var(--mci-shadow-card);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(254, 203, 0, 0.25);
+        }
+        .profile-header-card::after {
+            content: '';
+            position: absolute;
+            right: -60px;
+            bottom: -60px;
+            width: 260px;
+            height: 260px;
+            background: rgba(254, 203, 0, 0.05);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            color: var(--mci-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            border: 4px solid rgba(254, 203, 0, 0.85);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .kpi-stat-card {
+            background: #fff;
+            border-radius: var(--mci-radius-lg);
+            border: 1px solid var(--mci-border);
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--mci-shadow-subtle);
+            height: 100%;
+        }
+        .kpi-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--mci-shadow-hover);
+        }
+        .kpi-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--mci-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+        .nav-tabs-custom {
+            border-bottom: 2px solid var(--mci-border);
+            gap: 0.5rem;
+        }
+        .nav-tabs-custom .nav-link {
+            border: none;
+            color: var(--mci-text-muted);
+            font-weight: 600;
+            padding: 1rem 1.35rem;
+            border-radius: var(--mci-radius-md) var(--mci-radius-md) 0 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .nav-tabs-custom .nav-link:hover {
+            color: var(--mci-blue);
+            background-color: var(--mci-blue-subtle);
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: var(--mci-blue);
+            background-color: #fff;
+            border-bottom: 3px solid var(--mci-gold);
+            font-weight: 700;
+        }
+        .card-custom {
+            background: #fff;
+            border: 1px solid var(--mci-border);
+            border-radius: var(--mci-radius-lg);
+            box-shadow: var(--mci-shadow-subtle);
+            margin-bottom: 1.75rem;
+        }
+        .card-custom-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            border-radius: 0.75rem 0.75rem 0 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .timeline-vertical {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline-vertical::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 0.5rem;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .timeline-icon-dot {
+            position: absolute;
+            left: -2.5rem;
+            top: 0.15rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+        .timeline-content {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem 1.25rem;
+        }
+        .info-label {
+            font-size: 0.825rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .info-value {
+            font-size: 1rem;
+            color: #1f2937;
+            font-weight: 500;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-3">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- 1. En-tête Profil Hero Card -->
+    <div class="profile-header-card mb-4">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <div class="profile-avatar">
+                    {% if employe.photo %}
+                        <img src="{{ employe.photo }}" alt="{{ employe.nomComplet }}" class="img-fluid rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <span>{{ employe.prenom|slice(0, 1)|upper }}{{ employe.nom|slice(0, 1)|upper }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <h2 class="h3 fw-bold mb-0 text-white">{{ employe.nomComplet }}</h2>
+                    <span class="badge bg-light text-dark fw-bold px-2 py-1 fs-6">
+                        <i class="fas fa-id-badge text-primary me-1"></i> {{ employe.matricule }}
+                    </span>
+                    {% if employe.actif %}
+                        <span class="badge bg-success px-2 py-1"><i class="fas fa-check-circle me-1"></i> Actif</span>
+                    {% else %}
+                        <span class="badge bg-secondary px-2 py-1"><i class="fas fa-power-off me-1"></i> Inactif</span>
+                    {% endif %}
+                    <span class="badge {{ statutAdmin.badge }} px-2 py-1">
+                        <i class="fas {{ statutAdmin.icon }} me-1"></i> {{ statutAdmin.label }}
+                    </span>
+                    <span class="badge {{ situationAdmin.badge }} px-2 py-1">
+                        <i class="fas {{ situationAdmin.icon }} me-1"></i> {{ situationAdmin.label }}
+                    </span>
+                </div>
+                <div class="text-white-50 fs-6 mb-2">
+                    <span class="me-3"><i class="fas fa-briefcase me-1"></i> {{ employe.fonction ? employe.fonction.libelle : 'Fonction non spécifiée' }}</span>
+                    {% if employe.structure %}
+                        <span class="me-3"><i class="fas fa-sitemap me-1"></i> {{ employe.structure.nom }}</span>
+                    {% endif %}
+                    {% if employe.service %}
+                        <span class="me-3"><i class="fas fa-building me-1"></i> Service: {{ employe.service.nom }}</span>
+                    {% endif %}
+                    {% if employe.institution %}
+                        <span><i class="fas fa-landmark me-1"></i> {{ employe.institution.nom }}</span>
+                    {% endif %}
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-3 text-white-50 small">
+                    {% if employe.email %}
+                        <span><i class="fas fa-envelope me-1"></i> {{ employe.email }}</span>
+                    {% endif %}
+                    {% if employe.numeroTelephone %}
+                        <span><i class="fas fa-phone me-1"></i> {{ employe.numeroTelephone }}</span>
+                    {% endif %}
+                    {% if age %}
+                        <span><i class="fas fa-birthday-cake me-1"></i> {{ age }} ans</span>
+                    {% endif %}
+                    <span><i class="fas fa-calendar-check me-1"></i> Ancienneté : {{ anciennete.label }}</span>
+                </div>
+            </div>
+            <div class="col-md-auto mt-3 mt-md-0 d-flex flex-md-column gap-2 justify-content-end">
+                <a href="{{ path('app_employe_edit', {'id': employe.id}) }}" class="btn btn-warning text-dark fw-semibold">
+                    <i class="fas fa-user-edit me-1"></i> Modifier le profil
+                </a>
+                <a href="{{ path('app_employe_index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i> Liste des agents
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Barre d'indicateurs KPIs clés -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-stat-card">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon-wrapper bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div>
+                        <div class="info-label mb-1">Ancienneté</div>
+                        <div class="h5 mb-0 fw-bold text-dark">{{ anciennete.label }}</div>
+                        <div class="text-muted small mt-1">Prise de service : {{ employe.datePriseService ? employe.datePriseService|date('d/m/Y') : (employe.dateEmbauche ? employe.dateEmbauche|date('d/m/Y') : 'N/C') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-stat-card">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon-wrapper bg-warning bg-opacity-10 text-warning me-3">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                        <div class="info-label mb-1">Solde Congés Restant</div>
+                        <div class="h5 mb-0 fw-bold text-dark">{{ soldes.total|number_format(1) }} jours</div>
+                        <div class="text-muted small mt-1">{{ conges.totalPris }} jours consommés</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-stat-card">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon-wrapper bg-success bg-opacity-10 text-success me-3">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <div class="info-label mb-1">Taux de Présence</div>
+                        <div class="h5 mb-0 fw-bold text-dark">{{ pointages.tauxPresence }}%</div>
+                        <div class="text-muted small mt-1">{{ pointages.total }} pointages enregistrés</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-stat-card">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon-wrapper bg-info bg-opacity-10 text-info me-3">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="info-label mb-0">Complétude Dossier</span>
+                            <span class="fw-bold text-primary">{{ completion.score }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ completion.score }}%;" aria-valuenow="{{ completion.score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-muted small mt-1">{{ completion.completed }}/{{ completion.total }} critères validés</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Navigation par Onglets (10 Onglets de la Fiche 360°) -->
+    <div class="card card-custom border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom-0 pb-0 pt-3 px-3">
+            <ul class="nav nav-tabs nav-tabs-custom flex-nowrap overflow-auto" id="agent360Tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-vue-generale-btn" data-bs-toggle="tab" data-bs-target="#tab-vue-generale" type="button" role="tab">
+                        <i class="fas fa-th-large text-primary"></i> Vue Générale
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-identite-btn" data-bs-toggle="tab" data-bs-target="#tab-identite" type="button" role="tab">
+                        <i class="fas fa-id-card text-info"></i> Identité & État Civil
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-situation-btn" data-bs-toggle="tab" data-bs-target="#tab-situation" type="button" role="tab">
+                        <i class="fas fa-landmark text-success"></i> Situation Administrative
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-organisation-btn" data-bs-toggle="tab" data-bs-target="#tab-organisation" type="button" role="tab">
+                        <i class="fas fa-sitemap text-warning"></i> Organisation & Affectation
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-carriere-btn" data-bs-toggle="tab" data-bs-target="#tab-carriere" type="button" role="tab">
+                        <i class="fas fa-level-up-alt text-primary"></i> Carrière & Postes
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-conges-btn" data-bs-toggle="tab" data-bs-target="#tab-conges" type="button" role="tab">
+                        <i class="fas fa-plane-departure text-warning"></i> Congés & Absences
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-presences-btn" data-bs-toggle="tab" data-bs-target="#tab-presences" type="button" role="tab">
+                        <i class="fas fa-clock text-info"></i> Présences & Pointages
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-documents-btn" data-bs-toggle="tab" data-bs-target="#tab-documents" type="button" role="tab">
+                        <i class="fas fa-folder text-secondary"></i> Documents RH
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-actes-btn" data-bs-toggle="tab" data-bs-target="#tab-actes" type="button" role="tab">
+                        <i class="fas fa-stamp text-danger"></i> Actes Administratifs
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-missions-btn" data-bs-toggle="tab" data-bs-target="#tab-missions" type="button" role="tab">
+                        <i class="fas fa-map-marked-alt text-success"></i> Missions ({{ missions.total|default(0) }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-timeline-btn" data-bs-toggle="tab" data-bs-target="#tab-timeline" type="button" role="tab">
+                        <i class="fas fa-history text-dark"></i> Chronologie 360°
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="tab-content" id="agent360TabsContent">
+
+                <!-- 1. VUE GÉNÉRALE -->
+                <div class="tab-pane fade show active" id="tab-vue-generale" role="tabpanel">
+                    <div class="row g-4">
+                        <!-- Colonne gauche: Coordonnées & Statut -->
+                        <div class="col-lg-6">
+                            <div class="card card-custom h-100">
+                                <div class="card-custom-header">
+                                    <span><i class="fas fa-info-circle text-primary me-2"></i> Synthèse de l'Agent</span>
+                                    <span class="badge bg-primary-subtle text-primary">Matricule: {{ employe.matricule }}</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Nom complet</div>
+                                            <div class="info-value fw-bold">{{ employe.nomComplet }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Statut Administratif</div>
+                                            <div class="info-value">
+                                                <span class="badge {{ statutAdmin.badge }}"><i class="fas {{ statutAdmin.icon }} me-1"></i> {{ statutAdmin.label }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Situation Administrative</div>
+                                            <div class="info-value">
+                                                <span class="badge {{ situationAdmin.badge }}"><i class="fas {{ situationAdmin.icon }} me-1"></i> {{ situationAdmin.label }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Fonction exercée</div>
+                                            <div class="info-value">{{ employe.fonction ? employe.fonction.libelle : 'Non assignée' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Structure d'affectation</div>
+                                            <div class="info-value">{{ employe.structure ? employe.structure.nom : 'Non rattaché' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Service</div>
+                                            <div class="info-value">{{ employe.service ? employe.service.nom : 'Non rattaché' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Date de prise de service</div>
+                                            <div class="info-value">{{ employe.datePriseService ? employe.datePriseService|date('d/m/Y') : 'Non renseignée' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Date de recrutement</div>
+                                            <div class="info-value">{{ employe.dateEmbauche ? employe.dateEmbauche|date('d/m/Y') : 'Non renseignée' }}</div>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-address-book text-secondary me-2"></i> Coordonnées & Contact rapide</h6>
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Email professionnel</div>
+                                            <div class="info-value">
+                                                <a href="mailto:{{ employe.email }}" class="text-decoration-none">
+                                                    <i class="fas fa-envelope text-primary me-1"></i> {{ employe.email }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Téléphone</div>
+                                            <div class="info-value">
+                                                {% if employe.numeroTelephone %}
+                                                    <a href="tel:{{ employe.numeroTelephone }}" class="text-decoration-none">
+                                                        <i class="fas fa-phone text-success me-1"></i> {{ employe.numeroTelephone }}
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-muted">Non renseigné</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="info-label">Adresse de résidence</div>
+                                            <div class="info-value"><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ employe.adresse ?: 'Non renseignée' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Colonne droite: Complétude du dossier & Alertes RH -->
+                        <div class="col-lg-6">
+                            <div class="card card-custom mb-4">
+                                <div class="card-custom-header">
+                                    <span><i class="fas fa-clipboard-check text-success me-2"></i> Qualité & Complétude du Dossier</span>
+                                    <span class="fw-bold text-success">{{ completion.score }}%</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="progress mb-3" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ completion.score }}%;"></div>
+                                    </div>
+                                    <div class="list-group list-group-flush">
+                                        {% for critere, statut in completion.criteria %}
+                                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-0">
+                                                <span class="small">{{ critere }}</span>
+                                                {% if statut %}
+                                                    <span class="badge bg-success-subtle text-success"><i class="fas fa-check me-1"></i> Conforme</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning-subtle text-warning"><i class="fas fa-exclamation-triangle me-1"></i> À renseigner</span>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card card-custom">
+                                <div class="card-custom-header">
+                                    <span><i class="fas fa-bell text-warning me-2"></i> Dernières Activités</span>
+                                    <a href="#tab-timeline" onclick="document.getElementById('tab-timeline-btn').click();" class="small text-decoration-none">Voir tout</a>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        {% for evt in timeline|slice(0, 3) %}
+                                            <li class="list-group-item d-flex align-items-center gap-3 py-3">
+                                                <div class="badge rounded-circle p-2 {{ evt.badge }}">
+                                                    <i class="fas {{ evt.icon }}"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-semibold text-dark">{{ evt.title }}</div>
+                                                    <div class="text-muted small">{{ evt.description }}</div>
+                                                </div>
+                                                <div class="text-muted small text-nowrap">
+                                                    {{ evt.date ? evt.date|date('d/m/Y') : '' }}
+                                                </div>
+                                            </li>
+                                        {% else %}
+                                            <li class="list-group-item text-center text-muted py-3">Aucune activité récente.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. IDENTITÉ & ÉTAT CIVIL -->
+                <div class="tab-pane fade" id="tab-identite" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-custom-header">
+                            <span><i class="fas fa-id-card text-info me-2"></i> Informations d'État Civil & Coordonnées</span>
+                            <a href="{{ path('app_employe_edit', {'id': employe.id}) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit me-1"></i> Mettre à jour
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="info-label">Matricule</div>
+                                    <div class="info-value font-monospace fw-bold text-primary">{{ employe.matricule }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-label">Numéro d'ordre / interne</div>
+                                    <div class="info-value">{{ employe.numero ?: 'N/C' }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-label">Nationalité</div>
+                                    <div class="info-value">{{ employe.nationalite ?: 'Tchadienne' }}</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="info-label">Nom de famille</div>
+                                    <div class="info-value fw-bold">{{ employe.nom }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-label">Prénom(s)</div>
+                                    <div class="info-value fw-bold">{{ employe.prenom }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-label">Sexe</div>
+                                    <div class="info-value">
+                                        {% if employe.sexe == 'M' %}
+                                            <i class="fas fa-mars text-primary me-1"></i> Masculin
+                                        {% elseif employe.sexe == 'F' %}
+                                            <i class="fas fa-venus text-danger me-1"></i> Féminin
+                                        {% else %}
+                                            <span class="text-muted">Non précisé</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="info-label">Date de naissance</div>
+                                    <div class="info-value">{{ employe.dateNaissance ? employe.dateNaissance|date('d/m/Y') : 'Non renseignée' }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-label">Lieu de naissance</div>
+                                    <div class="info-value">{{ employe.lieuNaissance ?: 'Non renseigné' }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-label">Âge révolu</div>
+                                    <div class="info-value">{{ age ? age ~ ' ans' : 'N/C' }}</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-label">Adresse de résidence</div>
+                                    <div class="info-value">{{ employe.adresse ?: 'Non renseignée' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-label">Téléphone principal</div>
+                                    <div class="info-value">{{ employe.numeroTelephone ?: 'Non renseigné' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-label">Email professionnel</div>
+                                    <div class="info-value">{{ employe.email }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. SITUATION ADMINISTRATIVE -->
+                <div class="tab-pane fade" id="tab-situation" role="tabpanel">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card card-custom h-100">
+                                <div class="card-custom-header">
+                                    <span><i class="fas fa-landmark text-primary me-2"></i> Statut & Position Statutaire</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Statut Administratif</div>
+                                            <div class="info-value">
+                                                <span class="badge {{ statutAdmin.badge }} fs-6">
+                                                    <i class="fas {{ statutAdmin.icon }} me-1"></i> {{ statutAdmin.label }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Situation Administrative</div>
+                                            <div class="info-value">
+                                                <span class="badge {{ situationAdmin.badge }} fs-6">
+                                                    <i class="fas {{ situationAdmin.icon }} me-1"></i> {{ situationAdmin.label }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Corps</div>
+                                            <div class="info-value">{{ employe.corps ?: 'Non renseigné' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Grade</div>
+                                            <div class="info-value">{{ employe.grade ?: 'Non renseigné' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Échelon</div>
+                                            <div class="info-value">{{ employe.echelon ?: 'Non renseigné' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Catégorie</div>
+                                            <div class="info-value">{{ employe.categorie ?: 'Non renseignée' }}</div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="info-label">Régime de travail</div>
+                                            <div class="info-value">{{ employe.regime ?: 'Régime général' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="card card-custom h-100">
+                                <div class="card-custom-header">
+                                    <span><i class="fas fa-file-contract text-success me-2"></i> Recrutement & Rémunération</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Date d'embauche / Recrutement</div>
+                                            <div class="info-value fw-bold text-dark">{{ employe.dateEmbauche ? employe.dateEmbauche|date('d/m/Y') : 'Non renseignée' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Date de prise de service</div>
+                                            <div class="info-value fw-bold text-primary">{{ employe.datePriseService ? employe.datePriseService|date('d/m/Y') : 'Non renseignée' }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Ancienneté totale</div>
+                                            <div class="info-value">{{ anciennete.label }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="info-label">Salaire de base / Brut</div>
+                                            <div class="info-value fw-bold text-success">{{ employe.salaire|number_format(2, ',', ' ') }} FCFA</div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="info-label">Statut d'activité du compte</div>
+                                            <div class="info-value">
+                                                {% if employe.actif %}
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Compte Actif</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger"><i class="fas fa-ban me-1"></i> Compte Suspendu / Inactif</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. ORGANISATION & AFFECTATION -->
+                <div class="tab-pane fade" id="tab-organisation" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-custom-header">
+                            <span><i class="fas fa-sitemap text-warning me-2"></i> Rattachement Hiérarchique & Organisationnel</span>
+                        </div>
+                        <div class="card-body">
+                            <!-- Fil d'ariane hiérarchique -->
+                            <div class="p-3 bg-light rounded-3 mb-4 border">
+                                <div class="info-label mb-2"><i class="fas fa-project-diagram me-1"></i> Arborescence institutionnelle</div>
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb mb-0">
+                                        {% if employe.institution %}
+                                            <li class="breadcrumb-item">
+                                                <a href="{{ path('app_institution_show', {'id': employe.institution.id}) }}" class="fw-bold text-primary text-decoration-none">
+                                                    <i class="fas fa-landmark me-1"></i> {{ employe.institution.nom }}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        {% for st in hierarchie.structurePath %}
+                                            <li class="breadcrumb-item {{ loop.last and not employe.service ? 'active fw-bold' : '' }}">
+                                                <a href="{{ path('app_structure_show', {'id': st.id}) }}" class="text-decoration-none">
+                                                    <i class="fas fa-sitemap text-muted me-1"></i> {{ st.nom }}
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                        {% if employe.service %}
+                                            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">
+                                                <i class="fas fa-building text-info me-1"></i> {{ employe.service.nom }}
+                                            </li>
+                                        {% endif %}
+                                    </ol>
+                                </nav>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 h-100 bg-white">
+                                        <h6 class="fw-bold text-primary mb-3"><i class="fas fa-landmark me-2"></i> Institution de rattachement</h6>
+                                        <div class="mb-2"><strong>Nom :</strong> {{ employe.institution ? employe.institution.nom : 'Non rattaché' }}</div>
+                                        <div class="mb-2"><strong>Code :</strong> {{ employe.institution ? (employe.institution.code ?: 'N/C') : 'N/C' }}</div>
+                                        <div class="mb-0">
+                                            {% if employe.institution %}
+                                                <a href="{{ path('app_institution_show', {'id': employe.institution.id}) }}" class="btn btn-sm btn-outline-primary mt-2">
+                                                    <i class="fas fa-external-link-alt me-1"></i> Fiche Institution 360°
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 h-100 bg-white">
+                                        <h6 class="fw-bold text-warning mb-3"><i class="fas fa-sitemap me-2"></i> Structure d'affectation</h6>
+                                        <div class="mb-2"><strong>Nom :</strong> {{ employe.structure ? employe.structure.nom : 'Aucune structure assignée' }}</div>
+                                        <div class="mb-2"><strong>Code :</strong> {{ employe.structure ? (employe.structure.code ?: 'N/C') : 'N/C' }}</div>
+                                        <div class="mb-2"><strong>Type :</strong> {{ employe.structure ? (employe.structure.type ?: 'Non spécifié') : 'N/C' }}</div>
+                                        {% if employe.structure %}
+                                            <a href="{{ path('app_structure_show', {'id': employe.structure.id}) }}" class="btn btn-sm btn-outline-warning mt-2">
+                                                <i class="fas fa-eye me-1"></i> Voir la structure
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 h-100 bg-white">
+                                        <h6 class="fw-bold text-info mb-3"><i class="fas fa-building me-2"></i> Service d'affectation</h6>
+                                        <div class="mb-2"><strong>Service :</strong> {{ employe.service ? employe.service.nom : 'Aucun service' }}</div>
+                                        <div class="mb-2"><strong>Description :</strong> {{ employe.service ? (employe.service.description ?: 'Sans description') : 'N/C' }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 h-100 bg-white">
+                                        <h6 class="fw-bold text-success mb-3"><i class="fas fa-briefcase me-2"></i> Fonction & Responsabilité</h6>
+                                        <div class="mb-2"><strong>Fonction :</strong> {{ employe.fonction ? employe.fonction.libelle : 'Non assignée' }}</div>
+                                        <div class="mb-2"><strong>Description :</strong> {{ employe.fonction ? (employe.fonction.description ?: 'Standard') : 'N/C' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. CARRIÈRE & ÉVOLUTION -->
+                <div class="tab-pane fade" id="tab-carriere" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-custom-header">
+                            <span><i class="fas fa-level-up-alt text-primary me-2"></i> Parcours Professionnel & Historique de Carrière</span>
+                            <span class="badge bg-info">Module Carrière & Postes</span>
+                        </div>
+                        <div class="card-body">
+                            {% if employe.poste %}
+                                <div class="card border-primary mb-4 bg-light shadow-sm">
+                                    <div class="card-body d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="badge bg-primary mb-1"><i class="fas fa-briefcase me-1"></i> Poste Actuel Assigné</span>
+                                            <h5 class="fw-bold mb-0 text-primary">{{ employe.poste.intitule }}</h5>
+                                            <div class="text-muted small mt-1">
+                                                <span class="me-3"><strong>Réf :</strong> {{ employe.poste.reference }}</span>
+                                                <span class="me-3"><strong>Niveau :</strong> {{ employe.poste.niveau ?: 'Cadre' }}</span>
+                                                {% if employe.poste.structure %}
+                                                    <span><strong>Structure :</strong> {{ employe.poste.structure.nom }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <a href="{{ path('app_poste_show', {'id': employe.poste.id}) }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-id-card-alt me-1"></i> Fiche de Poste 360°
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="alert alert-info d-flex align-items-center mb-0 py-2 px-3 flex-grow-1 me-3">
+                                    <i class="fas fa-info-circle fs-4 me-3"></i>
+                                    <div>
+                                        <strong>Gestion des carrières (Module 05 & 06) :</strong>
+                                        Historique des affectations, mutations, promotions, changements de poste et cessations d'activité.
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="{{ path('app_affectation_new', {'employe_id': employe.id}) }}" class="btn btn-primary fw-semibold text-nowrap">
+                                        <i class="fas fa-plus-circle me-1"></i> Nouveau mouvement
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date d'effet</th>
+                                            <th>Événement / Nature</th>
+                                            <th>Structure / Service</th>
+                                            <th>Fonction / Poste</th>
+                                            <th>Référence Acte</th>
+                                            <th>Statut</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for aff in employe.affectations %}
+                                            <tr>
+                                                <td>
+                                                    <i class="fas fa-calendar-alt text-muted me-1"></i>
+                                                    {{ aff.dateEffet ? aff.dateEffet|date('d/m/Y') : 'N/A' }}
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                                                        {{ aff.typeMouvementLabel }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {{ aff.structure ? aff.structure.nom : (aff.service ? aff.service.nom : 'Organisation') }}
+                                                </td>
+                                                <td>
+                                                    {% if aff.poste %}
+                                                        <a href="{{ path('app_poste_show', {'id': aff.poste.id}) }}" class="text-decoration-none fw-semibold">
+                                                            <i class="fas fa-briefcase me-1"></i> {{ aff.poste.intitule }}
+                                                        </a>
+                                                    {% elseif aff.fonction %}
+                                                        {{ aff.fonction.libelle }}
+                                                    {% else %}
+                                                        <span class="text-muted">Non spécifié</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted small">{{ aff.referenceActe ?: 'N/A' }}</span>
+                                                </td>
+                                                <td>
+                                                    {% if aff.statut == 'ACTIVE' %}
+                                                        <span class="badge bg-success">Active</span>
+                                                    {% elseif aff.statut == 'VALIDEE' %}
+                                                        <span class="badge bg-info">Validée</span>
+                                                    {% elseif aff.statut == 'PROPOSEE' %}
+                                                        <span class="badge bg-warning text-dark">Proposée</span>
+                                                    {% elseif aff.statut == 'CLOTUREE' %}
+                                                        <span class="badge bg-secondary">Clôturée</span>
+                                                    {% elseif aff.statut == 'ANNULEE' %}
+                                                        <span class="badge bg-danger">Annulée</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-end">
+                                                    <a href="{{ path('app_affectation_show', {'id': aff.id}) }}" class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-calendar-alt text-muted me-1"></i>
+                                                {{ employe.datePriseService ? employe.datePriseService|date('d/m/Y') : (employe.dateEmbauche ? employe.dateEmbauche|date('d/m/Y') : 'Initial') }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary"><i class="fas fa-user-plus me-1"></i> Recrutement initial</span>
+                                            </td>
+                                            <td>
+                                                {{ employe.structure ? employe.structure.nom : (employe.service ? employe.service.nom : 'Organisation') }}
+                                            </td>
+                                            <td>
+                                                {{ employe.fonction ? employe.fonction.libelle : 'Fonction initiale' }}
+                                            </td>
+                                            <td>
+                                                <span class="text-muted small">{{ employe.matricule ?: 'N/C' }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">Historique</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="text-muted">-</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. CONGÉS & ABSENCES -->
+                <div class="tab-pane fade" id="tab-conges" role="tabpanel">
+                    <!-- Soldes de congés -->
+                    <div class="row g-3 mb-4">
+                        {% for s in soldes.details %}
+                            <div class="col-sm-6 col-md-4">
+                                <div class="card border border-warning-subtle shadow-sm p-3 bg-white">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="text-muted small text-uppercase fw-bold">{{ s.type }}</div>
+                                            <div class="h4 mb-0 fw-bold text-warning">{{ s.solde|number_format(1) }} jours</div>
+                                        </div>
+                                        <div class="rounded-circle p-3 bg-warning bg-opacity-10 text-warning">
+                                            <i class="fas fa-calendar-check fa-lg"></i>
+                                        </div>
+                                    </div>
+                                    {% if s.updatedAt %}
+                                        <div class="text-muted small mt-2">Mis à jour le {{ s.updatedAt|date('d/m/Y') }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12">
+                                <div class="alert alert-light border text-muted">
+                                    <i class="fas fa-info-circle me-1"></i> Aucun solde de congé spécifique configuré pour cet agent.
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Historique des congés -->
+                    <div class="card card-custom">
+                        <div class="card-custom-header">
+                            <span><i class="fas fa-plane-departure text-warning me-2"></i> Historique des Demandes de Congé</span>
+                            <span class="badge bg-secondary">{{ conges.approuves }} approuvés / {{ conges.totalPris }} jours</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Type de congé</th>
+                                            <th>Période</th>
+                                            <th>Durée</th>
+                                            <th>Motif</th>
+                                            <th>Statut</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for c in conges.recents %}
+                                            <tr>
+                                                <td class="fw-semibold">{{ c.typeConge ? c.typeConge.nom : 'Congé' }}</td>
+                                                <td>
+                                                    Du {{ c.dateDebut ? c.dateDebut|date('d/m/Y') : '' }}
+                                                    au {{ c.dateFin ? c.dateFin|date('d/m/Y') : '' }}
+                                                </td>
+                                                <td><span class="badge bg-light text-dark fw-bold">{{ c.dateDiff ?: 1 }} jour(s)</span></td>
+                                                <td class="text-muted small">{{ c.motif ?: 'Non spécifié' }}</td>
+                                                <td>
+                                                    {% if c.statut == 1 %}
+                                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Approuvé</span>
+                                                    {% elseif c.statut == 2 %}
+                                                        <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i> Refusé</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i> En attente</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-end">
+                                                    <a href="{{ path('app_conges_show', {'id': c.id}) }}" class="btn btn-sm btn-outline-primary" title="Détails du congé">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4 text-muted">
+                                                    <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                                                    Aucune demande de congé enregistrée pour cet agent.
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Historique des Autorisations d'absence -->
+                    <div class="card card-custom mt-4">
+                        <div class="card-custom-header">
+                            <span><i class="fas fa-calendar-check text-primary me-2"></i> Autorisations d'Absence</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-secondary">{{ absences.accordees|default(0) }} accordées / {{ absences.totalDuree|default(0) }} jours/h</span>
+                                <a href="{{ path('app_absence_new', {'employe_id': employe.id}) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-plus me-1"></i> Nouvelle absence
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Type d'absence</th>
+                                            <th>Période & Horaires</th>
+                                            <th>Durée</th>
+                                            <th>Motif</th>
+                                            <th>Statut</th>
+                                            <th>Acte officiel</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ab in absences.recents|default([]) %}
+                                            <tr>
+                                                <td>
+                                                    <span class="badge" style="background-color: {{ ab.typeAbsence.couleur ?: '#17a2b8' }}; color: white;">
+                                                        {{ ab.typeAbsence.libelle }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    Du {{ ab.dateDebut ? ab.dateDebut|date('d/m/Y') : '' }}
+                                                    au {{ ab.dateFin ? ab.dateFin|date('d/m/Y') : '' }}
+                                                    {% if ab.heureDebut and ab.heureFin %}
+                                                        <br><small class="text-muted"><i class="far fa-clock me-1"></i>{{ ab.heureDebut|date('H:i') }} - {{ ab.heureFin|date('H:i') }}</small>
+                                                    {% endif %}
+                                                </td>
+                                                <td><span class="badge bg-light text-dark fw-bold">{{ ab.duree }} {{ ab.unite|lower }}</span></td>
+                                                <td class="text-muted small">{{ ab.motif|slice(0, 50) }}</td>
+                                                <td>
+                                                    <span class="badge {{ ab.statutBadge }}">
+                                                        {{ ab.statutLabel }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {% if ab.acte %}
+                                                        <a href="{{ path('app_acte_show', {'id': ab.acte.id}) }}" class="badge bg-info text-white text-decoration-none">
+                                                            <i class="fas fa-stamp me-1"></i> {{ ab.acte.numero }}
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="text-muted small">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-end">
+                                                    <a href="{{ path('app_absence_show', {'id': ab.id}) }}" class="btn btn-sm btn-outline-primary" title="Détails de l'absence">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="7" class="text-center py-4 text-muted">
+                                                    <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                                                    Aucune autorisation d'absence enregistrée pour cet agent.
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. PRÉSENCES & POINTAGES -->
+                <div class="tab-pane fade" id="tab-presences" role="tabpanel">
+                    <div class="card card-custom mb-4">
+                        <div class="card-custom-header">
+                            <span><i class="fas fa-clock text-info me-2"></i> Statistiques & Pointages Récents</span>
+                            <a href="{{ path('app_employe_presence', {'id': employe.id}) }}" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-history me-1"></i> Historique complet
+                            </a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Arrivée / Entrée</th>
+                                            <th>Départ / Sortie</th>
+                                            <th>Statut de présence</th>
+                                            <th>Commentaire / Motif</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for p in pointages.recents %}
+                                            <tr>
+                                                <td class="fw-semibold">{{ p.date ? p.date|date('d/m/Y') : '' }}</td>
+                                                <td>
+                                                    <i class="fas fa-sign-in-alt text-success me-1"></i>
+                                                    {{ p.dateEntree ? p.dateEntree|date('H:i') : (p.heureArrivee ? p.heureArrivee|date('H:i') : '--:--') }}
+                                                </td>
+                                                <td>
+                                                    <i class="fas fa-sign-out-alt text-danger me-1"></i>
+                                                    {{ p.dateSortie ? p.dateSortie|date('H:i') : (p.heureDepart ? p.heureDepart|date('H:i') : '--:--') }}
+                                                </td>
+                                                <td>
+                                                    {% if p.estPresent %}
+                                                        <span class="badge bg-success-subtle text-success"><i class="fas fa-check me-1"></i> Présent</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger-subtle text-danger"><i class="fas fa-times me-1"></i> Absent</span>
+                                                    {% endif %}
+                                                    {% if p.status %}
+                                                        <span class="badge bg-secondary-subtle text-secondary ms-1">{{ p.status }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-muted small">
+                                                    {{ p.motifAbsence ?: (p.commentaire ?: '-') }}
+                                                </td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="5" class="text-center py-4 text-muted">
+                                                    <i class="fas fa-user-clock fa-2x mb-2 d-block"></i>
+                                                    Aucun pointage enregistré pour cet agent.
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. DOCUMENTS RH -->
+                <div class="tab-pane fade" id="tab-documents" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-custom-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-folder text-secondary me-2"></i> Dossier Numérique & Pièces Justificatives</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary">Module 07 — Documents RH</span>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_document_new', {'employe_id': employe.id}) }}" class="btn btn-primary btn-sm fw-semibold">
+                                        <i class="fas fa-upload me-1"></i> Verser un document
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-light border d-flex align-items-center mb-4">
+                                <i class="fas fa-shield-alt text-primary fs-3 me-3"></i>
+                                <div>
+                                    <strong>Coffre-fort documentaire sécurisé :</strong>
+                                    Toutes les pièces ci-dessous sont hébergées hors de la racine publique avec contrôle d'accès strict, empreinte numérique SHA-256 et historique des versions.
+                                </div>
+                            </div>
+
+                            {% if employe.documents|length > 0 %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 40px;"></th>
+                                                <th>Intitulé & Référence</th>
+                                                <th>Catégorie</th>
+                                                <th>Format / Taille</th>
+                                                <th>Date d'émission</th>
+                                                <th>Confidentialité</th>
+                                                <th>Statut</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for doc in employe.documents %}
+                                                <tr>
+                                                    <td class="text-center fs-4">
+                                                        <i class="fas {{ doc.iconClass }}"></i>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ path('app_document_show', {'id': doc.id}) }}" class="fw-bold text-decoration-none text-dark">
+                                                            {{ doc.titre }}
+                                                        </a>
+                                                        <div class="text-muted small">
+                                                            Réf : <code>{{ doc.reference ?: 'N/C' }}</code>
+                                                            {% if doc.affectation %}
+                                                                • <span class="badge bg-info bg-opacity-10 text-info">Mouvement {{ doc.affectation.reference }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-light text-dark border">
+                                                            {{ doc.categorieLabel }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="small fw-semibold text-uppercase">{{ doc.extension|upper }} • {{ doc.tailleFormatee }}</div>
+                                                        <span class="badge bg-secondary bg-opacity-10 text-secondary small">v{{ doc.numeroDerniereVersion }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar-alt me-1"></i>
+                                                            {{ doc.dateDocument ? doc.dateDocument|date('d/m/Y') : doc.createdAt|date('d/m/Y') }}
+                                                        </small>
+                                                    </td>
+                                                    <td>
+                                                        {% if doc.niveauConfidentialite == 'SECRET_RH' %}
+                                                            <span class="badge bg-danger">Strictement Restreint</span>
+                                                        {% elseif doc.niveauConfidentialite == 'CONFIDENTIEL' %}
+                                                            <span class="badge bg-warning text-dark">Confidentiel</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">Interne RH</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if doc.statut == 'VALIDE' %}
+                                                            <span class="badge bg-success">Validé</span>
+                                                        {% elseif doc.statut == 'EN_ATTENTE' %}
+                                                            <span class="badge bg-warning text-dark">En attente</span>
+                                                        {% elseif doc.statut == 'ARCHIVE' %}
+                                                            <span class="badge bg-secondary">Archivé</span>
+                                                        {% elseif doc.statut == 'REJETE' %}
+                                                            <span class="badge bg-danger">Rejeté</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="{{ path('app_document_show', {'id': doc.id}) }}" class="btn btn-outline-primary" title="Fiche document">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            {% if doc.isPdf or doc.isImage %}
+                                                                <a href="{{ path('app_document_preview', {'id': doc.id}) }}" target="_blank" class="btn btn-outline-info" title="Aperçu">
+                                                                    <i class="fas fa-search-plus"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                            <a href="{{ path('app_document_download', {'id': doc.id}) }}" class="btn btn-outline-success" title="Télécharger">
+                                                                <i class="fas fa-download"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5 text-muted border rounded bg-light">
+                                    <i class="fas fa-folder-open fa-3x mb-3 text-secondary opacity-50"></i>
+                                    <h6 class="fw-semibold">Aucun document numérique versé pour cet agent.</h6>
+                                    <p class="small mb-3">Téléversez les pièces d'identité, contrats de travail, diplômes, certificats ou attestations.</p>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <a href="{{ path('app_document_new', {'employe_id': employe.id}) }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-upload me-1"></i> Verser le premier document
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 9. ACTES ADMINISTRATIFS -->
+                <div class="tab-pane fade" id="tab-actes" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-custom-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-stamp text-danger me-2"></i> Registre des Actes Administratifs</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary">{{ actes is defined ? actes|length : 0 }} acte(s)</span>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_acte_new', {'employe_id': employe.id}) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-plus-circle me-1"></i> Nouvel Acte
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-light border d-flex align-items-center mb-4">
+                                <i class="fas fa-file-contract text-primary fs-3 me-3"></i>
+                                <div>
+                                    <strong>Actes et décisions officielles :</strong>
+                                    Consultation et génération des arrêtés, décisions d'affectation, ordres de mission et sanctions disciplinaires rattachés au dossier de l'agent.
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Numéro de l'acte</th>
+                                            <th>Type d'acte</th>
+                                            <th>Date de signature</th>
+                                            <th>Prise d'effet</th>
+                                            <th>Objet</th>
+                                            <th>Statut</th>
+                                            <th>Scan</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if actes is defined and actes|length > 0 %}
+                                            {% for a in actes %}
+                                                <tr>
+                                                    <td class="font-monospace fw-bold">
+                                                        <a href="{{ path('app_acte_show', {'id': a.id}) }}" class="text-decoration-none text-primary">
+                                                            {{ a.numero }}
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-secondary-subtle text-secondary">{{ a.typeActe.libelle }}</span>
+                                                    </td>
+                                                    <td>{{ a.dateSignature|date('d/m/Y') }}</td>
+                                                    <td>
+                                                        <span class="fw-semibold">{{ a.dateEffet|date('d/m/Y') }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="text-truncate" style="max-width: 250px;" title="{{ a.objet }}">
+                                                            {{ a.objet }}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-{{ a.statutBadgeClass }}">{{ a.statutLibelle }}</span>
+                                                    </td>
+                                                    <td>
+                                                        {% if a.document %}
+                                                            <a href="{{ path('app_document_download', {'id': a.document.id}) }}" class="btn btn-sm btn-outline-primary p-1 px-2" title="Télécharger le scan">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="text-muted small">-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="{{ path('app_acte_show', {'id': a.id}) }}" class="btn btn-outline-secondary" title="Consulter">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            {% if is_granted('ROLE_ADMIN') %}
+                                                                <a href="{{ path('app_acte_edit', {'id': a.id}) }}" class="btn btn-outline-primary" title="Modifier">
+                                                                    <i class="fas fa-pencil"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="8" class="text-center py-4 text-muted">
+                                                    <i class="fas fa-stamp fs-3 d-block mb-2 text-secondary opacity-50"></i>
+                                                    Aucun acte administratif enregistré pour cet agent.
+                                                    {% if is_granted('ROLE_ADMIN') %}
+                                                        <div class="mt-2">
+                                                            <a href="{{ path('app_acte_new', {'employe_id': employe.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-plus me-1"></i> Créer le premier acte
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MISSIONS & ORDRES DE MISSION -->
+                <div class="tab-pane fade" id="tab-missions" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-custom-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-map-marked-alt text-success me-2"></i> Missions & Déplacements Professionnels</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary">{{ missions.total|default(0) }} mission(s)</span>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_mission_new', {'chef_id': employe.id}) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-plus-circle me-1"></i> Initier une mission
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-light border d-flex align-items-center mb-4">
+                                <i class="fas fa-plane-departure text-success fs-3 me-3"></i>
+                                <div>
+                                    <strong>Ordres de mission et déplacements :</strong>
+                                    Historique des missions nationales et internationales, chefs de mission, participants, ordres de mission officiels et rapports d'exécution.
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Réf. & Objet</th>
+                                            <th>Destination</th>
+                                            <th>Période</th>
+                                            <th>Rôle</th>
+                                            <th>Moyen transport</th>
+                                            <th>Statut</th>
+                                            <th>Ordre de mission</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if missions.recents is defined and missions.recents|length > 0 %}
+                                            {% for m in missions.recents %}
+                                                {% set isChef = m.chefMission and m.chefMission.id == employe.id %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="{{ path('app_mission_show', {'id': m.id}) }}" class="fw-bold text-dark text-decoration-none">
+                                                            {{ m.objet }}
+                                                        </a>
+                                                        <div class="small text-muted font-monospace">
+                                                            {{ m.reference ?: 'N/C' }}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <i class="fas fa-map-pin text-danger me-1"></i> {{ m.destination }}
+                                                    </td>
+                                                    <td>
+                                                        {{ m.dateDebut ? m.dateDebut|date('d/m/Y') : '' }}
+                                                        <i class="fas fa-arrow-right text-muted mx-1 small"></i>
+                                                        {{ m.dateFin ? m.dateFin|date('d/m/Y') : '' }}
+                                                        <div class="small text-muted">{{ m.dureeEnJours }} jour(s)</div>
+                                                    </td>
+                                                    <td>
+                                                        {% if isChef %}
+                                                            <span class="badge bg-primary"><i class="fas fa-user-shield me-1"></i> Chef de mission</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary"><i class="fas fa-user me-1"></i> Participant</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-light text-dark border">{{ m.moyenTransport ?: 'Non spécifié' }}</span>
+                                                    </td>
+                                                    <td>
+                                                        {% set badge = m.statutBadge %}
+                                                        <span class="badge bg-{{ badge.class }}">{{ badge.label }}</span>
+                                                    </td>
+                                                    <td>
+                                                        {% if m.ordreMission %}
+                                                            <a href="{{ path('app_acte_show', {'id': m.ordreMission.id}) }}" class="badge bg-success text-decoration-none">
+                                                                <i class="fas fa-stamp me-1"></i> {{ m.ordreMission.numero }}
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="text-muted small">-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <a href="{{ path('app_mission_show', {'id': m.id}) }}" class="btn btn-sm btn-outline-primary" title="Détails de la mission">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="8" class="text-center py-4 text-muted">
+                                                    <i class="fas fa-map-marked-alt fs-3 d-block mb-2 text-secondary opacity-50"></i>
+                                                    Aucune mission enregistrée pour cet agent.
+                                                    {% if is_granted('ROLE_ADMIN') %}
+                                                        <div class="mt-2">
+                                                            <a href="{{ path('app_mission_new', {'chef_id': employe.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-plus me-1"></i> Initier la première mission
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 10. CHRONOLOGIE 360° (TIMELINE) -->
+                <div class="tab-pane fade" id="tab-timeline" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-custom-header">
+                            <span><i class="fas fa-history text-dark me-2"></i> Historique Chronologique Intégré</span>
+                            <span class="badge bg-light text-dark">{{ timeline|length }} événements enregistrés</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline-vertical">
+                                {% for event in timeline %}
+                                    <div class="timeline-item">
+                                        <div class="timeline-icon-dot {{ event.badge }}">
+                                            <i class="fas {{ event.icon }}"></i>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="fw-bold text-dark mb-0">{{ event.title }}</h6>
+                                                <span class="badge bg-white text-muted border small">
+                                                    <i class="fas fa-calendar-alt me-1"></i> {{ event.date ? event.date|date('d/m/Y') : '' }}
+                                                </span>
+                                            </div>
+                                            <p class="text-muted mb-0 small">{{ event.description }}</p>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="fas fa-calendar-times fa-2x mb-2 d-block"></i>
+                                        Aucun événement historique consigné dans la chronologie de cet agent.
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions bas de page -->
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+        <a href="{{ path('app_employe_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour à la liste des agents
+        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_employe_edit', {'id': employe.id}) }}" class="btn btn-warning">
+                <i class="fas fa-edit me-1"></i> Modifier
+            </a>
+            {{ include('employe/_delete_form.html.twig', {'button_label': 'Supprimer cet agent'}) }}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

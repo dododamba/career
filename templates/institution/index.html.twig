@@ -1,0 +1,419 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Institutions — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-building text-mci-blue me-3"></i>
+        Gestion des Institutions
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Administration, tutelles et institutions publiques</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Administration</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Institutions</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-mci-secondary btn-sm" onclick="toggleTypeForm()">
+            <i class="bi bi-tag-fill me-1"></i> Nouveau Type
+        </button>
+        <button class="btn btn-mci-primary btn-sm" onclick="toggleInstitutionForm()">
+            <i class="bi bi-plus-circle me-1"></i> Nouvelle Institution
+        </button>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .institution-logo {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: var(--mci-blue, #0C2340);
+        }
+        .add-form-section {
+            display: none;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 2px dashed #cbd5e1;
+        }
+        .add-form-section.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+    
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Inline Add Institution Form -->
+    <div id="institutionForm" class="add-form-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bolder text-dark mb-0 fs-5"><i class="bi bi-building me-2 text-mci-blue"></i>Ajouter une nouvelle institution</h5>
+            <button type="button" class="btn btn-icon btn-sm btn-active-light-primary" onclick="toggleInstitutionForm()"><i class="bi bi-x fs-2"></i></button>
+        </div>
+        <form action="{{ path('app_institution_new') }}" method="post">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="form-label fs-8 fw-bolder text-dark text-uppercase">Nom de l'institution *</label>
+                    <input type="text" class="form-control form-control-solid fs-7" id="institution_nom" name="institution[nom]" placeholder="Ex: Ministère du Commerce" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fs-8 fw-bolder text-dark text-uppercase">Type d'institution *</label>
+                    <select class="form-select form-select-solid fs-7" id="institution_type" name="institution[type_institution]" required>
+                        <option value="">Sélectionner un type</option>
+                        {% for type in types_institution %}
+                            <option value="{{ type.id }}">{{ type.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fs-8 fw-bolder text-dark text-uppercase">Description</label>
+                    <input type="text" class="form-control form-control-solid fs-7" id="institution_description" name="institution[description]" placeholder="Missions et attributions">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-mci-primary w-100 py-3" title="Valider">
+                        <i class="bi bi-check2"></i>
+                    </button>
+                </div>
+            </div>
+            {{ csrf_token('institution') }}
+        </form>
+    </div>
+    
+    <!-- Inline Add Type Form -->
+    <div id="typeForm" class="add-form-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bolder text-dark mb-0 fs-5"><i class="bi bi-tag-fill me-2 text-mci-blue"></i>Ajouter un nouveau type d'institution</h5>
+            <button type="button" class="btn btn-icon btn-sm btn-active-light-primary" onclick="toggleTypeForm()"><i class="bi bi-x fs-2"></i></button>
+        </div>
+        <form action="{{ path('app_type_institution_new') }}" method="post">
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <label class="form-label fs-8 fw-bolder text-dark text-uppercase">Nom du type *</label>
+                    <input type="text" class="form-control form-control-solid fs-7" id="type_nom" name="type_institution[nom]" placeholder="Ex: Ministère, Agence, Direction" required>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fs-8 fw-bolder text-dark text-uppercase">Slug (optionnel)</label>
+                    <input type="text" class="form-control form-control-solid fs-7" id="type_slug" name="type_institution[slug]" placeholder="Généré automatiquement si vide">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-mci-primary w-100 py-3">
+                        <i class="bi bi-plus-lg me-1"></i> Ajouter
+                    </button>
+                </div>
+            </div>
+            {{ csrf_token('type_institution') }}
+        </form>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Institutions</span>
+                <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.total_institutions }}</span>
+                <span class="fs-9 text-muted">tutelles enregistrées</span>
+            </div>
+        </div>
+        
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5 border-start border-4 border-primary">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Employés</span>
+                <span class="fs-2hx fw-bolder text-mci-blue mb-1">{{ stats.total_employes }}</span>
+                <span class="fs-9 text-muted">Moy. {{ stats.total_institutions > 0 ? (stats.total_employes / stats.total_institutions)|round : 0 }} / inst.</span>
+            </div>
+        </div>
+        
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Services</span>
+                <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.total_services }}</span>
+                <span class="fs-9 text-success fw-semibold">unités administratives</span>
+            </div>
+        </div>
+        
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Types d'Institution</span>
+                <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.total_types }}</span>
+                <span class="fs-9 text-muted">catégories actives</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-6">
+        <!-- Tableau des institutions -->
+        <div class="col-lg-8">
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-building fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Liste des institutions</h3>
+                    </div>
+                    <div class="card-toolbar">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="text" class="form-control form-control-solid form-control-sm fs-7" placeholder="Rechercher..." id="search-input" style="width: 180px;">
+                            <select id="type-filter" class="form-select form-select-solid form-select-sm fs-7" style="width: 160px;">
+                                <option value="all">Tous les types</option>
+                                {% for type in types_institution %}
+                                    <option value="{{ type.nom }}">{{ type.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-4">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0 bg-light">
+                                    <th class="ps-6">Institution</th>
+                                    <th>Type</th>
+                                    <th class="text-center">Employés</th>
+                                    <th class="text-center">Services</th>
+                                    <th class="text-center">Utilisateurs</th>
+                                    <th class="text-end pe-6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fs-7 fw-semibold text-gray-600">
+                                {% for institution in institutions %}
+                                    <tr>
+                                        <td class="ps-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="institution-logo me-3">
+                                                    {{ institution.nom|first|upper }}{{ institution.nom|split(' ')[1]|default('')|first|upper }}
+                                                </div>
+                                                <div>
+                                                    <a href="{{ path('app_institution_show', {'id': institution.id}) }}" class="fw-bolder text-dark text-hover-primary fs-6">
+                                                        {{ institution.nom }}
+                                                    </a>
+                                                    <div class="text-muted fs-8 text-truncate" style="max-width: 220px;">
+                                                        {{ institution.description|default('Sans description') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light-secondary fs-8">
+                                                {{ institution.typeInstitution ? institution.typeInstitution.nom : 'Non défini' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-light-primary fs-8">{{ institution.employes|length }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-light-secondary fs-8">{{ institution.services|length }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-light-secondary fs-8">{{ institution.users|length }}</span>
+                                        </td>
+                                        <td class="text-end pe-6">
+                                            <div class="d-flex justify-content-end gap-1">
+                                                <a href="{{ path('app_institution_show', {'id': institution.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Voir fiche 360°">
+                                                    <i class="bi bi-eye-fill"></i>
+                                                </a>
+                                                <a href="{{ path('app_institution_edit', {'id': institution.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Modifier">
+                                                    <i class="bi bi-pencil-square text-warning"></i>
+                                                </a>
+                                                <form method="post" action="{{ path('app_institution_delete', {'id': institution.id}) }}" style="display: inline-block;" onsubmit="return confirm('Voulez-vous vraiment supprimer cette institution ?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ institution.id) }}">
+                                                    <button type="submit" class="btn btn-icon btn-mci-secondary btn-sm" title="Supprimer">
+                                                        <i class="bi bi-trash-fill text-danger"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-10 text-muted">
+                                            <div class="symbol symbol-60px symbol-circle mx-auto mb-3" style="background-color: var(--mci-blue-subtle);">
+                                                <span class="symbol-label">
+                                                    <i class="bi bi-building fs-1 text-mci-blue"></i>
+                                                </span>
+                                            </div>
+                                            <div class="fw-bolder fs-5 text-dark">Aucune institution enregistrée</div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                {% if pages_count > 1 %}
+                <div class="card-footer p-6 border-top">
+                    <div class="d-flex justify-content-center">
+                        <nav aria-label="Pagination">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if page > 1 %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('app_institution_index', {'page': page - 1}) }}">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for i in 1..pages_count %}
+                                    <li class="page-item {{ page == i ? 'active' : '' }}">
+                                        <a class="page-link" href="{{ path('app_institution_index', {'page': i}) }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+                                
+                                {% if page < pages_count %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('app_institution_index', {'page': page + 1}) }}">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar : Types d'institutions & Détails -->
+        <div class="col-lg-4">
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-tag-fill fs-2 text-mci-blue me-3"></i>
+                        <h4 class="fw-bolder text-dark mb-0 fs-5">Catégories d'institutions</h4>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="d-flex flex-column gap-3">
+                        {% for type in types_institution %}
+                            <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                                <span class="fw-bold text-dark fs-7">{{ type.nom }}</span>
+                                <span class="badge badge-light-primary rounded-pill fs-8">{{ type.institutions|default([])|length }} inst.</span>
+                            </div>
+                        {% else %}
+                            <p class="text-muted fs-8 mb-0">Aucun type d'institution configuré.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle forms
+    function toggleInstitutionForm() {
+        const form = document.getElementById('institutionForm');
+        const typeForm = document.getElementById('typeForm');
+        form.classList.toggle('show');
+        if (typeForm.classList.contains('show')) {
+            typeForm.classList.remove('show');
+        }
+    }
+    
+    function toggleTypeForm() {
+        const form = document.getElementById('typeForm');
+        const institutionForm = document.getElementById('institutionForm');
+        form.classList.toggle('show');
+        if (institutionForm.classList.contains('show')) {
+            institutionForm.classList.remove('show');
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-generate slug from name for type form
+        const typeNomInput = document.getElementById('type_nom');
+        const typeSlugInput = document.getElementById('type_slug');
+        if (typeNomInput && typeSlugInput) {
+            typeNomInput.addEventListener('input', function() {
+                const slug = this.value
+                    .toLowerCase()
+                    .replace(/[éèêë]/g, 'e')
+                    .replace(/[àâä]/g, 'a')
+                    .replace(/[îï]/g, 'i')
+                    .replace(/[ôö]/g, 'o')
+                    .replace(/[ùûü]/g, 'u')
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                typeSlugInput.value = slug;
+            });
+        }
+        
+        // Search functionality
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+        
+        // Filter functionality
+        const typeFilter = document.getElementById('type-filter');
+        if (typeFilter) {
+            typeFilter.addEventListener('change', function() {
+                const filterValue = this.value;
+                const rows = document.querySelectorAll('tbody tr');
+                
+                if (filterValue === 'all') {
+                    rows.forEach(row => row.style.display = '');
+                } else {
+                    rows.forEach(row => {
+                        const typeCell = row.cells[1];
+                        if (typeCell) {
+                            const typeText = typeCell.textContent.trim();
+                            row.style.display = typeText.includes(filterValue) ? '' : 'none';
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

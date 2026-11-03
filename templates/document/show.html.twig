@@ -1,0 +1,357 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ document.titre }} — Coffre-fort RH MCI{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Fiche Document : {{ document.titre }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <span class="badge badge-light-primary fw-bold py-1 px-3 fs-8">v{{ document.numeroDerniereVersion }}</span>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_document_index') }}" class="text-muted text-hover-primary">Coffre-fort</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Détail du document</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_document_download', {'id': document.id}) }}" class="btn btn-sm btn-mci-primary">
+            <i class="ki-duotone ki-file-down fs-4 me-1">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+            Télécharger
+        </a>
+        {% if document.isPdf or document.isImage %}
+            <a href="{{ path('app_document_preview', {'id': document.id}) }}" target="_blank" class="btn btn-sm btn-light-info">
+                <i class="ki-duotone ki-magnifier fs-4 me-1">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                </i>
+                Aperçu
+            </a>
+        {% endif %}
+        {% if is_granted('DOCUMENT_EDIT', document) %}
+            <a href="{{ path('app_document_edit', {'id': document.id}) }}" class="btn btn-sm btn-light">
+                <i class="ki-duotone ki-pencil fs-4 me-1">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                </i>
+                Modifier
+            </a>
+        {% endif %}
+        <a href="{{ path('app_document_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-folder fs-4 me-1">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+            Coffre-fort
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- En-tête Statut -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body p-6">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px symbol-circle me-4 bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                        <i class="ki-duotone ki-document fs-1 text-primary">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <h2 class="fs-2 fw-bold text-gray-900 mb-0">{{ document.titre }}</h2>
+                            <span class="badge badge-light-primary fw-bold fs-7">v{{ document.numeroDerniereVersion }}</span>
+                            {% if document.statut == 'VALIDE' %}
+                                <span class="badge badge-light-success fw-bold fs-7">Validé</span>
+                            {% elseif document.statut == 'EN_ATTENTE' %}
+                                <span class="badge badge-light-warning fw-bold fs-7">En attente</span>
+                            {% elseif document.statut == 'ARCHIVE' %}
+                                <span class="badge badge-light-secondary fw-semibold fs-7">Archivé</span>
+                            {% elseif document.statut == 'REJETE' %}
+                                <span class="badge badge-light-danger fw-bold fs-7">Rejeté</span>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted fs-7">
+                            Réf : <code class="text-gray-800">{{ document.reference ?: 'N/C' }}</code> &bull; 
+                            Catégorie : <span class="fw-bold text-gray-800">{{ document.categorieLabel }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Détail 360° du Document -->
+    <div class="row g-5">
+        <!-- Métadonnées & Empreinte Numérique -->
+        <div class="col-lg-7">
+            <div class="card card-mci border-0 shadow-sm h-100">
+                <div class="card-header border-0 pt-6 d-flex justify-content-between align-items-center">
+                    <h3 class="card-title align-items-start flex-column mb-0">
+                        <span class="card-label fw-bold fs-4 text-gray-900">Caractéristiques &amp; Intégrité Cryptographique</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Empreinte SHA-256 et métadonnées de stockage</span>
+                    </h3>
+                    <span class="badge badge-light-primary fw-bold">
+                        {{ document.niveauConfidentialiteLabel }}
+                    </span>
+                </div>
+                <div class="card-body p-6">
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <span class="text-muted fs-8 text-uppercase fw-bold">Nom original du fichier</span>
+                            <div class="fw-bold text-gray-900 text-break mt-1">{{ document.fichierNomOriginal }}</div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-muted fs-8 text-uppercase fw-bold">Taille &amp; Format</span>
+                            <div class="fw-semibold text-gray-800 mt-1">{{ document.tailleFormatee }} ({{ document.typeMime }})</div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-muted fs-8 text-uppercase fw-bold">Date du document</span>
+                            <div class="fw-semibold text-gray-800 mt-1">
+                                <i class="ki-duotone ki-calendar fs-6 text-primary me-1"><span class="path1"></span><span class="path2"></span></i>
+                                {{ document.dateDocument ? document.dateDocument|date('d/m/Y') : 'Non renseignée' }}
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-muted fs-8 text-uppercase fw-bold">Date de versement au coffre</span>
+                            <div class="fw-semibold text-gray-800 mt-1">
+                                <i class="ki-duotone ki-time fs-6 text-muted me-1"><span class="path1"></span><span class="path2"></span></i>
+                                {{ document.createdAt ? document.createdAt|date('d/m/Y H:i') : 'N/A' }}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <span class="text-muted fs-8 text-uppercase fw-bold">Empreinte cryptographique (SHA-256)</span>
+                            <div class="p-3 bg-light-primary rounded mt-1 font-monospace text-break text-gray-800 border border-primary border-opacity-25 fs-8">
+                                <i class="ki-duotone ki-fingerprint-scanning fs-5 text-primary me-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
+                                {{ document.fichierHash ?: 'Empreinte non calculée' }}
+                            </div>
+                            <div class="text-muted fs-8 mt-1">Cette empreinte certifie l'intégrité du document contre toute altération.</div>
+                        </div>
+
+                        {% if document.description %}
+                            <div class="col-12 mt-2 pt-2 border-top border-gray-200">
+                                <span class="text-muted fs-8 text-uppercase fw-bold">Description &amp; Notes RH</span>
+                                <div class="mt-1 text-gray-800 fs-7" style="white-space: pre-line;">{{ document.description }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rattachement Dossier RH -->
+        <div class="col-lg-5">
+            <div class="card card-mci border-0 shadow-sm h-100">
+                <div class="card-header border-0 pt-6">
+                    <h3 class="card-title align-items-start flex-column mb-0">
+                        <span class="card-label fw-bold fs-4 text-gray-900">Rattachement RH</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Liaisons administratives et traçabilité</span>
+                    </h3>
+                </div>
+                <div class="card-body p-6">
+                    {% if document.employe %}
+                        <div class="p-4 bg-light rounded border border-gray-200 mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="symbol symbol-45px symbol-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 fs-5 fw-bold">
+                                    {{ document.employe.prenom|slice(0, 1)|upper }}{{ document.employe.nom|slice(0, 1)|upper }}
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-gray-900">{{ document.employe.nomComplet }}</h6>
+                                    <div class="text-muted fs-8">Matricule : <strong>{{ document.employe.matricule ?: 'N/C' }}</strong></div>
+                                </div>
+                            </div>
+                            <div class="text-muted fs-8 mb-3">
+                                <div><strong>Structure :</strong> {{ document.employe.structure ? document.employe.structure.nom : 'Non affecté' }}</div>
+                                <div><strong>Poste :</strong> {{ document.employe.poste ? document.employe.poste.intitule : 'Sans poste' }}</div>
+                            </div>
+                            <a href="{{ path('app_employe_show', {'id': document.employe.id}) }}" class="btn btn-sm btn-light-primary w-100">
+                                <i class="ki-duotone ki-user fs-5 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                Voir le dossier agent 360°
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary py-3 small mb-4">
+                            <i class="ki-duotone ki-bank fs-4 me-1 text-gray-600"><span class="path1"></span><span class="path2"></span></i>
+                            Document d'ordre institutionnel général.
+                        </div>
+                    {% endif %}
+
+                    {% if document.affectation %}
+                        <div class="p-4 bg-light rounded border border-gray-200">
+                            <span class="badge badge-light-info mb-2">Mouvement associé</span>
+                            <div class="fw-bold text-gray-900">{{ document.affectation.reference }}</div>
+                            <div class="text-muted fs-8 mb-2">{{ document.affectation.typeMouvementLabel }}</div>
+                            <a href="{{ path('app_affectation_show', {'id': document.affectation.id}) }}" class="btn btn-sm btn-light-info w-100">
+                                <i class="ki-duotone ki-route fs-5 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                Consulter la décision de mouvement
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-4 pt-4 border-top border-gray-200 text-muted fs-8">
+                        <div>Versé par : <strong class="text-gray-800">{{ document.ajoutePar ? document.ajoutePar.email : 'Système' }}</strong></div>
+                        <div>Institution : <strong class="text-gray-800">{{ document.institution ? document.institution.nom : 'N/A' }}</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historique des versions & Dépôt d'une nouvelle version -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-header border-0 pt-6 d-flex justify-content-between align-items-center">
+            <h3 class="card-title align-items-start flex-column mb-0">
+                <span class="card-label fw-bold fs-4 text-gray-900">Historique &amp; Versionnement du Document</span>
+                <span class="text-muted mt-1 fw-semibold fs-7">Traçabilité des versions et conservation des états antérieurs</span>
+            </h3>
+            {% if is_granted('DOCUMENT_NEW_VERSION', document) %}
+                <button type="button" class="btn btn-sm btn-mci-primary" data-bs-toggle="modal" data-bs-target="#modalNouvelleVersion">
+                    <i class="ki-duotone ki-plus fs-4 me-1"></i>
+                    Déposer une nouvelle version
+                </button>
+            {% endif %}
+        </div>
+        <div class="card-body py-4">
+            <div class="table-responsive">
+                <table class="table align-middle table-row-dashed fs-6 gy-4 mb-0">
+                    <thead>
+                        <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0 border-bottom border-gray-200">
+                            <th class="w-70px">Version</th>
+                            <th class="min-w-180px">Nom du fichier</th>
+                            <th class="min-w-120px">Format &amp; Taille</th>
+                            <th class="min-w-140px">Empreinte SHA-256</th>
+                            <th class="min-w-120px">Date de versement</th>
+                            <th class="min-w-120px">Auteur</th>
+                            <th class="min-w-150px">Commentaire</th>
+                            <th class="text-end min-w-80px pe-2">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 fw-semibold">
+                        {% for v in document.versions %}
+                            <tr class="{{ v.numeroVersion == document.numeroDerniereVersion ? 'bg-light-primary' : '' }}">
+                                <td>
+                                    <span class="badge {{ v.numeroVersion == document.numeroDerniereVersion ? 'badge-primary' : 'badge-light-secondary' }}">
+                                        v{{ v.numeroVersion }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-gray-900">{{ v.fichierNomOriginal }}</span>
+                                    {% if v.numeroVersion == document.numeroDerniereVersion %}
+                                        <span class="badge badge-light-success ms-1 fs-9">Active</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ v.tailleFormatee }} ({{ v.typeMime }})</td>
+                                <td>
+                                    <code class="fs-8 text-gray-800" title="{{ v.fichierHash }}">{{ v.fichierHash ? v.fichierHash|slice(0, 12) ~ '...' : 'N/A' }}</code>
+                                </td>
+                                <td>{{ v.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>{{ v.creePar ? v.creePar.email : 'N/A' }}</td>
+                                <td class="text-muted fs-8">{{ v.commentaireVersion ?: '-' }}</td>
+                                <td class="text-end pe-2">
+                                    <a href="{{ path('app_document_version_download', {'id': document.id, 'versionId': v.id}) }}" class="btn btn-icon btn-sm btn-light" title="Télécharger cette version">
+                                        <i class="ki-duotone ki-file-down fs-5">
+                                            <span class="path1"></span>
+                                            <span class="path2"></span>
+                                        </i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">Aucune version archivée.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions de suppression -->
+    {% if is_granted('DOCUMENT_DELETE', document) %}
+        <div class="d-flex justify-content-end mt-4 pt-4 border-top">
+            <form method="post" action="{{ path('app_document_delete', {'id': document.id}) }}" onsubmit="return confirm('Êtes-vous certain de vouloir supprimer définitivement ce document et l\'ensemble de ses versions du coffre-fort ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ document.id) }}">
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="ki-duotone ki-trash fs-5 me-1">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                        <span class="path4"></span>
+                        <span class="path5"></span>
+                    </i>
+                    Supprimer définitivement le document
+                </button>
+            </form>
+        </div>
+    {% endif %}
+
+</div>
+
+<!-- Modal Nouvelle Version -->
+{% if is_granted('DOCUMENT_NEW_VERSION', document) %}
+    <div class="modal fade" id="modalNouvelleVersion" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                {{ form_start(versionForm) }}
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-gray-900">
+                        <i class="ki-duotone ki-file-up fs-2 text-primary me-2"><span class="path1"></span><span class="path2"></span></i>
+                        Déposer la version {{ document.numeroDerniereVersion + 1 }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body p-6">
+                    <div class="alert alert-info py-3 small mb-4">
+                        <i class="ki-duotone ki-information-5 fs-4 text-info me-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                        Le fichier actif sera remplacé par cette nouvelle version tout en conservant la version v{{ document.numeroDerniereVersion }} dans l'historique sécurisé.
+                    </div>
+                    <div class="mb-4">
+                        {{ form_label(versionForm.fichier, 'Sélectionner le nouveau fichier *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                        {{ form_widget(versionForm.fichier, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        {{ form_errors(versionForm.fichier) }}
+                        <div class="text-muted fs-8 mt-1">{{ versionForm.fichier.vars.help }}</div>
+                    </div>
+                    <div class="mb-2">
+                        {{ form_label(versionForm.commentaire_version, 'Motif ou commentaire de mise à jour', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                        {{ form_widget(versionForm.commentaire_version, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Ex: Version signée par le Ministre'}}) }}
+                        {{ form_errors(versionForm.commentaire_version) }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-mci-primary fw-semibold">
+                        <i class="ki-duotone ki-check fs-4 me-1"></i>
+                        Enregistrer la version
+                    </button>
+                </div>
+                {{ form_end(versionForm) }}
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

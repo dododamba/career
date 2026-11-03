@@ -1,0 +1,12 @@
+scheb_two_factor:
+    security_tokens:
+        - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken
+        - Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken
+        - Symfony\Component\Security\Http\Authenticator\Token\RememberMeToken
+    totp:
+        enabled: true
+        server_name: 'PRIMATECH'
+        issuer: 'PRIMATECH'
+        template: 'security/2fa_form.html.twig'
+    backup_codes:
+        enabled: true

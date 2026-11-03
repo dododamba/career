@@ -1,0 +1,519 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Intérim {{ interim.reference }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-shield-lock-fill text-mci-blue me-3"></i>
+        Intérim {{ interim.reference }}
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">{{ interim.typeDelegationLabel }}</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Carrière & Mobilité</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_interim_index') }}" class="text-muted text-hover-primary">Intérim & Délégations</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">{{ interim.reference }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a href="{{ path('app_interim_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Liste des intérims</span>
+        </a>
+
+        {% if is_granted('INTERIM_EDIT', interim) %}
+            <a href="{{ path('app_interim_edit', {'id': interim.id}) }}" class="btn btn-mci-warning btn-sm">
+                <i class="bi bi-pencil-square fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Modifier</span>
+            </a>
+        {% endif %}
+
+        {% if is_granted('INTERIM_SUBMIT', interim) %}
+            <form method="post" action="{{ path('app_interim_submit', {'id': interim.id}) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('submit_interim_' ~ interim.id) }}">
+                <button type="submit" class="btn btn-mci-primary btn-sm" onclick="return confirm('Soumettre cette désignation d\'intérim pour validation hiérarchique ?');">
+                    <i class="bi bi-send-check fs-5 me-1"></i>
+                    <span class="d-none d-sm-inline">Soumettre</span>
+                </button>
+            </form>
+        {% endif %}
+
+        {% if is_granted('INTERIM_VALIDATE', interim) %}
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#validerModal">
+                <i class="bi bi-patch-check-fill fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Valider & Activer</span>
+            </button>
+        {% endif %}
+
+        {% if is_granted('INTERIM_REJECT', interim) %}
+            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                <i class="bi bi-x-circle fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Refuser</span>
+            </button>
+        {% endif %}
+
+        {% if is_granted('INTERIM_REVOKE', interim) %}
+            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#revokeModal">
+                <i class="bi bi-slash-circle fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Révoquer</span>
+            </button>
+        {% endif %}
+
+        {% if is_granted('INTERIM_CLOSE', interim) %}
+            <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#closeModal">
+                <i class="bi bi-check-all fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Clôturer</span>
+            </button>
+        {% endif %}
+
+        {% if is_granted('INTERIM_DELETE', interim) %}
+            <button type="button" class="btn btn-icon btn-mci-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Supprimer">
+                <i class="bi bi-trash-fill text-danger"></i>
+            </button>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Bannière Statut -->
+    <div class="card card-mci p-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="symbol symbol-45px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                    <span class="symbol-label">
+                        <i class="bi bi-shield-lock-fill fs-2 text-mci-blue"></i>
+                    </span>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4 fw-bolder text-dark">{{ interim.reference }}</span>
+                        <span class="badge bg-{{ interim.statutBadge.class }} fs-7">{{ interim.statutLabel }}</span>
+                        {% if interim.isActifALaDate %}
+                            <span class="badge badge-light-success fs-8">
+                                <i class="bi bi-lightning-charge-fill me-1"></i>Actif en ce moment
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="text-muted fs-7">
+                        Type : <strong class="text-dark">{{ interim.typeDelegationLabel }}</strong>
+                        <span class="mx-2">•</span>
+                        Période : Du {{ interim.dateDebut ? interim.dateDebut|date('d/m/Y') : '' }} au {{ interim.dateFin ? interim.dateFin|date('d/m/Y') : '' }} ({{ interim.dureeEnJours }} jour{{ interim.dureeEnJours > 1 ? 's' : '' }})
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-6">
+        <!-- Informations principales -->
+        <div class="col-lg-8">
+            <!-- Cartes Acteurs (Titulaire vs Intérimaire) -->
+            <div class="row g-6 mb-6">
+                <!-- Titulaire remplacé -->
+                <div class="col-md-6">
+                    <div class="card card-mci h-100 p-5">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="symbol symbol-45px symbol-circle me-3" style="background-color: #fee2e2;">
+                                <span class="symbol-label">
+                                    <i class="bi bi-person-x-fill text-danger fs-3"></i>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-muted fs-8 fw-bold text-uppercase d-block">Titulaire remplacé</span>
+                                <a href="{{ path('app_employe_show', {'id': interim.titulaire.id}) }}" class="fw-bolder text-dark text-hover-primary fs-6">
+                                    {{ interim.titulaire.nomComplet }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="fs-7 text-muted">
+                            <div>Matricule : <strong class="text-dark font-monospace">{{ interim.titulaire.matricule }}</strong></div>
+                            <div class="mt-1">Fonction : <strong class="text-dark">{{ interim.titulaire.fonction ? interim.titulaire.fonction.libelle : 'Non définie' }}</strong></div>
+                            <div class="mt-1">Structure : <strong class="text-dark">{{ interim.titulaire.structure ? interim.titulaire.structure.nom : '-' }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Intérimaire désigné -->
+                <div class="col-md-6">
+                    <div class="card card-mci h-100 p-5">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="symbol symbol-45px symbol-circle me-3" style="background-color: #dcfce7;">
+                                <span class="symbol-label">
+                                    <i class="bi bi-person-check-fill text-success fs-3"></i>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-muted fs-8 fw-bold text-uppercase d-block">Intérimaire désigné</span>
+                                <a href="{{ path('app_employe_show', {'id': interim.interimaire.id}) }}" class="fw-bolder text-mci-blue text-hover-primary fs-6">
+                                    {{ interim.interimaire.nomComplet }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="fs-7 text-muted">
+                            <div>Matricule : <strong class="text-dark font-monospace">{{ interim.interimaire.matricule }}</strong></div>
+                            <div class="mt-1">Fonction : <strong class="text-dark">{{ interim.interimaire.fonction ? interim.interimaire.fonction.libelle : 'Non définie' }}</strong></div>
+                            <div class="mt-1">Structure : <strong class="text-dark">{{ interim.interimaire.structure ? interim.interimaire.structure.nom : '-' }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fiche détaillée de la suppléance -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-info-circle-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Paramètres de la désignation</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Poste / Fonction intérimaire</span>
+                            <span class="fw-bolder text-dark fs-6">{{ interim.poste ? interim.poste.titre : (interim.titulaire.fonction ? interim.titulaire.fonction.libelle : 'Non spécifié') }}</span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Structure / Département</span>
+                            <span class="fw-bold text-dark fs-6">{{ interim.structure ? interim.structure.nom : (interim.titulaire.structure ? interim.titulaire.structure.nom : '-') }}</span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Période d'effet</span>
+                            <div class="fw-bold text-dark">
+                                Du {{ interim.dateDebut ? interim.dateDebut|date('d/m/Y') : '' }} au {{ interim.dateFin ? interim.dateFin|date('d/m/Y') : '' }}
+                                <span class="badge badge-light-secondary ms-1 fs-8">{{ interim.dureeEnJours }} jour(s)</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Type de suppléance</span>
+                            <span class="badge badge-light-primary fs-7 mt-1">{{ interim.typeDelegationLabel }}</span>
+                        </div>
+
+                        <div class="col-12">
+                            <span class="text-muted d-block fs-8 fw-bold text-uppercase">Motif circonstancié</span>
+                            <div class="p-4 bg-light rounded text-dark fs-7 mt-1">
+                                {{ interim.motif|nl2br }}
+                            </div>
+                        </div>
+
+                        {% if interim.commentaireValidation %}
+                            <div class="col-12">
+                                <span class="text-muted d-block fs-8 fw-bold text-uppercase">Consignes hiérarchiques de validation</span>
+                                <div class="p-4 bg-light rounded border-start border-4 border-primary text-dark fs-7 mt-1">
+                                    {{ interim.commentaireValidation|nl2br }}
+                                    {% if interim.validePar and interim.dateValidation %}
+                                        <div class="text-muted fs-8 mt-2">
+                                            Validé par <strong>{{ interim.validePar.nomComplet }}</strong> le {{ interim.dateValidation|date('d/m/Y à H:i') }}.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if interim.motifFin %}
+                            <div class="col-12">
+                                <span class="text-muted d-block fs-8 fw-bold text-uppercase">Motif de fin / refus / révocation</span>
+                                <div class="p-4 bg-light rounded border-start border-4 border-warning text-dark fs-7 mt-1">
+                                    {{ interim.motifFin|nl2br }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Périmètre des pouvoirs délégués -->
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-key-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Périmètre des pouvoirs délégués</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-3">
+                        {% for pouvoir in interim.perimetre %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center p-3 bg-light rounded">
+                                    <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                                    <span class="fw-bold text-dark fs-7">{{ pouvoir|replace({'_': ' '})|title }}</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12">
+                                <span class="text-muted fs-7">Aucun pouvoir spécifique renseigné.</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar : Acte officiel & Audit Trail -->
+        <div class="col-lg-4">
+            <!-- Décision officielle d'intérim -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-patch-check-fill fs-2 text-success me-3"></i>
+                        <h4 class="fw-bolder text-dark mb-0 fs-5">Décision officielle</h4>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    {% if interim.acte %}
+                        <div class="p-4 bg-light rounded border border-success mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge badge-light-success fs-8">Décision d'intérim</span>
+                                <span class="text-muted fs-8">{{ interim.acte.dateSignature ? interim.acte.dateSignature|date('d/m/Y') : '' }}</span>
+                            </div>
+                            <div class="fw-bolder text-dark fs-6 mb-1">{{ interim.acte.numero }}</div>
+                            <p class="fs-8 text-muted mb-3">{{ interim.acte.objet }}</p>
+                            <a href="{{ path('app_acte_show', {'id': interim.acte.id}) }}" class="btn btn-success btn-sm w-100">
+                                <i class="bi bi-patch-check-fill me-1"></i> Consulter l'acte officiel
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted fs-7 mb-0">
+                            {% if interim.statut == 0 %}
+                                La décision officielle de désignation sera générée lors de la validation.
+                            {% else %}
+                                Aucun acte officiel n'est rattaché à cet intérim.
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Journal d'Audit -->
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-clock-history fs-2 text-mci-blue me-3"></i>
+                        <h4 class="fw-bolder text-dark mb-0 fs-5">Journal d'Audit ({{ logs|length }})</h4>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    {% if logs is empty %}
+                        <p class="text-muted fs-8 mb-0">Aucun historique d'événement.</p>
+                    {% else %}
+                        <div class="timeline-label">
+                            {% for log in logs %}
+                                <div class="d-flex align-items-start gap-3 mb-4 pb-3 border-bottom border-gray-100">
+                                    <div class="symbol symbol-30px symbol-circle mt-1" style="background-color: var(--mci-blue-subtle);">
+                                        <span class="symbol-label">
+                                            <i class="bi bi-dot fs-1 text-mci-blue"></i>
+                                        </span>
+                                    </div>
+                                    <div class="d-flex flex-column flex-grow-1">
+                                        <span class="fw-bold text-dark fs-7">{{ log.titre }}</span>
+                                        {% if log.description %}
+                                            <span class="text-muted fs-8 mt-1">{{ log.description }}</span>
+                                        {% endif %}
+                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                            <span class="badge badge-light-secondary fs-9">{{ log.action }}</span>
+                                            <span class="text-muted fs-9">
+                                                {{ log.createdAt|date('d/m/Y H:i') }}
+                                                {% if log.utilisateur %} • {{ log.utilisateur.email }}{% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# Modal Validation #}
+{% if is_granted('INTERIM_VALIDATE', interim) %}
+    <div class="modal fade" id="validerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_interim_validate', {'id': interim.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('validate_interim_' ~ interim.id) }}">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-patch-check-fill me-2"></i>Valider & Activer la désignation d'intérim</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6">Vous êtes sur le point de valider la suppléance de <strong>{{ interim.titulaire.nomComplet }}</strong> par <strong>{{ interim.interimaire.nomComplet }}</strong> pour la période du <strong>{{ interim.dateDebut ? interim.dateDebut|date('d/m/Y') : '' }}</strong> au <strong>{{ interim.dateFin ? interim.dateFin|date('d/m/Y') : '' }}</strong>.</p>
+                        
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" role="switch" id="genererActe" name="generer_acte" value="1" checked>
+                            <label class="form-check-label fw-semibold fs-7" for="genererActe">Générer automatiquement une Décision officielle de nomination par intérim</label>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <label class="form-label fs-7 fw-bold">Consignes ou observations administratives (optionnel)</label>
+                            <textarea name="commentaire" class="form-control form-control-solid fs-7" rows="2" placeholder="Instructions particulières pour la prise de service de l'intérimaire..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="bi bi-patch-check-fill me-1"></i>Confirmer la validation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Modal Refus #}
+{% if is_granted('INTERIM_REJECT', interim) %}
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_interim_reject', {'id': interim.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('reject_interim_' ~ interim.id) }}">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-x-circle-fill me-2"></i>Refuser la proposition d'intérim</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6">Veuillez motiver le refus de cette désignation d'intérim <strong>{{ interim.reference }}</strong> :</p>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold">Motif du refus <span class="text-danger">*</span></label>
+                            <textarea name="motif_rejet" class="form-control form-control-solid fs-7" rows="3" required placeholder="Motif circonstancié du refus..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Fermer</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-x-circle me-1"></i>Confirmer le refus
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Modal Révocation #}
+{% if is_granted('INTERIM_REVOKE', interim) %}
+    <div class="modal fade" id="revokeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_interim_revoke', {'id': interim.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('revoke_interim_' ~ interim.id) }}">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-slash-circle me-2"></i>Révoquer l'intérim en cours</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <div class="alert alert-mci alert-mci-danger d-flex align-items-center p-4 mb-4">
+                            <i class="bi bi-exclamation-triangle-fill fs-3 text-danger me-3"></i>
+                            <span class="fs-7 text-danger fw-bold">Attention : la révocation met immédiatement fin aux pouvoirs délégués à l'intérimaire avant l'échéance normale.</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold">Motif de la révocation <span class="text-danger">*</span></label>
+                            <textarea name="motif_revocation" class="form-control form-control-solid fs-7" rows="3" required placeholder="Ex : Reprise anticipée du titulaire, manquement constaté..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Fermer</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-slash-circle me-1"></i>Confirmer la révocation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Modal Clôture #}
+{% if is_granted('INTERIM_CLOSE', interim) %}
+    <div class="modal fade" id="closeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_interim_close', {'id': interim.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('close_interim_' ~ interim.id) }}">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-check-all me-2"></i>Clôturer l'intérim</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6">Confirmez-vous la fin de la période d'intérim pour <strong>{{ interim.reference }}</strong> ?</p>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold">Observations de fin de suppléance (optionnel)</label>
+                            <textarea name="motif_cloture" class="form-control form-control-solid fs-7" rows="2" placeholder="Ex : Reprise normale du service par le titulaire..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-dark btn-sm">
+                            <i class="bi bi-check-all me-1"></i>Clôturer l'intérim
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# Modal Suppression #}
+{% if is_granted('INTERIM_DELETE', interim) %}
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_interim_delete', {'id': interim.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_interim_' ~ interim.id) }}">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title text-white"><i class="bi bi-trash-fill me-2"></i>Supprimer l'intérim</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6 mb-0">Êtes-vous sûr de vouloir supprimer définitivement cet enregistrement d'intérim (<strong>{{ interim.reference }}</strong>) ? Cette opération est irréversible.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-mci-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash-fill me-1"></i>Supprimer définitivement
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

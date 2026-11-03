@@ -1,0 +1,210 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail Pointage #{{ pointage.id }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Fiche d'Émargement #{{ pointage.id }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Détails de l'enregistrement de présence</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_pointage_index') }}" class="text-muted text-hover-primary">Pointages</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Pointage #{{ pointage.id }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_pointage_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-arrow-left fs-4 me-1">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+            Retour à la liste
+        </a>
+        {% if is_granted('POINTAGE_EDIT') or is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_pointage_edit', {'id': pointage.id}) }}" class="btn btn-sm btn-mci-primary">
+                <i class="ki-duotone ki-pencil fs-4 me-1">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                </i>
+                Modifier
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- Card Profil & Résumé -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body p-6">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-60px symbol-circle me-4 bg-light-primary text-primary fw-bolder fs-2 d-flex align-items-center justify-content-center">
+                        {% if pointage.employe %}
+                            {{ pointage.employe.nom ? pointage.employe.nom|first|upper : 'E' }}{{ pointage.employe.prenom ? pointage.employe.prenom|first|upper : 'M' }}
+                        {% else %}
+                            <i class="ki-duotone ki-user fs-1 text-primary"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h2 class="fs-2 fw-bold text-gray-900 mb-1">
+                            {{ pointage.employe ? pointage.employe.nomComplet : 'Collaborateur non assigné' }}
+                        </h2>
+                        <div class="text-muted fs-7">
+                            Matricule : <span class="fw-bold text-gray-800">{{ pointage.employe ? pointage.employe.matricule : 'Non renseigné' }}</span>
+                            {% if pointage.employe and pointage.employe.service %}
+                                &bull; Service : <span class="fw-semibold text-gray-800">{{ pointage.employe.service.nom }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    {% set st = pointage.status|default(pointage.isEstPresent ? 'Présent' : 'Absent') %}
+                    {% if st in ['Présent', 'Present'] %}
+                        <span class="badge badge-light-success fs-7 fw-bold py-2 px-4">
+                            <i class="ki-duotone ki-check-circle fs-6 text-success me-1"></i> Présent
+                        </span>
+                    {% elseif st in ['Absent'] %}
+                        <span class="badge badge-light-danger fs-7 fw-bold py-2 px-4">
+                            <i class="ki-duotone ki-cross-circle fs-6 text-danger me-1"></i> Absent
+                        </span>
+                    {% elseif st in ['En retard', 'Retard'] %}
+                        <span class="badge badge-light-warning fs-7 fw-bold py-2 px-4">
+                            <i class="ki-duotone ki-timer fs-6 text-warning me-1"></i> En retard
+                        </span>
+                    {% else %}
+                        <span class="badge badge-light-info fs-7 fw-bold py-2 px-4">{{ st }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Détails de l'enregistrement -->
+    <div class="row g-5">
+        <div class="col-lg-6">
+            <div class="card card-flush border-0 shadow-sm h-100">
+                <div class="card-header pt-5">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-4 text-gray-900">Horodatage &amp; Émargement</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Horaires constatés de présence</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="table-responsive">
+                        <table class="table align-middle table-row-bordered fs-6 gy-4 mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted min-w-150px">Date du pointage</td>
+                                    <td class="fw-bold text-gray-900">
+                                        <i class="ki-duotone ki-calendar fs-5 text-primary me-2"></i>
+                                        {{ pointage.date ? pointage.date|date('d/m/Y') : '—' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Heure d'arrivée</td>
+                                    <td>
+                                        {% if pointage.heureArrivee %}
+                                            <span class="badge badge-light-success fw-bold font-monospace fs-6 px-3 py-2">
+                                                <i class="ki-duotone ki-time fs-6 text-success me-1"></i>
+                                                {{ pointage.heureArrivee|date('H:i') }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Heure de départ</td>
+                                    <td>
+                                        {% if pointage.heureDepart %}
+                                            <span class="badge badge-light-primary fw-bold font-monospace fs-6 px-3 py-2">
+                                                <i class="ki-duotone ki-time fs-6 text-primary me-1"></i>
+                                                {{ pointage.heureDepart|date('H:i') }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted fst-italic">Non encore renseignée</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Date système de saisie</td>
+                                    <td class="text-gray-700">
+                                        {{ pointage.dateEntree ? pointage.dateEntree|date('d/m/Y H:i') : '—' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card card-flush border-0 shadow-sm h-100">
+                <div class="card-header pt-5">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-4 text-gray-900">Motif &amp; Justificatif</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Observations et observations administratives</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="d-flex flex-column gap-4">
+                        {% if pointage.motifAbsence %}
+                            <div class="alert alert-light-warning d-flex align-items-center p-4 border border-warning border-dashed rounded">
+                                <i class="ki-duotone ki-information-5 fs-2x text-warning me-3"></i>
+                                <div>
+                                    <h5 class="text-warning fw-bold mb-1">Motif d'absence déclaré</h5>
+                                    <div class="text-gray-800">{{ pointage.motifAbsence }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div>
+                            <span class="text-muted fs-7 text-uppercase fw-semibold d-block mb-2">Commentaires / Remarques</span>
+                            {% if pointage.commentaire %}
+                                <div class="p-4 rounded bg-light-subtle border border-gray-200 text-gray-800 fs-6">
+                                    {{ pointage.commentaire }}
+                                </div>
+                            {% else %}
+                                <span class="text-muted fst-italic fs-7">Aucune remarque enregistrée.</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="separator separator-dashed my-2"></div>
+
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted fs-7">Identifiant unique : #{{ pointage.id }}</span>
+                            {% if is_granted('POINTAGE_DELETE') or is_granted('ROLE_ADMIN') %}
+                                <form method="post" action="{{ path('app_pointage_delete', {'id': pointage.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce pointage ?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ pointage.id) }}">
+                                    <button class="btn btn-sm btn-light-danger">
+                                        <i class="ki-duotone ki-trash fs-5 me-1"></i>
+                                        Supprimer ce pointage
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{{ form_start(form, {'attr': {'class': 'form d-flex flex-column gap-7'}}) }}
+    {{ form_errors(form) }}
+
+    <div class="row g-6">
+        <div class="col-12">
+            <div class="fv-row">
+                {{ form_label(form.libelle, 'Intitulé de la fonction *', {'label_attr': {'class': 'form-label form-label-mci required'}}) }}
+                {{ form_widget(form.libelle, {'attr': {
+                    'class': 'form-control form-control-mci',
+                    'placeholder': 'Ex: Chef de Division, Directeur Administratif, Agent de Contrôle...'
+                }}) }}
+                {{ form_errors(form.libelle) }}
+                <div class="text-muted fs-8 mt-1">Dénomination officielle de la fonction au sein du Ministère.</div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="fv-row">
+                {{ form_label(form.description, 'Description / Attributions', {'label_attr': {'class': 'form-label form-label-mci'}}) }}
+                {{ form_widget(form.description, {'attr': {
+                    'class': 'form-control form-control-mci',
+                    'rows': 4,
+                    'placeholder': 'Précisez les missions, attributions et responsabilités liées à cette fonction...'
+                }}) }}
+                {{ form_errors(form.description) }}
+                <div class="text-muted fs-8 mt-1">Facultatif : description des attributions de la fonction.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="separator my-4 border-gray-200"></div>
+
+    <div class="d-flex justify-content-end align-items-center gap-3">
+        <a href="{{ path('app_fonction_index') }}" class="btn btn-mci-light">
+            <i class="bi bi-x-lg me-1"></i>Annuler
+        </a>
+        <button type="submit" class="btn btn-mci-primary">
+            <i class="bi bi-check2-circle fs-5 me-1"></i>
+            {{ button_label|default('Enregistrer la fonction') }}
+        </button>
+    </div>
+{{ form_end(form) }}

@@ -1,0 +1,275 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Administrateur — {{ app.user.institution ? app.user.institution.nom : 'Administration' }}{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Espace Superviseur
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Pilotage et supervision globale de l'institution</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Supervision</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Vue Globale</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_employe_new') }}" class="btn btn-mci-primary btn-sm">
+            <i class="bi bi-person-plus fs-5"></i>
+            <span class="d-none d-sm-inline">Nouvel Agent</span>
+        </a>
+        <a href="{{ path('app_pointage_new') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-clock-history fs-5"></i>
+            <span class="d-none d-sm-inline">Pointer</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    {# En-tête administrateur institutionnel #}
+    <div class="card card-mci border-0 overflow-hidden shadow-sm" style="background: linear-gradient(135deg, var(--mci-blue-dark) 0%, var(--mci-blue) 100%);">
+        <div class="card-body p-6 p-lg-8 text-white">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <span class="badge mb-3 px-3 py-2" style="background: rgba(254, 203, 0, 0.2); color: var(--mci-gold); border: 1px solid rgba(254, 203, 0, 0.4); font-size: 0.8rem; font-weight: 700;">
+                        <i class="bi bi-shield-lock-fill me-1" style="color: var(--mci-gold);"></i>
+                        Supervision DRHM & Secrétariat Général
+                    </span>
+                    <h2 class="text-white fw-bolder fs-1 mb-2">
+                        {{ app.user.institution ? app.user.institution.nom : 'Ministère du Commerce et de l\'Industrie' }}
+                    </h2>
+                    <p class="text-white text-opacity-80 fs-6 mb-0">
+                        Indicateurs consolidés d'effectifs, assiduité administrative et gouvernance des ressources humaines.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-inline-flex flex-column align-items-lg-end bg-white bg-opacity-10 p-4 rounded-3 border border-white border-opacity-20">
+                        <span class="fs-7 text-white text-opacity-75 text-uppercase fw-semibold mb-1">Taux global de présence</span>
+                        <span class="fs-2 fw-bolder text-white">{{ stats.tauxPresenceGlobal|default(0) }}%</span>
+                        <span class="fs-8 text-warning fw-semibold mt-1">Moyenne de l'institution</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# KPI Cards Administrateur #}
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Effectif Total</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.totalEmployes|default(0) }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-people me-1 text-mci-blue"></i>
+                            Agents sous tutelle
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-person-badge-fill fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Services Actifs</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.totalServices|default(0) }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-building me-1 text-primary"></i>
+                            Unités opérationnelles
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-primary">
+                        <span class="symbol-label">
+                            <i class="bi bi-diagram-3-fill fs-2 text-primary"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Congés en attente</span>
+                        <span class="fs-2hx fw-bolder text-warning mb-1">{{ stats.congesEnAttente|default(0) }}</span>
+                        <span class="fs-8 text-warning fw-semibold">
+                            <i class="bi bi-hourglass-split me-1"></i>
+                            Demandes à arbitrer
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-gold-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-calendar2-range-fill fs-2 text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Assiduité Globale</span>
+                        <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.tauxPresenceGlobal|default(0) }}%</span>
+                        <span class="fs-8 text-success fw-semibold">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Taux moyen journalier
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-success">
+                        <span class="symbol-label">
+                            <i class="bi bi-graph-up fs-2 text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Détails par Service et Raccourcis Métier #}
+    <div class="row g-6">
+        {# Statistiques par service #}
+        <div class="col-lg-6">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6 pb-4 d-flex justify-content-between align-items-center">
+                    <h3 class="card-title align-items-start flex-column mb-0">
+                        <span class="card-label fw-bolder fs-5 text-dark">Assiduité et effectifs par service</span>
+                        <span class="text-muted mt-1 fw-semibold fs-8">Distribution des agents par direction</span>
+                    </h3>
+                    <a href="{{ path('app_service_index') }}" class="btn btn-sm btn-mci-ghost">
+                        <span>Gérer</span>
+                        <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body pt-0">
+                    {% if statsByService is empty %}
+                        <div class="text-center py-8 text-muted">
+                            <i class="bi bi-inbox fs-2 text-muted d-block mb-2"></i>
+                            <p class="mb-0 fs-7">Aucune donnée de présence par service enregistrée.</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-mci align-middle gs-0 gy-3">
+                                <thead>
+                                    <tr class="text-start text-muted fw-bolder fs-8 text-uppercase">
+                                        <th class="min-w-150px">Service / Direction</th>
+                                        <th class="min-w-80px text-center">Effectif</th>
+                                        <th class="min-w-100px text-end pe-2">Taux présence</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="fw-semibold text-gray-700 fs-7">
+                                    {% for item in statsByService %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="symbol symbol-35px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                                        <span class="symbol-label text-mci-blue fw-bold fs-7">
+                                                            <i class="bi bi-diagram-2 text-mci-blue"></i>
+                                                        </span>
+                                                    </div>
+                                                    <span class="text-dark fw-bold fs-7">{{ item.service|default('Direction Générale') }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark fw-bolder fs-8">
+                                                    {{ item.total_employes|default(0) }} agent(s)
+                                                </span>
+                                            </td>
+                                            <td class="text-end pe-2">
+                                                <span class="badge badge-mci badge-mci-green px-3 py-1 fs-8 fw-bold">
+                                                    {{ item.taux_presence|default(0)|round(1) }}%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Raccourcis d'administration #}
+        <div class="col-lg-6">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6 pb-4">
+                    <h3 class="card-title align-items-start flex-column mb-0">
+                        <span class="card-label fw-bolder fs-5 text-dark">Modules de gestion prioritaires</span>
+                        <span class="text-muted mt-1 fw-semibold fs-8">Accès rapide aux registres et circuits</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <a href="{{ path('app_employe_index') }}" class="card card-mci p-5 text-decoration-none h-100 text-dark bg-light-subtle hover-elevate-up">
+                                <div class="symbol symbol-45px symbol-circle mb-3" style="background-color: var(--mci-blue-subtle);">
+                                    <span class="symbol-label">
+                                        <i class="bi bi-people-fill fs-3 text-mci-blue"></i>
+                                    </span>
+                                </div>
+                                <h6 class="fw-bolder fs-6 mb-1 text-dark">Dossiers Agents</h6>
+                                <small class="text-muted fs-8">Consulter et mettre à jour le référentiel des agents</small>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="{{ path('app_poste_index') }}" class="card card-mci p-5 text-decoration-none h-100 text-dark bg-light-subtle hover-elevate-up">
+                                <div class="symbol symbol-45px symbol-circle mb-3 bg-light-primary">
+                                    <span class="symbol-label">
+                                        <i class="bi bi-briefcase-fill fs-3 text-primary"></i>
+                                    </span>
+                                </div>
+                                <h6 class="fw-bolder fs-6 mb-1 text-dark">Postes de travail</h6>
+                                <small class="text-muted fs-8">Catalogue des emplois et postes vacants</small>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="{{ path('app_acte_index') }}" class="card card-mci p-5 text-decoration-none h-100 text-dark bg-light-subtle hover-elevate-up">
+                                <div class="symbol symbol-45px symbol-circle mb-3" style="background-color: var(--mci-gold-subtle);">
+                                    <span class="symbol-label">
+                                        <i class="bi bi-file-earmark-text-fill fs-3 text-warning"></i>
+                                    </span>
+                                </div>
+                                <h6 class="fw-bolder fs-6 mb-1 text-dark">Actes Administratifs</h6>
+                                <small class="text-muted fs-8">Arrêtés, décrets, décisions et traçabilité</small>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="{{ path('app_conges_index') }}" class="card card-mci p-5 text-decoration-none h-100 text-dark bg-light-subtle hover-elevate-up">
+                                <div class="symbol symbol-45px symbol-circle mb-3 bg-light-success">
+                                    <span class="symbol-label">
+                                        <i class="bi bi-calendar-check-fill fs-3 text-success"></i>
+                                    </span>
+                                </div>
+                                <h6 class="fw-bolder fs-6 mb-1 text-dark">Congés & Permissions</h6>
+                                <small class="text-muted fs-8">Traitement des demandes et droits à repos</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

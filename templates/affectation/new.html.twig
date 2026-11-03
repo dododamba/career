@@ -1,0 +1,228 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau mouvement / Affectation d'un agent — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h2 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Enregistrer un Mouvement / Affectation
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Mutation, promotion, changement de poste ou cessation d'activité</small>
+    </h2>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_affectation_index') }}" class="text-muted text-hover-primary">Mouvements</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Nouveau</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        {% if presetEmploye %}
+            <a href="{{ path('app_employe_show', {'id': presetEmploye.id}) }}" class="btn btn-mci-secondary btn-sm">
+                <i class="bi bi-person-lines-fill fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Fiche de {{ presetEmploye.nomComplet }}</span>
+            </a>
+        {% endif %}
+        <a href="{{ path('app_affectation_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-list fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Liste des mouvements</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Si l'agent est présélectionné, afficher un récapitulatif -->
+    {% if presetEmploye %}
+        <div class="card card-mci p-5 border-start border-4 border-primary">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-50px symbol-circle bg-light-primary text-primary fw-bolder fs-4 me-4 d-flex align-items-center justify-content-center">
+                            {{ presetEmploye.prenom|slice(0, 1)|upper }}{{ presetEmploye.nom|slice(0, 1)|upper }}
+                        </div>
+                        <div>
+                            <h5 class="fw-bolder mb-1 text-dark">{{ presetEmploye.nomComplet }}</h5>
+                            <div class="text-muted fs-8">
+                                <span class="me-3"><strong>Matricule :</strong> {{ presetEmploye.matricule ?: 'N/C' }}</span>
+                                <span class="me-3"><strong>Poste actuel :</strong> {{ presetEmploye.poste ? presetEmploye.poste.intitule : 'Sans poste' }}</span>
+                                <span class="me-3"><strong>Structure :</strong> {{ presetEmploye.structure ? presetEmploye.structure.nom : 'Non affecté' }}</span>
+                                <span><strong>Statut :</strong> <span class="badge {{ presetEmploye.isActif ? 'badge-mci-success' : 'badge-mci-danger' }} fs-9">{{ presetEmploye.isActif ? 'En activité' : 'Inactif' }}</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="badge badge-mci-blue fs-7 px-3 py-2">
+                        <i class="bi bi-person-badge me-1"></i> Situation : {{ presetEmploye.situationAdministrative ?: 'ACTIVITE' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Formulaire d'affectation -->
+    <div class="card card-mci">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <i class="bi bi-sliders fs-2 text-mci-blue me-3"></i>
+                <h3 class="fw-bolder text-dark mb-0 fs-4">Paramètres du mouvement & Affectation administrative</h3>
+            </div>
+        </div>
+        <div class="card-body py-4">
+            {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+
+            <div class="row g-6">
+                {% if not presetEmploye %}
+                    <div class="col-12">
+                        <div class="p-4 rounded-3 bg-light border border-gray-300">
+                            {{ form_label(form.employe, 'Agent concerné par le mouvement *', {'label_attr': {'class': 'form-label fw-bolder fs-7'}}) }}
+                            {{ form_widget(form.employe) }}
+                            {{ form_errors(form.employe) }}
+                            <div class="text-muted fs-8 mt-1">Sélectionnez l'agent de l'institution concerné par cette décision administrative.</div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Section 1 : Nature et Références du Mouvement -->
+                <div class="col-12">
+                    <h5 class="fw-bolder text-dark border-bottom pb-3 mb-2 fs-5">
+                        <i class="bi bi-info-circle-fill text-mci-blue me-2"></i> 1. Nature & Références Administratives
+                    </h5>
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.type_mouvement, 'Type de mouvement / Nature *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.type_mouvement) }}
+                    {{ form_errors(form.type_mouvement) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.date_decision, 'Date de la décision administrative *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.date_decision) }}
+                    {{ form_errors(form.date_decision) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.date_effet, 'Date d\'effet du mouvement *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.date_effet) }}
+                    {{ form_errors(form.date_effet) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.reference_acte, 'Référence de l\'acte administratif (Arrêté / Décret / Décision)', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.reference_acte) }}
+                    {{ form_errors(form.reference_acte) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.date_prise_service, 'Date effective de prise de service (optionnel)', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.date_prise_service) }}
+                    {{ form_errors(form.date_prise_service) }}
+                    <div class="text-muted fs-8 mt-1">Peut être confirmée ultérieurement lors de la prise de fonction réelle.</div>
+                </div>
+
+                <!-- Section 2 : Affectation & Rattachement Cible -->
+                <div class="col-12 mt-4">
+                    <h5 class="fw-bolder text-dark border-bottom pb-3 mb-2 fs-5">
+                        <i class="bi bi-building-fill text-mci-blue me-2"></i> 2. Destination & Rattachement Organisationnel
+                    </h5>
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.poste, 'Poste de travail cible', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.poste) }}
+                    {{ form_errors(form.poste) }}
+                    {% if form.poste.vars.help is defined and form.poste.vars.help %}
+                        <div class="text-muted fs-8 mt-1">{{ form.poste.vars.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.structure, 'Direction / Structure de rattachement', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.structure) }}
+                    {{ form_errors(form.structure) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.service, 'Service / Division', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.service) }}
+                    {{ form_errors(form.service) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.fonction, 'Fonction / Emploi occupé', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.fonction) }}
+                    {{ form_errors(form.fonction) }}
+                </div>
+
+                <!-- Section 3 : Justification & Workflow -->
+                <div class="col-12 mt-4">
+                    <h5 class="fw-bolder text-dark border-bottom pb-3 mb-2 fs-5">
+                        <i class="bi bi-clipboard-check-fill text-mci-blue me-2"></i> 3. Justification, Modalités & Validation
+                    </h5>
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.motif, 'Motif ou justification de la décision', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.motif) }}
+                    {{ form_errors(form.motif) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.commentaire, 'Observations & annotations RH', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.commentaire) }}
+                    {{ form_errors(form.commentaire) }}
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="p-4 bg-light rounded-3 border border-gray-300">
+                        <div class="form-check form-switch form-check-custom form-check-solid">
+                            {{ form_widget(form.activer_immediatement, {'attr': {'class': 'form-check-input'}}) }}
+                            {{ form_label(form.activer_immediatement, null, {'label_attr': {'class': 'form-check-label fw-bold fs-6 ms-3'}}) }}
+                        </div>
+                        {% if form.activer_immediatement.vars.help is defined and form.activer_immediatement.vars.help %}
+                            <div class="text-muted fs-8 ms-10 mt-1">{{ form.activer_immediatement.vars.help }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-6 pt-4 border-top border-gray-200">
+                <a href="{{ presetEmploye ? path('app_employe_show', {'id': presetEmploye.id}) : path('app_affectation_index') }}" class="btn btn-mci-light">
+                    <i class="bi bi-x-lg me-1"></i> Annuler
+                </a>
+                <button type="submit" class="btn btn-mci-primary px-6">
+                    <i class="bi bi-check-circle me-1"></i> Enregistrer le mouvement
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

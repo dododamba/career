@@ -1,0 +1,193 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil Utilisateur : {{ user.fullName }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Fiche Utilisateur : {{ user.fullName }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Détails du compte et habilitations</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_user_index') }}" class="text-muted text-hover-primary">Utilisateurs</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">{{ user.fullName }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_user_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour à la liste
+        </a>
+        <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-mci-primary">
+            <i class="ki-duotone ki-pencil fs-4 me-1"></i> Modifier le compte
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- Card Profil Header Banner -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body p-6">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-65px symbol-circle me-4 bg-light-primary text-primary fw-bolder fs-1 d-flex align-items-center justify-content-center">
+                        {{ user.firstname ? user.firstname|first|upper : 'U' }}{{ user.lastname ? user.lastname|first|upper : 'S' }}
+                    </div>
+                    <div>
+                        <h2 class="fs-2 fw-bold text-gray-900 mb-1">{{ user.fullName }}</h2>
+                        <div class="d-flex flex-wrap gap-3 text-muted fs-7">
+                            <span><i class="ki-duotone ki-sms fs-6 text-gray-500 me-1"></i> {{ user.email }}</span>
+                            <span>&bull;</span>
+                            <span>Institution : <strong>{{ user.institution ? user.institution.nom : 'MCI Administration Centrale' }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    {% if user.isVerified %}
+                        <span class="badge badge-light-success fs-7 fw-bold py-2 px-3">
+                            <i class="ki-duotone ki-verify fs-6 text-success me-1"></i> Compte vérifié
+                        </span>
+                    {% else %}
+                        <span class="badge badge-light-warning fs-7 fw-bold py-2 px-3">
+                            <i class="ki-duotone ki-time fs-6 text-warning me-1"></i> Non vérifié
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <!-- Informations du compte -->
+        <div class="col-lg-6">
+            <div class="card card-flush border-0 shadow-sm h-100">
+                <div class="card-header pt-5">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-4 text-gray-900">Données d'Accès &amp; Sécurité</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Paramètres IAM et traçabilité</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="table-responsive">
+                        <table class="table align-middle table-row-bordered fs-6 gy-4 mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted min-w-150px">Identifiant Système</td>
+                                    <td class="fw-bold text-gray-900">#{{ user.id }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Prénom</td>
+                                    <td class="fw-bold text-gray-900">{{ user.firstname }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Nom</td>
+                                    <td class="fw-bold text-gray-900">{{ user.lastname }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Email de connexion</td>
+                                    <td class="fw-bold text-gray-900">{{ user.email }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Rôles de sécurité</td>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for role in user.roles %}
+                                                {% if role == 'ROLE_ADMIN' %}
+                                                    <span class="badge badge-light-danger fw-bold fs-8">Administrateur</span>
+                                                {% elseif role == 'ROLE_MANAGER' %}
+                                                    <span class="badge badge-light-warning fw-bold fs-8">Manager</span>
+                                                {% else %}
+                                                    <span class="badge badge-light-secondary fw-bold fs-8">{{ role|replace({'ROLE_': ''}) }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Date d'inscription</td>
+                                    <td class="text-gray-700">
+                                        {{ user.createdAt ? user.createdAt|date('d/m/Y H:i') : '—' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Dernière connexion</td>
+                                    <td class="text-gray-700">
+                                        {{ user.lastLoginAt ? user.lastLoginAt|date('d/m/Y H:i') : 'Jamais connecté' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profil Employé associé -->
+        <div class="col-lg-6">
+            <div class="card card-flush border-0 shadow-sm h-100">
+                <div class="card-header pt-5">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-4 text-gray-900">Dossier Agent Rattaché</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Liaison entre l'accès applicatif et le dossier RH</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-2">
+                    {% if user.employe %}
+                        <div class="d-flex align-items-center p-4 rounded bg-light-subtle border border-gray-200 mb-4">
+                            <div class="symbol symbol-50px symbol-circle me-3 bg-light-primary text-primary fw-bolder d-flex align-items-center justify-content-center">
+                                {{ user.employe.nom ? user.employe.nom|first|upper : 'E' }}
+                            </div>
+                            <div class="d-flex flex-column flex-grow-1">
+                                <span class="text-gray-900 fw-bold fs-5">{{ user.employe.nomComplet }}</span>
+                                <span class="text-muted fs-7">
+                                    Matricule : <strong>{{ user.employe.matricule|default('N/D') }}</strong>
+                                </span>
+                                <span class="text-muted fs-8">
+                                    Service : {{ user.employe.service ? user.employe.service.nom : 'Non défini' }}
+                                </span>
+                            </div>
+                            <a href="{{ path('app_employe_show', {'id': user.employe.id}) }}" class="btn btn-sm btn-mci-primary">
+                                Dossier 360°
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light-warning d-flex align-items-center p-4 border border-warning border-dashed rounded mb-4">
+                            <i class="ki-duotone ki-information-5 fs-2x text-warning me-3"></i>
+                            <div>
+                                <h5 class="text-warning fw-bold mb-1">Aucun dossier agent lié</h5>
+                                <div class="text-gray-700 fs-7">Cet utilisateur possède un compte d'accès mais n'est rattaché à aucun profil d'agent RH.</div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-end gap-2 pt-6 mt-4 border-top">
+                        {% if user.id != app.user.id %}
+                            <form method="post" action="{{ path('app_user_delete', {'id': user.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce compte utilisateur ?');" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                <button class="btn btn-sm btn-light-danger">
+                                    <i class="ki-duotone ki-trash fs-5 me-1"></i> Supprimer le compte
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

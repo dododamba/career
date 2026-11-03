@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques Mensuelles des Congés — {{ stats.month|default('') }} — PRIMATECH{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Header & Toolbar -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body py-5 px-6">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge badge-light-primary fw-bold text-uppercase px-3 py-2">
+                            <i class="ki-outline ki-calendar fs-7 me-1 text-primary"></i> Gestion des Congés & Permissions
+                        </span>
+                    </div>
+                    <h1 class="text-gray-900 fw-bolder fs-2 mb-1">Bilan Mensuel des Congés : {{ stats.month|default('Mois en cours') }}</h1>
+                    <p class="text-gray-600 fs-7 mb-0">Consolidation des jours d'absence autorisés et ventilation par motif statutaire.</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ path('app_conges_index') }}" class="btn btn-sm btn-light">
+                        <i class="ki-outline ki-arrow-left fs-6 me-1"></i> Registre des congés
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="row g-5">
+        <div class="col-md-6">
+            <div class="card card-mci border-0 shadow-sm h-100">
+                <div class="card-body p-6">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="symbol symbol-50px symbol-circle bg-light-primary">
+                            <span class="symbol-label bg-light-primary text-primary">
+                                <i class="ki-outline ki-document fs-2 text-primary"></i>
+                            </span>
+                        </div>
+                        <span class="badge badge-light-primary fs-8 fw-bolder">Volume des Demandes</span>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <span class="fs-2hx fw-bolder text-gray-900 mb-1">{{ stats.totalConges|default(0) }}</span>
+                        <span class="text-gray-500 fs-7">Nombre total de congés accordés ou sollicités</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-mci border-0 shadow-sm h-100">
+                <div class="card-body p-6">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="symbol symbol-50px symbol-circle bg-light-warning">
+                            <span class="symbol-label bg-light-warning text-warning">
+                                <i class="ki-outline ki-time fs-2 text-warning"></i>
+                            </span>
+                        </div>
+                        <span class="badge badge-light-warning fs-8 fw-bolder">Volume Temporel</span>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <span class="fs-2hx fw-bolder text-gray-900 mb-1">{{ stats.totalDays|default(0) }}</span>
+                        <span class="text-gray-500 fs-7">Cumul total des jours de congé consommés</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Répartition par Type de Congé -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <i class="ki-outline ki-category fs-3 text-primary me-2"></i>
+                <span class="fw-bolder fs-5 text-gray-900">Répartition Détaillée par Motif</span>
+            </div>
+        </div>
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table class="table align-middle table-row-dashed fs-6 gy-4">
+                    <thead>
+                        <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                            <th class="min-w-200px">Type de Congé / Motif</th>
+                            <th class="text-center min-w-140px">Nombre de Demandes</th>
+                            <th class="text-center min-w-140px">Total Jours</th>
+                            <th class="text-end min-w-120px">Moyenne par Demande</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fw-semibold text-gray-600">
+                        {% for type, data in stats.byType|default({}) %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-35px symbol-circle bg-light-primary me-3">
+                                        <span class="symbol-label text-primary fw-bold">
+                                            <i class="ki-outline ki-calendar-tick fs-6 text-primary"></i>
+                                        </span>
+                                    </div>
+                                    <span class="text-gray-900 fw-bolder">{{ type }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-light-primary fw-bold fs-7">{{ data.count }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-light-warning fw-bold fs-7">{{ data.days }} jour(s)</span>
+                            </td>
+                            <td class="text-end">
+                                <span class="text-gray-800 fw-bold fs-7">
+                                    {{ data.count > 0 ? ((data.days / data.count)|round(1)) : 0 }} j
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="ki-outline ki-information fs-2 text-muted mb-2 d-block"></i>
+                                Aucune donnée de congé disponible pour ce mois.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

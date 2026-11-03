@@ -1,0 +1,185 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle demande de congé — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Nouvelle demande de congé
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Dépôt réglementaire d'une demande d'absence autorisée</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Temps & Absences</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_conges_index') }}" class="text-muted text-hover-primary">Congés</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Nouvelle demande</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_conges_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Liste des congés</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'id': 'conge-form', 'class': 'needs-validation', 'novalidate': true}}) }}
+
+    <div class="row g-6">
+        <!-- Formulaire principal -->
+        <div class="col-lg-8">
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-pencil-square fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Informations de la demande</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.employe.vars.id }}">
+                                <i class="bi bi-person-fill me-1 text-mci-blue"></i>Employé *
+                            </label>
+                            {{ form_widget(form.employe, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.employe) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.typeConge.vars.id }}">
+                                <i class="bi bi-tag-fill me-1 text-mci-blue"></i>Type de congé *
+                            </label>
+                            {{ form_widget(form.typeConge, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.typeConge) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.dateDebut.vars.id }}">
+                                <i class="bi bi-calendar-event me-1 text-success"></i>Date de début *
+                            </label>
+                            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control form-control-solid fs-7'}}) }}
+                            {{ form_errors(form.dateDebut) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.dateFin.vars.id }}">
+                                <i class="bi bi-calendar-check me-1 text-danger"></i>Date de fin *
+                            </label>
+                            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control form-control-solid fs-7'}}) }}
+                            {{ form_errors(form.dateFin) }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.motif.vars.id }}">
+                                <i class="bi bi-chat-text-fill me-1 text-mci-blue"></i>Motif (optionnel)
+                            </label>
+                            {{ form_widget(form.motif, {'attr': {'class': 'form-control form-control-solid fs-7', 'rows': 3, 'placeholder': 'Décrivez brièvement le motif de votre demande...'}}) }}
+                            {{ form_errors(form.motif) }}
+                        </div>
+
+                        {% if form.document is defined %}
+                            <div class="col-12">
+                                <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.document.vars.id }}">
+                                    <i class="bi bi-paperclip me-1 text-warning"></i>Document justificatif certifié (certificat, convocation...)
+                                </label>
+                                {{ form_widget(form.document, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                                {{ form_errors(form.document) }}
+                                <div class="text-muted fs-8 mt-1">Obligatoire pour les congés maladie, maternité, etc.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panneau de résumé & Calcul -->
+        <div class="col-lg-4">
+            <!-- Compteur de jours -->
+            <div class="card card-mci mb-6 p-6 text-center">
+                <div class="symbol symbol-50px symbol-circle mx-auto mb-3" style="background-color: var(--mci-blue-subtle);">
+                    <span class="symbol-label">
+                        <i class="bi bi-clock-history fs-2 text-mci-blue"></i>
+                    </span>
+                </div>
+                <h5 class="fw-bolder text-dark mb-1">Durée estimée</h5>
+                <div class="fs-3hx fw-bolder text-mci-blue my-2" id="total-days">0</div>
+                <span class="text-muted fs-8">jour(s) calendaire(s)</span>
+            </div>
+
+            <!-- Boutons de soumission -->
+            <div class="card card-mci p-6">
+                <div class="d-flex flex-column gap-3">
+                    <button type="submit" class="btn btn-mci-primary w-100 py-3">
+                        <i class="bi bi-send-check me-1"></i> Soumettre la demande
+                    </button>
+                    <a href="{{ path('app_conges_index') }}" class="btn btn-mci-light w-100">
+                        <i class="bi bi-x-lg me-1"></i> Annuler
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+</div>
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startInput = document.querySelector('input[name*="[dateDebut]"]');
+            const endInput = document.querySelector('input[name*="[dateFin]"]');
+            const daysDisplay = document.getElementById('total-days');
+
+            function calculateDays() {
+                if (startInput && endInput && startInput.value && endInput.value) {
+                    const start = new Date(startInput.value);
+                    const end = new Date(endInput.value);
+                    if (!isNaN(start) && !isNaN(end) && end >= start) {
+                        const diffTime = Math.abs(end - start);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                        if (daysDisplay) daysDisplay.textContent = diffDays;
+                        return;
+                    }
+                }
+                if (daysDisplay) daysDisplay.textContent = '0';
+            }
+
+            if (startInput) startInput.addEventListener('change', calculateDays);
+            if (endInput) endInput.addEventListener('change', calculateDays);
+            calculateDays();
+        });
+    </script>
+{% endblock %}
+{% endblock %}

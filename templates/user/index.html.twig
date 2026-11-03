@@ -1,0 +1,268 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Comptes Utilisateurs — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Comptes &amp; Accès Utilisateurs
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Administration des habilitations et sécurité IAM</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Utilisateurs</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_user_new') }}" class="btn btn-sm btn-mci-primary">
+            <i class="ki-duotone ki-user-plus fs-4 me-1">
+                <span class="path1"></span>
+                <span class="path2"></span>
+                <span class="path3"></span>
+            </i>
+            Nouvel utilisateur
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- Bannière Institutionnelle -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body p-6">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px symbol-circle me-4 bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                        <i class="ki-duotone ki-shield-tick fs-1 text-primary">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
+                    </div>
+                    <div>
+                        <h2 class="fs-2 fw-bold text-gray-900 mb-1">Gestion des Accès &amp; Identités</h2>
+                        <div class="text-muted fs-7">
+                            Périmètre institutionnel : <span class="fw-bold text-gray-800">{{ institution ? institution.nom : 'Administration Centrale MCI' }}</span>.
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge badge-light-primary fw-bold py-2 px-3 fs-7">
+                        <i class="ki-duotone ki-security-user fs-6 text-primary me-1"></i>
+                        {{ stats.total|default(0) }} comptes répertoriés
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Row -->
+    <div class="row g-5">
+        <!-- Total Utilisateurs -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold fs-7 text-uppercase">Comptes enregistrés</span>
+                        <div class="symbol symbol-45px bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-profile-user fs-2 text-primary">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                                <span class="path4"></span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="fs-2hx fw-bolder text-gray-900 mb-1">{{ stats.total|default(0) }}</div>
+                    <span class="text-muted fs-8">Effectif global des comptes actifs</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comptes Vérifiés -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold fs-7 text-uppercase">Comptes vérifiés</span>
+                        <div class="symbol symbol-45px bg-light-success text-success d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-verify fs-2 text-success">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="fs-2hx fw-bolder text-success mb-1">{{ stats.verified|default(0) }}</div>
+                    <span class="text-muted fs-8">Identités certifiées avec accès valide</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Administrateurs -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold fs-7 text-uppercase">Administrateurs</span>
+                        <div class="symbol symbol-45px bg-light-danger text-danger d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-key fs-2 text-danger">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="fs-2hx fw-bolder text-danger mb-1">{{ stats.admins|default(0) }}</div>
+                    <span class="text-muted fs-8">Privilèges d'administration système</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liés à un agent -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold fs-7 text-uppercase">Associés à un agent</span>
+                        <div class="symbol symbol-45px bg-light-info text-info d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-briefcase fs-2 text-info">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="fs-2hx fw-bolder text-info mb-1">{{ stats.withEmploye|default(0) }}</div>
+                    <span class="text-muted fs-8">Profils synchronisés avec le dossier RH</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card card-flush border-0 shadow-sm">
+        <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+            <div class="card-title">
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                    <input type="text" data-kt-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Rechercher un compte..." />
+                </div>
+            </div>
+            <div class="card-toolbar">
+                <span class="text-muted fs-7">{{ users|length }} utilisateurs trouvés</span>
+            </div>
+        </div>
+
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table class="table align-middle table-row-dashed fs-6 gy-4" id="kt_users_table">
+                    <thead>
+                        <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                            <th class="min-w-220px">Utilisateur</th>
+                            <th class="min-w-160px">Rôles attribués</th>
+                            <th class="min-w-120px text-center">Certification</th>
+                            <th class="min-w-150px">Profil Agent</th>
+                            <th class="min-w-120px">Création</th>
+                            <th class="min-w-100px text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 fw-semibold">
+                        {% for user in users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-40px symbol-circle me-3 bg-light-primary text-primary fw-bolder d-flex align-items-center justify-content-center">
+                                            {{ user.firstname ? user.firstname|first|upper : 'U' }}{{ user.lastname ? user.lastname|first|upper : 'S' }}
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <a href="{{ path('app_user_show', {'id': user.id}) }}" class="text-gray-900 text-hover-primary fw-bold fs-6">
+                                                {{ user.fullName ?: user.email }}
+                                            </a>
+                                            <span class="text-muted fs-7">{{ user.email }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% for role in user.roles %}
+                                            {% if role == 'ROLE_ADMIN' %}
+                                                <span class="badge badge-light-danger fw-bold fs-8">Admin</span>
+                                            {% elseif role == 'ROLE_MANAGER' %}
+                                                <span class="badge badge-light-warning fw-bold fs-8">Manager</span>
+                                            {% elseif role == 'ROLE_USER' %}
+                                                <span class="badge badge-light-secondary fw-bold fs-8">Utilisateur</span>
+                                            {% else %}
+                                                <span class="badge badge-light-info fw-bold fs-8">{{ role|replace({'ROLE_': ''}) }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    {% if user.isVerified %}
+                                        <span class="badge badge-light-success fw-bold py-2 px-3">
+                                            <i class="ki-duotone ki-check fs-7 text-success me-1"></i> Vérifié
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-light-warning fw-bold py-2 px-3">
+                                            <i class="ki-duotone ki-time fs-7 text-warning me-1"></i> En attente
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.employe %}
+                                        <div class="d-flex align-items-center">
+                                            <i class="ki-duotone ki-badge fs-6 text-primary me-2"></i>
+                                            <span class="text-gray-800 fw-semibold fs-7">{{ user.employe.matricule|default('Agent lié') }}</span>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted fs-8 fst-italic">Sans dossier agent</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="text-gray-700 fs-7">
+                                        {{ user.createdAt ? user.createdAt|date('d/m/Y') : '—' }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ path('app_user_show', {'id': user.id}) }}" class="btn btn-icon btn-light btn-active-color-primary btn-sm" title="Détails">
+                                            <i class="ki-duotone ki-eye fs-4 text-primary"></i>
+                                        </a>
+                                        <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-icon btn-light btn-active-color-warning btn-sm" title="Modifier">
+                                            <i class="ki-duotone ki-pencil fs-4 text-warning"></i>
+                                        </a>
+                                        {% if user.id != app.user.id %}
+                                            <form method="post" action="{{ path('app_user_delete', {'id': user.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                                <button class="btn btn-icon btn-light btn-active-color-danger btn-sm" title="Supprimer">
+                                                    <i class="ki-duotone ki-trash fs-4 text-danger"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-10 text-muted">
+                                    <i class="ki-duotone ki-profile-user fs-3x text-muted mb-2"></i>
+                                    <div class="fs-6 fw-bold text-gray-700">Aucun compte utilisateur trouvé</div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

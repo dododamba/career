@@ -1,0 +1,516 @@
+/**
+ * Suivi des Carrières — Plateforme Institutionnelle
+ * Ministère du Commerce et de l'Industrie — République du Tchad
+ * Design System Officiel & Tokens Institutionnels
+ */
+
+:root {
+    /* 1. Palette Institutionnelle Officielle (République du Tchad) */
+    --sc-primary: #002664;       /* Bleu institutionnel — Actions principales, navigation */
+    --sc-primary-dark: #001844;  /* Bleu profond pour survol et contrastes élevés */
+    --sc-primary-light: #e8eef8; /* Bleu très doux pour arrière-plans d'éléments */
+    --sc-primary-subtle: rgba(0, 38, 100, 0.08);
+
+    --sc-secondary: #FECB00;     /* Jaune or — Accents et éléments institutionnels */
+    --sc-secondary-hover: #e5b700;
+    --sc-secondary-subtle: rgba(254, 203, 0, 0.18);
+
+    --sc-danger: #C60C30;        /* Rouge national — Erreurs, alertes et actions critiques */
+    --sc-danger-hover: #a80a29;
+    --sc-danger-subtle: rgba(198, 12, 48, 0.08);
+
+    --sc-success: #16803C;       /* Vert — Succès, validations, statuts actifs */
+    --sc-success-hover: #126831;
+    --sc-success-subtle: rgba(22, 128, 60, 0.1);
+
+    --sc-warning: #B7791F;       /* Ambre — Avertissements et vigilances */
+    --sc-warning-subtle: rgba(183, 121, 31, 0.12);
+
+    /* 2. Surfaces & Neutres */
+    --sc-white: #FFFFFF;         /* Surfaces de cartes et modales */
+    --sc-bg: #F8F9FA;            /* Fond global des pages (Light) */
+    --sc-bg-alt: #F1F4F9;        /* Fond alternatif des conteneurs */
+    --sc-text: #111111;          /* Texte principal à haut contraste */
+    --sc-muted: #667085;         /* Texte secondaire et métadonnées */
+    --sc-border: #E2E5E9;        /* Bordures sobres */
+    --sc-border-light: #EFF2F5;  /* Séparateurs légers */
+
+    /* Compatibilité descendante (--mci-*) */
+    --mci-blue: var(--sc-primary);
+    --mci-blue-dark: var(--sc-primary-dark);
+    --mci-blue-light: var(--sc-primary-light);
+    --mci-blue-subtle: var(--sc-primary-subtle);
+    --mci-gold: var(--sc-secondary);
+    --mci-gold-hover: var(--sc-secondary-hover);
+    --mci-gold-subtle: var(--sc-secondary-subtle);
+    --mci-red: var(--sc-danger);
+    --mci-red-hover: var(--sc-danger-hover);
+    --mci-red-subtle: var(--sc-danger-subtle);
+    --mci-white: var(--sc-white);
+    --mci-text-main: var(--sc-text);
+    --mci-text-muted: var(--sc-muted);
+    --mci-surface: var(--sc-bg);
+    --mci-surface-alt: var(--sc-bg-alt);
+    --mci-border: var(--sc-border);
+    --mci-border-light: var(--sc-border-light);
+
+    /* Rayons et Ombres */
+    --mci-radius-sm: 6px;
+    --mci-radius-md: 10px;
+    --mci-radius-lg: 14px;
+    --mci-shadow-subtle: 0 4px 20px 0 rgba(0, 38, 100, 0.04);
+    --mci-shadow-card: 0 4px 20px -2px rgba(0, 38, 100, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+    --mci-shadow-hover: 0 10px 30px -4px rgba(0, 38, 100, 0.08);
+}
+
+/* ==========================================================================
+   1. STRUCTURE GLOBALE ET FOND DE PAGE
+   ========================================================================== */
+body {
+    background-color: var(--mci-surface-alt) !important;
+    color: var(--mci-text-main);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   2. TYPOGRAPHIE INSTITUTIONNELLE
+   ========================================================================== */
+h1, .h1 {
+    font-size: 1.85rem !important; /* ~30px */
+    font-weight: 700;
+    color: var(--mci-text-main);
+    letter-spacing: -0.02em;
+}
+
+h2, .h2 {
+    font-size: 1.55rem !important; /* ~25px */
+    font-weight: 700;
+    color: var(--mci-text-main);
+}
+
+h3, .h3 {
+    font-size: 1.35rem !important; /* ~22px */
+    font-weight: 600;
+    color: var(--mci-text-main);
+}
+
+h4, .h4 {
+    font-size: 1.15rem !important; /* ~18px */
+    font-weight: 600;
+    color: var(--mci-text-main);
+}
+
+.text-mci-blue { color: var(--mci-blue) !important; }
+.text-mci-gold { color: var(--mci-gold) !important; }
+.text-mci-red  { color: var(--mci-red) !important; }
+.text-mci-muted { color: var(--mci-text-muted) !important; }
+
+/* ==========================================================================
+   3. CARDS RESPIRANTES ET CONFORTABLES
+   ========================================================================== */
+.card, .card-mci {
+    background-color: var(--mci-white);
+    border: 1px solid var(--mci-border) !important;
+    border-radius: var(--mci-radius-lg) !important;
+    box-shadow: var(--mci-shadow-card) !important;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card .card-header, .card-mci .card-header {
+    min-height: 72px;
+    padding: 1.25rem 2rem !important;
+    border-bottom: 1px solid var(--mci-border-light) !important;
+    background-color: var(--mci-white);
+    border-top-left-radius: var(--mci-radius-lg);
+    border-top-right-radius: var(--mci-radius-lg);
+}
+
+.card .card-body, .card-mci .card-body {
+    padding: 2rem !important;
+}
+
+.card .card-footer, .card-mci .card-footer {
+    padding: 1.25rem 2rem !important;
+    border-top: 1px solid var(--mci-border-light) !important;
+    background-color: var(--mci-white);
+    border-bottom-left-radius: var(--mci-radius-lg);
+    border-bottom-right-radius: var(--mci-radius-lg);
+}
+
+/* Cartes statistiques */
+.stat-card-mci {
+    background: var(--mci-white);
+    border: 1px solid var(--mci-border);
+    border-radius: var(--mci-radius-lg);
+    padding: 1.75rem !important;
+    box-shadow: var(--mci-shadow-card);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card-mci .stat-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--mci-blue);
+    line-height: 1.1;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card-mci .stat-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--mci-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ==========================================================================
+   4. SIDEBAR & NAVIGATION INSTITUTIONNELLE
+   ========================================================================== */
+.aside.aside-dark {
+    background-color: var(--mci-blue-dark) !important;
+    box-shadow: 2px 0 15px rgba(0, 24, 68, 0.12);
+}
+
+.aside-logo {
+    background-color: var(--mci-blue) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    height: 75px !important;
+    padding: 0 1.75rem !important;
+}
+
+.aside-dark .menu-item .menu-link {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    margin-bottom: 3px;
+    border-radius: var(--mci-radius-sm);
+    transition: all 0.15s ease-in-out;
+}
+
+.aside-dark .menu-item .menu-link:hover {
+    background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+.aside-dark .menu-item .menu-link.active {
+    background-color: rgba(254, 203, 0, 0.12) !important;
+    color: var(--mci-gold) !important;
+    font-weight: 600 !important;
+    position: relative;
+}
+
+.aside-dark .menu-item .menu-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background-color: var(--mci-gold);
+}
+
+.aside-dark .menu-item .menu-link.active .menu-icon i {
+    color: var(--mci-gold) !important;
+}
+
+/* ==========================================================================
+   5. HEADER & TOOLBAR
+   ========================================================================== */
+.header {
+    background-color: var(--mci-blue) !important;
+    box-shadow: 0 3px 12px rgba(0, 24, 68, 0.15);
+    height: 70px !important;
+}
+
+.toolbar {
+    background-color: var(--mci-white);
+    border-bottom: 1px solid var(--mci-border);
+    margin-bottom: 2rem;
+    padding: 1.25rem 2rem !important;
+}
+
+.breadcrumb-mci .breadcrumb-item {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.breadcrumb-mci .breadcrumb-item a {
+    color: var(--mci-text-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.breadcrumb-mci .breadcrumb-item a:hover {
+    color: var(--mci-blue);
+}
+
+.breadcrumb-mci .breadcrumb-item.active {
+    color: var(--mci-blue);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   6. TABLEAUX ADMINISTRATIFS LISIBLES
+   ========================================================================== */
+.table-mci {
+    width: 100%;
+    margin-bottom: 0;
+    vertical-align: middle;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-mci thead th {
+    background-color: var(--mci-surface) !important;
+    color: var(--mci-text-muted) !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1.15rem 1.25rem !important;
+    border-bottom: 2px solid var(--mci-border) !important;
+    border-top: none !important;
+    white-space: nowrap;
+}
+
+.table-mci tbody td {
+    padding: 1.2rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    color: var(--mci-text-main);
+    border-bottom: 1px solid var(--mci-border-light);
+    vertical-align: middle;
+}
+
+.table-mci tbody tr:hover td {
+    background-color: rgba(0, 38, 100, 0.02) !important;
+}
+
+.table-mci tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ==========================================================================
+   7. BOUTONS INSTITUTIONNELS ET ACTIONS
+   ========================================================================== */
+.btn-mci-primary {
+    background-color: var(--mci-blue) !important;
+    color: var(--mci-white) !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    padding: 0.65rem 1.5rem !important;
+    border-radius: var(--mci-radius-sm) !important;
+    border: 1px solid var(--mci-blue) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-mci-primary:hover, .btn-mci-primary:focus {
+    background-color: var(--mci-blue-dark) !important;
+    color: var(--mci-white) !important;
+    box-shadow: 0 4px 12px rgba(0, 38, 100, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-mci-gold {
+    background-color: var(--mci-gold) !important;
+    color: var(--mci-blue-dark) !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    padding: 0.65rem 1.5rem !important;
+    border-radius: var(--mci-radius-sm) !important;
+    border: 1px solid var(--mci-gold) !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-mci-gold:hover {
+    background-color: var(--mci-gold-hover) !important;
+    color: var(--mci-blue-dark) !important;
+    box-shadow: 0 4px 12px rgba(254, 203, 0, 0.35);
+}
+
+.btn-mci-danger {
+    background-color: var(--mci-red) !important;
+    color: var(--mci-white) !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    padding: 0.65rem 1.5rem !important;
+    border-radius: var(--mci-radius-sm) !important;
+    border: 1px solid var(--mci-red) !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-mci-danger:hover {
+    background-color: var(--mci-red-hover) !important;
+    color: var(--mci-white) !important;
+    box-shadow: 0 4px 12px rgba(198, 12, 48, 0.25);
+}
+
+.btn-mci-light {
+    background-color: var(--mci-surface) !important;
+    color: var(--mci-text-main) !important;
+    border: 1px solid var(--mci-border) !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    padding: 0.65rem 1.25rem !important;
+    border-radius: var(--mci-radius-sm) !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-mci-light:hover {
+    background-color: #e9ecef !important;
+    border-color: #ced4da !important;
+    color: var(--mci-text-main) !important;
+}
+
+/* Boutons d'action compacts de tableau */
+.btn-action-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--mci-radius-sm);
+    font-size: 0.95rem;
+    transition: all 0.15s ease-in-out;
+}
+
+/* ==========================================================================
+   8. FORMULAIRES CONFORTABLES
+   ========================================================================== */
+.form-label-mci {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: var(--mci-text-main) !important;
+    margin-bottom: 0.5rem !important;
+    display: block;
+}
+
+.form-control-mci, 
+.form-control:not(.form-control-sm) {
+    min-height: 48px;
+    padding: 0.75rem 1.15rem;
+    font-size: 0.95rem;
+    color: var(--mci-text-main);
+    background-color: var(--mci-white);
+    border: 1.5px solid var(--mci-border);
+    border-radius: var(--mci-radius-sm);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control-mci:focus,
+.form-control:not(.form-control-sm):focus {
+    border-color: var(--mci-blue);
+    box-shadow: 0 0 0 3.5px rgba(0, 38, 100, 0.12);
+    outline: none;
+}
+
+.form-select-mci,
+.form-select:not(.form-select-sm) {
+    min-height: 48px;
+    padding: 0.75rem 1.15rem;
+    font-size: 0.95rem;
+    border: 1.5px solid var(--mci-border);
+    border-radius: var(--mci-radius-sm);
+}
+
+.form-select-mci:focus,
+.form-select:not(.form-select-sm):focus {
+    border-color: var(--mci-blue);
+    box-shadow: 0 0 0 3.5px rgba(0, 38, 100, 0.12);
+}
+
+/* ==========================================================================
+   9. BADGES ET STATUTS INSTITUTIONNELS
+   ========================================================================== */
+.badge-mci {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 0.45rem 0.85rem !important;
+    border-radius: 999px !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.badge-mci-active {
+    background-color: #e8f5e9 !important;
+    color: #2e7d32 !important;
+    border: 1px solid #c8e6c9;
+}
+
+.badge-mci-inactive {
+    background-color: #f5f5f5 !important;
+    color: #757575 !important;
+    border: 1px solid #e0e0e0;
+}
+
+.badge-mci-blue {
+    background-color: var(--mci-blue-subtle) !important;
+    color: var(--mci-blue) !important;
+    border: 1px solid rgba(0, 38, 100, 0.15);
+}
+
+.badge-mci-gold {
+    background-color: var(--mci-gold-subtle) !important;
+    color: #996e00 !important;
+    border: 1px solid rgba(254, 203, 0, 0.35);
+}
+
+.badge-mci-red {
+    background-color: var(--mci-red-subtle) !important;
+    color: var(--mci-red) !important;
+    border: 1px solid rgba(198, 12, 48, 0.2);
+}
+
+/* ==========================================================================
+   10. MODALES CONFORTABLES
+   ========================================================================== */
+.modal-content-mci {
+    border: 1px solid var(--mci-border);
+    border-radius: var(--mci-radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 24, 68, 0.18);
+}
+
+.modal-header-mci {
+    background-color: var(--mci-surface);
+    border-bottom: 1px solid var(--mci-border);
+    padding: 1.5rem 2rem !important;
+    border-top-left-radius: var(--mci-radius-lg);
+    border-top-right-radius: var(--mci-radius-lg);
+}
+
+.modal-body-mci {
+    padding: 2rem !important;
+}
+
+.modal-footer-mci {
+    background-color: var(--mci-surface);
+    border-top: 1px solid var(--mci-border);
+    padding: 1.25rem 2rem !important;
+    border-bottom-left-radius: var(--mci-radius-lg);
+    border-bottom-right-radius: var(--mci-radius-lg);
+}
+
+/* ==========================================================================
+   11. ADAPTATION RESPONSIVE
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .card .card-header, .card-mci .card-header {
+        padding: 1.25rem 1.25rem !important;
+    }
+    .card .card-body, .card-mci .card-body {
+        padding: 1.25rem !important;
+    }
+    .toolbar {
+        padding: 1rem 1.25rem !important;
+        margin-bottom: 1.25rem;
+    }
+}

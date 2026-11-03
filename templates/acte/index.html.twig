@@ -1,0 +1,380 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Registre des Actes Administratifs — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h2 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Registre des Actes Administratifs
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Gestion juridique, numérotation et opposabilité des actes officiels</small>
+    </h2>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Carrière & Actes</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Actes Administratifs</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_acte_new') }}" class="btn btn-mci-primary btn-sm">
+                <i class="bi bi-plus-circle fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Nouvel Acte Administratif</span>
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- KPIs Row -->
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Actes</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.total_actes }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-file-earmark-text me-1 text-mci-blue"></i>
+                            Actes enregistrés au registre
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-stamp fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">En Vigueur / Notifiés</span>
+                        <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.en_vigueur }}</span>
+                        <span class="fs-8 text-success fw-semibold">
+                            <i class="bi bi-check2-all me-1"></i>
+                            Opposables & exécutoires
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-success">
+                        <span class="symbol-label">
+                            <i class="bi bi-check2-circle fs-2 text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Signés en {{ stats.annee }}</span>
+                        <span class="fs-2hx fw-bolder text-mci-blue mb-1">{{ stats.actes_annee }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            Exercice en cours
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-calendar-check fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Projets en Cours</span>
+                        <span class="fs-2hx fw-bolder text-warning mb-1">{{ stats.projets }}</span>
+                        <span class="fs-8 text-warning fw-semibold">
+                            <i class="bi bi-pencil-square me-1"></i>
+                            En attente de signature
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-gold-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-pen-fill fs-2 text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres Card -->
+    <div class="card card-mci">
+        <div class="card-body p-6">
+            <form method="get" action="{{ path('app_acte_index') }}" class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <div class="position-relative">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y ms-4 text-muted fs-5"></i>
+                        <input type="text" name="q" class="form-control form-control-solid ps-12 fs-7" placeholder="N°, objet, signataire..." value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="type_id" class="form-select form-select-solid fs-7">
+                        <option value="">-- Tous les types --</option>
+                        {% for type in typesActes %}
+                            <option value="{{ type.id }}" {{ currentTypeId == type.id ? 'selected' : '' }}>{{ type.libelle }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="statut" class="form-select form-select-solid fs-7">
+                        <option value="">-- Tous les statuts --</option>
+                        <option value="SIGNE" {{ currentStatut == 'SIGNE' ? 'selected' : '' }}>Signé</option>
+                        <option value="PROJET" {{ currentStatut == 'PROJET' ? 'selected' : '' }}>Projet</option>
+                        <option value="NOTIFIE" {{ currentStatut == 'NOTIFIE' ? 'selected' : '' }}>Notifié / Publié</option>
+                        <option value="MODIFIE" {{ currentStatut == 'MODIFIE' ? 'selected' : '' }}>Modifié</option>
+                        <option value="ABROGE" {{ currentStatut == 'ABROGE' ? 'selected' : '' }}>Abrogé</option>
+                        <option value="ANNULE" {{ currentStatut == 'ANNULE' ? 'selected' : '' }}>Annulé</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="annee" class="form-control form-control-solid fs-7" placeholder="Année (ex: {{ "now"|date("Y") }})" value="{{ currentAnnee }}">
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-mci-primary btn-sm flex-grow-1">
+                        <i class="bi bi-funnel-fill me-1"></i> Filtrer
+                    </button>
+                    {% if search or currentTypeId or currentStatut or currentAnnee or selectedEmploye %}
+                        <a href="{{ path('app_acte_index') }}" class="btn btn-mci-light btn-sm" title="Réinitialiser tous les filtres">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+            {% if selectedEmploye %}
+                <div class="mt-4 pt-3 border-top d-flex align-items-center gap-2">
+                    <span class="badge badge-mci-blue fs-8">
+                        <i class="bi bi-person-fill me-1"></i> Filtré pour l'agent : <strong>{{ selectedEmploye.nomComplet }}</strong>
+                    </span>
+                    <a href="{{ path('app_acte_index', { q: search, type_id: currentTypeId, statut: currentStatut, annee: currentAnnee }) }}" class="badge bg-secondary text-white text-decoration-none fs-8">
+                        <i class="bi bi-x me-1"></i> Retirer le filtre agent
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tableau Registre des Actes -->
+    <div class="card card-mci">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="bi bi-journal-text fs-2 text-mci-blue me-3"></i>
+                    <h3 class="fw-bolder text-dark mb-0 fs-4">Actes Administratifs enregistrés</h3>
+                    <span class="badge badge-mci-blue ms-3">{{ actes|length }}</span>
+                </div>
+            </div>
+            <div class="card-toolbar">
+                <span class="text-muted fs-8">Institution : <strong>{{ institution ? institution.nom : 'MCI' }}</strong></span>
+            </div>
+        </div>
+
+        <div class="card-body py-4">
+            <div class="table-responsive">
+                <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
+                    <thead>
+                        <tr class="fw-bolder text-muted bg-light text-uppercase fs-8 tracking-wide">
+                            <th class="ps-4 min-w-150px rounded-start">Numéro / Réf.</th>
+                            <th class="min-w-120px">Type d'acte</th>
+                            <th class="min-w-250px">Objet & Signataire</th>
+                            <th class="min-w-180px">Agent / Structure</th>
+                            <th class="min-w-100px">Signature</th>
+                            <th class="min-w-100px">Prise d'effet</th>
+                            <th class="min-w-120px">Statut</th>
+                            <th class="text-center min-w-70px">Scan</th>
+                            <th class="pe-4 text-end min-w-120px rounded-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fw-semibold text-gray-600 fs-7">
+                        {% for acte in actes %}
+                            <tr>
+                                <!-- Numéro -->
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-35px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-file-earmark-check-fill text-mci-blue fs-5"></i>
+                                            </span>
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <a href="{{ path('app_acte_show', { id: acte.id }) }}" class="text-dark fw-bolder text-hover-primary fs-6">
+                                                {{ acte.numero }}
+                                            </a>
+                                            {% if acte.actesModificatifs|length > 0 %}
+                                                <span class="badge badge-mci-gold mt-1 align-self-start fs-9">
+                                                    <i class="bi bi-git me-1"></i>{{ acte.actesModificatifs|length }} modif.
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Type -->
+                                <td>
+                                    <span class="badge bg-secondary text-white fw-bold fs-8">
+                                        {{ acte.typeActe.libelle }}
+                                    </span>
+                                </td>
+
+                                <!-- Objet -->
+                                <td>
+                                    <div class="fw-bold text-dark fs-7">{{ acte.objet }}</div>
+                                    {% if acte.signataireQualite %}
+                                        <div class="text-muted fs-8 mt-1">
+                                            <i class="bi bi-pen me-1 text-mci-blue"></i>{{ acte.signataireQualite }}{{ acte.signataireNom ? ' (' ~ acte.signataireNom ~ ')' : '' }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Agent / Structure -->
+                                <td>
+                                    {% if acte.employe %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="symbol symbol-30px symbol-circle me-2 bg-light-primary text-primary fw-bold fs-8 d-flex align-items-center justify-content-center">
+                                                {{ acte.employe.prenom|slice(0, 1)|upper }}{{ acte.employe.nom|slice(0, 1)|upper }}
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <a href="{{ path('app_employe_show', { id: acte.employe.id }) }}" class="text-dark fw-bold text-hover-primary fs-7">
+                                                    {{ acte.employe.nomComplet }}
+                                                </a>
+                                                <span class="text-muted fs-8">{{ acte.employe.matricule ?? '' }}</span>
+                                            </div>
+                                        </div>
+                                    {% elseif acte.structure %}
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-diagram-3-fill text-muted me-2 fs-6"></i>
+                                            <span class="text-dark fw-semibold fs-7">{{ acte.structure.nom }}</span>
+                                        </div>
+                                    {% else %}
+                                        <span class="badge badge-mci-light text-muted fst-italic fs-8">Portée générale</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Date Signature -->
+                                <td>
+                                    <span class="text-dark fw-semibold fs-7">{{ acte.dateSignature|date('d/m/Y') }}</span>
+                                </td>
+
+                                <!-- Date Prise d'effet -->
+                                <td>
+                                    <span class="fw-bold fs-7 {{ acte.dateEffet > date() ? 'text-mci-blue' : 'text-dark' }}">
+                                        {{ acte.dateEffet|date('d/m/Y') }}
+                                    </span>
+                                    {% if acte.dateEffet > date() %}
+                                        <span class="badge badge-mci-gold d-inline-block ms-1 fs-9">À venir</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Statut -->
+                                <td>
+                                    {% if acte.statut == 'NOTIFIE' %}
+                                        <span class="badge badge-mci-success fs-8">
+                                            <i class="bi bi-megaphone-fill me-1"></i>{{ acte.statutLibelle }}
+                                        </span>
+                                    {% elseif acte.statut == 'SIGNE' %}
+                                        <span class="badge badge-mci-blue fs-8">
+                                            <i class="bi bi-check-circle-fill me-1"></i>{{ acte.statutLibelle }}
+                                        </span>
+                                    {% elseif acte.statut == 'PROJET' %}
+                                        <span class="badge badge-mci-warning fs-8">
+                                            <i class="bi bi-hourglass-split me-1"></i>{{ acte.statutLibelle }}
+                                        </span>
+                                    {% elseif acte.statut == 'ABROGE' or acte.statut == 'ANNULE' %}
+                                        <span class="badge badge-mci-danger fs-8">
+                                            <i class="bi bi-x-circle-fill me-1"></i>{{ acte.statutLibelle }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-{{ acte.statutBadgeClass }} fs-8">
+                                            {{ acte.statutLibelle }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Document Scan -->
+                                <td class="text-center">
+                                    {% if acte.document %}
+                                        <a href="{{ path('app_document_download', { id: acte.document.id }) }}" class="btn btn-icon btn-sm btn-light-danger" title="Télécharger le scan certifié : {{ acte.document.titre }}">
+                                            <i class="bi bi-file-earmark-pdf-fill fs-5"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted fs-8" title="Aucun scan joint">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ path('app_acte_show', { id: acte.id }) }}" class="btn btn-icon btn-mci-light btn-sm" title="Consulter la fiche 360°">
+                                            <i class="bi bi-eye-fill fs-6 text-mci-blue"></i>
+                                        </a>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_acte_edit', { id: acte.id }) }}" class="btn btn-icon btn-mci-light btn-sm" title="Modifier l'acte">
+                                                <i class="bi bi-pencil-square fs-6 text-warning"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center py-10">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <div class="symbol symbol-75px symbol-circle mb-4" style="background-color: var(--mci-blue-subtle);">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-stamp fs-1 text-mci-blue"></i>
+                                            </span>
+                                        </div>
+                                        <h4 class="fw-bolder text-dark mb-1">Aucun acte administratif trouvé</h4>
+                                        <p class="text-muted fs-7 mb-4">Modifiez vos critères de recherche ou enregistrez un nouvel acte officiel dans le registre.</p>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_acte_new') }}" class="btn btn-mci-primary btn-sm">
+                                                <i class="bi bi-plus-circle me-1"></i> Créer un acte officiel
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

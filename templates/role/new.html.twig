@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau Rôle — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Créer un Rôle Applicatif
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Ajout au référentiel des droits</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_role_index') }}" class="text-muted text-hover-primary">Rôles</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Nouveau rôle</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('app_role_index') }}" class="btn btn-sm btn-light">
+        <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour à la liste
+    </a>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card card-flush border-0 shadow-sm">
+            <div class="card-header pt-6">
+                <div class="card-title">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-45px symbol-circle me-3 bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-key fs-2 text-primary"></i>
+                        </div>
+                        <div>
+                            <h2 class="fs-4 fw-bold text-gray-900 mb-0">Nouveau Rôle</h2>
+                            <span class="text-muted fs-7">Renseignez le libellé et l'identifiant technique</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body pt-5">
+                {{ include('role/_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

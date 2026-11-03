@@ -1,0 +1,291 @@
+{% set current_route = app.request.attributes.get('_route')|default('') %}
+
+<div id="kt_aside" class="aside aside-dark aside-hoverable" 
+     data-kt-drawer="true" 
+     data-kt-drawer-name="aside" 
+     data-kt-drawer-activate="{default: true, lg: false}" 
+     data-kt-drawer-overlay="true" 
+     data-kt-drawer-width="{default:'200px', '300px': '250px'}" 
+     data-kt-drawer-direction="start" 
+     data-kt-drawer-toggle="#kt_aside_mobile_toggle">
+    
+    <!--begin::Brand-->
+    <div class="aside-logo flex-column-auto" id="kt_aside_logo">
+        <a href="{{ path('app_dashboard') }}" class="d-flex align-items-center text-decoration-none">
+            <img src="{{ asset('assets/media/logos/armoirie_tchad.png') }}" alt="MCI" class="h-38px me-3" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" />
+            <div class="d-flex flex-column">
+                <span class="fs-4 fw-bolder text-white tracking-wide text-uppercase lh-1">MCI e-Circuit</span>
+                <span class="fs-9 text-uppercase fw-semibold pt-1" style="letter-spacing: 0.06em; color: var(--mci-gold) !important;">Rép. du Tchad</span>
+            </div>
+        </a>
+        <div id="kt_aside_toggle" class="btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle" 
+             data-kt-toggle="true" 
+             data-kt-toggle-state="active" 
+             data-kt-toggle-target="body" 
+             data-kt-toggle-name="aside-minimize">
+            <span class="svg-icon svg-icon-1 rotate-180 text-muted">
+                <i class="bi bi-chevron-double-left fs-3"></i>
+            </span>
+        </div>
+    </div>
+    <!--end::Brand-->
+
+    <!--begin::Aside menu-->
+    <div class="aside-menu flex-column-fluid">
+        <div class="hover-scroll-overlay-y my-5 my-lg-5" id="kt_aside_menu_wrapper" 
+             data-kt-scroll="true" 
+             data-kt-scroll-activate="{default: false, lg: true}" 
+             data-kt-scroll-height="auto" 
+             data-kt-scroll-dependencies="#kt_aside_logo, #kt_aside_footer" 
+             data-kt-scroll-wrappers="#kt_aside_menu" 
+             data-kt-scroll-offset="0">
+            
+            <div class="menu menu-column menu-title-gray-800 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-500" 
+                 id="#kt_aside_menu" 
+                 data-kt-menu="true">
+
+                <!-- 1. TABLEAU DE BORD -->
+                <div class="menu-item">
+                    <a class="menu-link {% if current_route in ['app_dashboard', 'app_admin_dashboard'] %}active{% endif %}" href="{{ path('app_dashboard') }}">
+                        <span class="menu-icon">
+                            <i class="bi bi-grid-1x2-fill fs-3 text-primary"></i>
+                        </span>
+                        <span class="menu-title">Tableau de bord</span>
+                    </a>
+                </div>
+
+                <div class="menu-item pt-4">
+                    <div class="menu-content pb-2">
+                        <span class="menu-section text-muted text-uppercase fs-8 ls-1">Ressources Humaines</span>
+                    </div>
+                </div>
+
+                <!-- 2. ORGANISATION & RH -->
+                {% set isOrgActive = ('employe' in current_route or 'poste' in current_route or 'affectation' in current_route or 'structure' in current_route or 'service' in current_route or 'fonction' in current_route or 'organigramme' in current_route) %}
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isOrgActive %}here show{% endif %}">
+                    <span class="menu-link">
+                        <span class="menu-icon">
+                            <i class="bi bi-people-fill fs-3 text-info"></i>
+                        </span>
+                        <span class="menu-title">Personnel & Postes</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+                    <div class="menu-sub menu-sub-accordion {% if isOrgActive %}menu-active-bg{% endif %}">
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'employe' in current_route %}active{% endif %}" href="{{ path('app_employe_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Employés</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'poste' in current_route %}active{% endif %}" href="{{ path('app_poste_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Postes RH</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'affectation' in current_route %}active{% endif %}" href="{{ path('app_affectation_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Mouvements & Carrière</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'organigramme' in current_route %}active{% endif %}" href="{{ path('app_organigramme_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Organigramme</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'structure' in current_route %}active{% endif %}" href="{{ path('app_structure_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Structures</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'service' in current_route and not ('api' in current_route) %}active{% endif %}" href="{{ path('app_service_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Services</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'fonction' in current_route %}active{% endif %}" href="{{ path('app_fonction_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Fonctions</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. TEMPS & ACTIVITES -->
+                {% set isTempsActive = ('pointage' in current_route or 'presence' in current_route or 'visite' in current_route) %}
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isTempsActive %}here show{% endif %}">
+                    <span class="menu-link">
+                        <span class="menu-icon">
+                            <i class="bi bi-clock-history fs-3 text-warning"></i>
+                        </span>
+                        <span class="menu-title">Temps & Présences</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+                    <div class="menu-sub menu-sub-accordion {% if isTempsActive %}menu-active-bg{% endif %}">
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'pointage' in current_route %}active{% endif %}" href="{{ path('app_pointage_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Pointages</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'presence' in current_route %}active{% endif %}" href="{{ path('app_presence_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Registre des présences</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'visite' in current_route %}active{% endif %}" href="{{ path('app_visite_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Visites & Accueil</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. ABSENCES & MOBILITE -->
+                {% set isAbsActive = ('conges' in current_route or 'absence' in current_route or 'mission' in current_route or 'interim' in current_route) %}
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isAbsActive %}here show{% endif %}">
+                    <span class="menu-link">
+                        <span class="menu-icon">
+                            <i class="bi bi-calendar2-week-fill fs-3 text-success"></i>
+                        </span>
+                        <span class="menu-title">Mobilité & Congés</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+                    <div class="menu-sub menu-sub-accordion {% if isAbsActive %}menu-active-bg{% endif %}">
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'conges' in current_route %}active{% endif %}" href="{{ path('app_conges_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Congés</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'absence' in current_route %}active{% endif %}" href="{{ path('app_absence_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Autorisations d'absence</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'mission' in current_route %}active{% endif %}" href="{{ path('app_mission_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Ordres de mission</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'interim' in current_route %}active{% endif %}" href="{{ path('app_interim_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Intérims & Délégations</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. ACTES & DOCUMENTS -->
+                {% set isDocActive = ('document' in current_route or 'acte' in current_route) %}
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isDocActive %}here show{% endif %}">
+                    <span class="menu-link">
+                        <span class="menu-icon">
+                            <i class="bi bi-folder2-open fs-3 text-primary"></i>
+                        </span>
+                        <span class="menu-title">Documents & Actes</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+                    <div class="menu-sub menu-sub-accordion {% if isDocActive %}menu-active-bg{% endif %}">
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'document' in current_route %}active{% endif %}" href="{{ path('app_document_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Documents RH</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link {% if 'acte' in current_route %}active{% endif %}" href="{{ path('app_acte_index') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title">Actes administratifs</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. STATISTIQUES -->
+                <div class="menu-item">
+                    <a class="menu-link {% if 'stat' in current_route %}active{% endif %}" href="{{ path('app_stats_index') }}">
+                        <span class="menu-icon">
+                            <i class="bi bi-bar-chart-line-fill fs-3 text-danger"></i>
+                        </span>
+                        <span class="menu-title">Statistiques RH</span>
+                    </a>
+                </div>
+
+                <!-- 7. ADMINISTRATION -->
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div class="menu-item pt-4">
+                        <div class="menu-content pb-2">
+                            <span class="menu-section text-muted text-uppercase fs-8 ls-1">Administration</span>
+                        </div>
+                    </div>
+
+                    {% set isAdminActive = ('user' in current_route or 'role' in current_route or 'institution' in current_route or 'log' in current_route) %}
+                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isAdminActive %}here show{% endif %}">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="bi bi-gear-fill fs-3 text-white"></i>
+                            </span>
+                            <span class="menu-title">Système & Sécurité</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <div class="menu-sub menu-sub-accordion {% if isAdminActive %}menu-active-bg{% endif %}">
+                            <div class="menu-item">
+                                <a class="menu-link {% if 'user' in current_route %}active{% endif %}" href="{{ path('app_user_index') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title">Utilisateurs</span>
+                                </a>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link {% if 'role' in current_route %}active{% endif %}" href="{{ path('app_role_index') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title">Rôles & Permissions</span>
+                                </a>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link {% if 'type_institution' in current_route %}active{% endif %}" href="{{ path('app_type_institution_index') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title">Types d'institution</span>
+                                </a>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link {% if current_route == 'app_institution_index' %}active{% endif %}" href="{{ path('app_institution_index') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title">Institutions</span>
+                                </a>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link {% if current_route == 'app_log' %}active{% endif %}" href="{{ path('app_log') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title">Journaux d'audit</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    <!--end::Aside menu-->
+
+    <!--begin::Footer-->
+    <div class="aside-footer flex-column-auto pt-5 pb-7 px-5" id="kt_aside_footer">
+        <a href="{{ path('app_account_security') }}" class="btn btn-custom btn-primary w-100" data-bs-toggle="tooltip" data-bs-trigger="hover" title="Gérer la sécurité et vos paramètres">
+            <span class="btn-label">
+                <i class="bi bi-shield-lock-fill me-2"></i>Mon Compte
+            </span>
+        </a>
+    </div>
+    <!--end::Footer-->
+</div>

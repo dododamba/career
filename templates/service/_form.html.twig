@@ -1,0 +1,96 @@
+{{ form_start(form, {'attr': {'class': 'form d-flex flex-column gap-7'}}) }}
+    {{ form_errors(form) }}
+
+    <div class="row g-6">
+        <!-- Nom du service -->
+        <div class="col-md-8">
+            <div class="fv-row">
+                {{ form_label(form.nom, 'Nom du service *', {'label_attr': {'class': 'form-label form-label-mci required'}}) }}
+                {{ form_widget(form.nom, {'attr': {
+                    'class': 'form-control form-control-mci',
+                    'placeholder': 'Ex: Service des Affaires Juridiques et du Contentieux'
+                }}) }}
+                {{ form_errors(form.nom) }}
+                <div class="text-muted fs-8 mt-1">Dénomination complète et officielle de l'unité administrative.</div>
+            </div>
+        </div>
+
+        <!-- Code / Sigle -->
+        <div class="col-md-4">
+            <div class="fv-row">
+                {{ form_label(form.code, 'Code / Sigle', {'label_attr': {'class': 'form-label form-label-mci'}}) }}
+                {{ form_widget(form.code, {'attr': {
+                    'class': 'form-control form-control-mci text-uppercase',
+                    'placeholder': 'Ex: SAJC'
+                }}) }}
+                {{ form_errors(form.code) }}
+                <div class="text-muted fs-8 mt-1">Identifiant abrégé ou référence interne.</div>
+            </div>
+        </div>
+
+        <!-- Structure de rattachement -->
+        <div class="col-md-6">
+            <div class="fv-row">
+                {{ form_label(form.structure, 'Direction / Structure de rattachement', {'label_attr': {'class': 'form-label form-label-mci'}}) }}
+                {{ form_widget(form.structure, {'attr': {'class': 'form-select form-select-mci'}}) }}
+                {{ form_errors(form.structure) }}
+                <div class="text-muted fs-8 mt-1">Sélectionnez la direction ou entité supérieure.</div>
+            </div>
+        </div>
+
+        <!-- Responsable / Chef de service -->
+        <div class="col-md-6">
+            <div class="fv-row">
+                {{ form_label(form.responsable, 'Chef de service / Responsable', {'label_attr': {'class': 'form-label form-label-mci'}}) }}
+                {{ form_widget(form.responsable, {'attr': {'class': 'form-select form-select-mci'}}) }}
+                {{ form_errors(form.responsable) }}
+                <div class="text-muted fs-8 mt-1">Agent désigné pour diriger ce service.</div>
+            </div>
+        </div>
+
+        <!-- Statut opérationnel -->
+        <div class="col-md-6">
+            <div class="fv-row">
+                {{ form_label(form.statut, 'Statut du service *', {'label_attr': {'class': 'form-label form-label-mci required'}}) }}
+                {{ form_widget(form.statut, {'attr': {'class': 'form-select form-select-mci'}}) }}
+                {{ form_errors(form.statut) }}
+            </div>
+        </div>
+
+        <!-- Institution (si affichée) -->
+        {% if form.institution is defined %}
+            <div class="col-md-6">
+                <div class="fv-row">
+                    {{ form_label(form.institution, 'Institution *', {'label_attr': {'class': 'form-label form-label-mci required'}}) }}
+                    {{ form_widget(form.institution, {'attr': {'class': 'form-select form-select-mci'}}) }}
+                    {{ form_errors(form.institution) }}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Description -->
+        <div class="col-12">
+            <div class="fv-row">
+                {{ form_label(form.description, 'Missions et attributions', {'label_attr': {'class': 'form-label form-label-mci'}}) }}
+                {{ form_widget(form.description, {'attr': {
+                    'class': 'form-control form-control-mci',
+                    'rows': 4,
+                    'placeholder': 'Décrivez les compétences, objectifs et tâches dévolues à ce service...'
+                }}) }}
+                {{ form_errors(form.description) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="separator my-4 border-gray-200"></div>
+
+    <div class="d-flex justify-content-end align-items-center gap-3">
+        <a href="{{ path('app_service_index') }}" class="btn btn-mci-light">
+            <i class="bi bi-x-lg me-1"></i>Annuler
+        </a>
+        <button type="submit" class="btn btn-mci-primary">
+            <i class="bi bi-check2-circle fs-5 me-1"></i>
+            {{ button_label|default('Enregistrer le service') }}
+        </button>
+    </div>
+{{ form_end(form) }}

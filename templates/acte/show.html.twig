@@ -1,0 +1,475 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Acte {{ acte.numero }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h2 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-file-earmark-check-fill text-mci-blue me-3"></i>
+        Acte N° {{ acte.numero }}
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">{{ acte.typeActe.libelle }}</small>
+    </h2>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_acte_index') }}" class="text-muted text-hover-primary">Actes</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">N° {{ acte.numero }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_acte_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Registre</span>
+        </a>
+
+        {% if is_granted('ACTE_EDIT', acte) %}
+            <a href="{{ path('app_acte_edit', {'id': acte.id}) }}" class="btn btn-mci-primary btn-sm">
+                <i class="bi bi-pencil-square fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Modifier</span>
+            </a>
+        {% endif %}
+
+        <button type="button" class="btn btn-mci-light btn-sm" onclick="window.print()">
+            <i class="bi bi-printer fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Imprimer</span>
+        </button>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Bannière cycle juridique & Statut -->
+    <div class="card card-mci p-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="symbol symbol-45px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                    <span class="symbol-label">
+                        <i class="bi bi-shield-check fs-2 text-mci-blue"></i>
+                    </span>
+                </div>
+                <div class="d-flex flex-column">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-secondary text-white fw-bold fs-8">{{ acte.typeActe.libelle }}</span>
+                        {% if acte.statut == 'NOTIFIE' %}
+                            <span class="badge badge-mci-success fs-8"><i class="bi bi-megaphone-fill me-1"></i>{{ acte.statutLibelle }}</span>
+                        {% elseif acte.statut == 'SIGNE' %}
+                            <span class="badge badge-mci-blue fs-8"><i class="bi bi-check-circle-fill me-1"></i>{{ acte.statutLibelle }}</span>
+                        {% elseif acte.statut == 'PROJET' %}
+                            <span class="badge badge-mci-warning fs-8"><i class="bi bi-hourglass-split me-1"></i>{{ acte.statutLibelle }}</span>
+                        {% elseif acte.statut in ['ABROGE', 'ANNULE'] %}
+                            <span class="badge badge-mci-danger fs-8"><i class="bi bi-x-circle-fill me-1"></i>{{ acte.statutLibelle }}</span>
+                        {% else %}
+                            <span class="badge bg-{{ acte.statutBadgeClass }} fs-8">{{ acte.statutLibelle }}</span>
+                        {% endif %}
+                        {% if acte.dateEffet > date() %}
+                            <span class="badge badge-mci-gold fs-9">Effet différé</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-muted fs-8 mt-1">
+                        Institution : <strong>{{ acte.institution.nom }}</strong> • Prise d'effet : <strong>{{ acte.dateEffet|date('d/m/Y') }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    {% if acte.statut == 'PROJET' %}
+                        <form method="post" action="{{ path('app_acte_status', {'id': acte.id}) }}" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('status_' ~ acte.id) }}">
+                            <input type="hidden" name="statut" value="SIGNE">
+                            <button type="submit" class="btn btn-mci-primary btn-sm">
+                                <i class="bi bi-pen-fill me-1"></i> Valider la signature
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if acte.statut == 'SIGNE' %}
+                        <form method="post" action="{{ path('app_acte_status', {'id': acte.id}) }}" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('status_' ~ acte.id) }}">
+                            <input type="hidden" name="statut" value="NOTIFIE">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="bi bi-megaphone-fill me-1"></i> Marquer Notifié / Publié
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if acte.statut in ['SIGNE', 'NOTIFIE'] %}
+                        <form method="post" action="{{ path('app_acte_status', {'id': acte.id}) }}" class="d-inline" onsubmit="return confirm('Confirmez-vous l\'abrogation de cet acte ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('status_' ~ acte.id) }}">
+                            <input type="hidden" name="statut" value="ABROGE">
+                            <button type="submit" class="btn btn-mci-light btn-sm text-danger">
+                                <i class="bi bi-slash-circle me-1"></i> Abroger
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if is_granted('ACTE_DELETE', acte) %}
+                        <button type="button" class="btn btn-mci-light btn-sm text-danger" data-bs-toggle="modal" data-bs-target="#deleteActeModal">
+                            <i class="bi bi-trash3 me-1"></i> Supprimer
+                        </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-6">
+        <!-- Colonne Gauche : Données officielles et texte -->
+        <div class="col-lg-8">
+            <!-- Dispositif Officiel -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-file-earmark-ruled-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Dispositif Officiel de l'Acte</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-4 mb-6">
+                        <div class="col-sm-6 col-md-3">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Numéro officiel</span>
+                            <span class="fs-6 fw-bolder text-dark font-monospace">{{ acte.numero }}</span>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Type d'acte</span>
+                            <span class="fs-6 fw-bold text-dark">{{ acte.typeActe.libelle }}</span>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Date de signature</span>
+                            <span class="fs-6 fw-bold text-dark">{{ acte.dateSignature|date('d/m/Y') }}</span>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Prise d'effet</span>
+                            <span class="fs-6 fw-bold text-mci-blue">{{ acte.dateEffet|date('d/m/Y') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="separator separator-dashed my-5"></div>
+
+                    <div class="row g-4 mb-6">
+                        <div class="col-md-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Autorité signataire</span>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-vector-pen fs-4 text-mci-blue me-2"></i>
+                                <span class="fs-6 fw-bolder text-dark">{{ acte.signataireQualite }}</span>
+                            </div>
+                            {% if acte.signataireNom %}
+                                <span class="fs-7 text-muted ms-6 d-block">{{ acte.signataireNom }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-1">Date de notification / publication</span>
+                            <span class="fs-7 fw-semibold text-dark">
+                                {{ acte.datePublication ? acte.datePublication|date('d/m/Y') : 'Non encore notifié / Non renseigné' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="separator separator-dashed my-5"></div>
+
+                    <div class="mb-5">
+                        <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-2">Objet officiel de l'acte</span>
+                        <div class="p-5 rounded-3 bg-light-primary border border-primary border-opacity-20 text-dark fw-bold fs-6">
+                            {{ acte.objet }}
+                        </div>
+                    </div>
+
+                    {% if acte.contenuResume %}
+                        <div>
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-2">Visas, considérants & dispositif analytique</span>
+                            <div class="p-5 rounded-3 bg-light border border-gray-300 text-gray-800 font-monospace fs-7" style="white-space: pre-wrap; line-height: 1.7;">{{ acte.contenuResume }}</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Filiation et historique des modifications -->
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-diagram-3-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Filiation & Chaîne Juridique</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    {% if acte.acteParent %}
+                        <div class="mb-6">
+                            <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-2">Acte antérieur modifié ou abrogé par le présent acte :</span>
+                            <div class="d-flex align-items-center justify-content-between p-4 rounded-3 bg-light border">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-secondary text-white fs-8">{{ acte.acteParent.typeActe.libelle }}</span>
+                                    <a href="{{ path('app_acte_show', {'id': acte.acteParent.id}) }}" class="fw-bolder text-mci-blue text-hover-primary fs-7">
+                                        N° {{ acte.acteParent.numero }}
+                                    </a>
+                                    <span class="text-muted mx-1">•</span>
+                                    <span class="text-muted fs-7">{{ acte.acteParent.objet|slice(0, 75) }}...</span>
+                                </div>
+                                <span class="badge badge-mci-blue fs-8">{{ acte.acteParent.statutLibelle }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide d-block mb-2">Actes postérieurs modifiant ou abrogeant cet acte :</span>
+                        {% if acte.actesModificatifs|length > 0 %}
+                            <div class="d-flex flex-column gap-3">
+                                {% for modif in acte.actesModificatifs %}
+                                    <div class="d-flex justify-content-between align-items-center p-4 rounded-3 bg-light border">
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <span class="badge bg-secondary text-white fs-8">{{ modif.typeActe.libelle }}</span>
+                                                <a href="{{ path('app_acte_show', {'id': modif.id}) }}" class="fw-bolder text-mci-blue text-hover-primary fs-7">
+                                                    N° {{ modif.numero }}
+                                                </a>
+                                                <span class="text-muted fs-8">du {{ modif.dateSignature|date('d/m/Y') }}</span>
+                                            </div>
+                                            <p class="text-muted fs-8 mb-0">{{ modif.objet }}</p>
+                                        </div>
+                                        <span class="badge badge-mci-blue fs-8">{{ modif.statutLibelle }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-muted fs-7 fst-italic p-4 bg-light rounded-3 border">
+                                Aucun acte ultérieur modifiant ou abrogeant cet acte officiel n'a été enregistré.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne Droite : Articulations & Scan -->
+        <div class="col-lg-4">
+            <!-- Pièce jointe / Scan Coffre-fort (Module 07) -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-file-earmark-pdf-fill fs-2 text-danger me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-5">Copie Numérisée (Scan)</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    {% if acte.document %}
+                        <div class="p-5 border border-dashed border-gray-300 rounded-3 bg-light mb-4">
+                            <div class="d-flex align-items-start mb-4">
+                                <div class="symbol symbol-45px symbol-circle bg-light-danger text-danger me-3 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-file-earmark-pdf-fill fs-2"></i>
+                                </div>
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="fw-bolder text-dark fs-7 text-truncate">{{ acte.document.titre }}</div>
+                                    <div class="text-muted fs-8">Réf : {{ acte.document.reference ?: 'N/C' }}</div>
+                                    <div class="text-muted fs-8">Taille : {{ acte.document.tailleFormatee }}</div>
+                                    <div class="text-muted fs-8 text-truncate" title="{{ acte.document.sha256Checksum }}">
+                                        SHA-256 : <code class="fs-9">{{ acte.document.sha256Checksum|slice(0, 16) }}...</code>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-column gap-2">
+                                <a href="{{ path('app_document_download', {'id': acte.document.id}) }}" class="btn btn-mci-primary btn-sm w-100">
+                                    <i class="bi bi-download me-1"></i> Télécharger le scan certifié
+                                </a>
+                                <a href="{{ path('app_document_show', {'id': acte.document.id}) }}" class="btn btn-mci-secondary btn-sm w-100">
+                                    <i class="bi bi-folder2-open me-1"></i> Fiche Document RH
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if is_granted('ACTE_EDIT', acte) %}
+                            <form method="post" action="{{ path('app_acte_detach_doc', {'id': acte.id}) }}" onsubmit="return confirm('Voulez-vous dissocier cette pièce jointe de l\'acte ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('detach_doc_' ~ acte.id) }}">
+                                <button type="submit" class="btn btn-mci-light btn-sm text-danger w-100">
+                                    <i class="bi bi-link-45deg me-1"></i> Dissocier le scan
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-6">
+                            <div class="symbol symbol-60px symbol-circle bg-light mb-3">
+                                <span class="symbol-label">
+                                    <i class="bi bi-file-earmark-arrow-up fs-1 text-muted"></i>
+                                </span>
+                            </div>
+                            <div class="text-muted fs-7 mb-4">Aucun document scanné n'est actuellement rattaché à cet acte officiel.</div>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_document_new', {'acte_id': acte.id, 'employe_id': acte.employe ? acte.employe.id : null, 'titre': 'Scan ' ~ acte.numero}) }}" class="btn btn-mci-primary btn-sm">
+                                    <i class="bi bi-upload me-1"></i> Verser et lier un scan PDF
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Agent concerné (Module 04) -->
+            {% if acte.employe %}
+                <div class="card card-mci mb-6">
+                    <div class="card-header border-0 pt-6">
+                        <div class="card-title">
+                            <i class="bi bi-person-badge-fill fs-2 text-mci-blue me-3"></i>
+                            <h3 class="fw-bolder text-dark mb-0 fs-5">Agent Concerné</h3>
+                        </div>
+                    </div>
+                    <div class="card-body py-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="symbol symbol-50px symbol-circle bg-light-primary text-primary fw-bolder fs-4 me-3 d-flex align-items-center justify-content-center">
+                                {{ acte.employe.prenom|slice(0, 1)|upper }}{{ acte.employe.nom|slice(0, 1)|upper }}
+                            </div>
+                            <div>
+                                <h5 class="fw-bolder mb-1 text-dark">
+                                    <a href="{{ path('app_employe_show', {'id': acte.employe.id}) }}" class="text-dark text-hover-primary">
+                                        {{ acte.employe.nomComplet }}
+                                    </a>
+                                </h5>
+                                <div class="text-muted fs-8">Matricule : <strong>{{ acte.employe.matricule ?: 'N/C' }}</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="fs-7 mb-2">
+                            <span class="text-muted">Poste actuel :</span>
+                            <span class="fw-bold text-dark">{{ acte.employe.poste ? acte.employe.poste.intitule : 'Sans poste' }}</span>
+                        </div>
+
+                        <div class="fs-7 mb-4">
+                            <span class="text-muted">Structure :</span>
+                            <span class="fw-bold text-dark">{{ acte.employe.structure ? acte.employe.structure.nom : 'Non affecté' }}</span>
+                        </div>
+
+                        <a href="{{ path('app_employe_show', {'id': acte.employe.id}) }}" class="btn btn-mci-secondary btn-sm w-100">
+                            <i class="bi bi-person-lines-fill me-1"></i> Fiche 360° de l'agent
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Rattachement Carrière / Affectation (Module 06) -->
+            {% if acte.affectation %}
+                <div class="card card-mci mb-6">
+                    <div class="card-header border-0 pt-6">
+                        <div class="card-title">
+                            <i class="bi bi-arrow-left-right fs-2 text-success me-3"></i>
+                            <h3 class="fw-bolder text-dark mb-0 fs-5">Mouvement de Carrière</h3>
+                        </div>
+                    </div>
+                    <div class="card-body py-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="fw-bolder text-dark fs-7">{{ acte.affectation.typeMouvementLibelle }}</div>
+                            <span class="badge badge-mci-success fs-8">{{ acte.affectation.statutLibelle }}</span>
+                        </div>
+
+                        <div class="text-muted fs-8 mb-2">
+                            Réf. mouvement : <strong>{{ acte.affectation.reference ?: 'N/C' }}</strong>
+                        </div>
+
+                        <div class="fs-7 mb-2">
+                            <span class="text-muted">Structure :</span>
+                            <span class="fw-bold text-dark">{{ acte.affectation.structure ? acte.affectation.structure.nom : 'Non précisée' }}</span>
+                        </div>
+
+                        <div class="fs-7 mb-4">
+                            <span class="text-muted">Poste :</span>
+                            <span class="fw-bold text-dark">{{ acte.affectation.poste ? acte.affectation.poste.intitule : 'Non précisé' }}</span>
+                        </div>
+
+                        <a href="{{ path('app_affectation_show', {'id': acte.affectation.id}) }}" class="btn btn-mci-secondary btn-sm w-100">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Consulter le mouvement
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Traçabilité & Audit -->
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-shield-lock-fill fs-2 text-muted me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-5">Traçabilité & Audit</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4 fs-8">
+                    <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                        <span class="text-muted">Enregistré le :</span>
+                        <span class="fw-bold text-dark">{{ acte.createdAt|date('d/m/Y H:i') }}</span>
+                    </div>
+
+                    {% if acte.creePar %}
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-muted">Enregistré par :</span>
+                            <span class="fw-bold text-dark">{{ acte.creePar.email }}</span>
+                        </div>
+                    {% endif %}
+
+                    {% if acte.updatedAt %}
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-muted">Dernière mise à jour :</span>
+                            <span class="fw-bold text-dark">{{ acte.updatedAt|date('d/m/Y H:i') }}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between py-2">
+                        <span class="text-muted">Institution :</span>
+                        <span class="fw-bold text-dark">{{ acte.institution.nom }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal Suppression -->
+{% if is_granted('ACTE_DELETE', acte) %}
+    <div class="modal fade" id="deleteActeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{{ path('app_acte_delete', {'id': acte.id}) }}">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title text-white">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmer la suppression
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="fs-6 text-dark mb-3">Êtes-vous certain de vouloir supprimer définitivement l'acte administratif <strong>N° {{ acte.numero }}</strong> ?</p>
+                        <div class="alert alert-mci alert-mci-danger p-4 mb-0">
+                            <span class="fw-bold text-danger">Attention :</span> Cette action est irréversible. L'historique d'affectation et les documents scannés ne seront pas supprimés mais seront dissociés de cet acte officiel.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ acte.id) }}">
+                        <button type="button" class="btn btn-mci-light" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

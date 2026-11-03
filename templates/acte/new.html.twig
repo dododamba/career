@@ -1,0 +1,225 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Enregistrer un nouvel acte administratif — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h2 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Enregistrer un Acte Administratif
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Immatriculation officielle et opposabilité juridique</small>
+    </h2>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_acte_index') }}" class="text-muted text-hover-primary">Actes</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Nouvel acte</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        {% if acte.employe and isAgentPreset %}
+            <a href="{{ path('app_employe_show', {'id': acte.employe.id}) }}" class="btn btn-mci-secondary btn-sm">
+                <i class="bi bi-arrow-left fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Fiche de {{ acte.employe.nomComplet }}</span>
+            </a>
+        {% elseif acte.affectation %}
+            <a href="{{ path('app_affectation_show', {'id': acte.affectation.id}) }}" class="btn btn-mci-secondary btn-sm">
+                <i class="bi bi-arrow-left fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Mouvement {{ acte.affectation.reference }}</span>
+            </a>
+        {% endif %}
+        <a href="{{ path('app_acte_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-journal-text fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Registre des actes</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Si un agent ou une affectation est présélectionné -->
+    {% if acte.employe and isAgentPreset %}
+        <div class="card card-mci p-5 border-start border-4 border-primary">
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px symbol-circle bg-light-primary text-primary fw-bolder fs-4 me-4 d-flex align-items-center justify-content-center">
+                    {{ acte.employe.prenom|slice(0, 1)|upper }}{{ acte.employe.nom|slice(0, 1)|upper }}
+                </div>
+                <div>
+                    <h5 class="fw-bolder mb-1 text-dark">Acte individuel pour : {{ acte.employe.nomComplet }}</h5>
+                    <div class="text-muted fs-8">
+                        <span>Matricule : <strong>{{ acte.employe.matricule ?: 'N/C' }}</strong></span> •
+                        <span>Poste : <strong>{{ acte.employe.poste ? acte.employe.poste.intitule : 'Sans poste' }}</strong></span> •
+                        <span>Structure : <strong>{{ acte.employe.structure ? acte.employe.structure.nom : 'Non affecté' }}</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    <div class="row g-6">
+        <!-- Colonne Gauche : Identification juridique de l'acte -->
+        <div class="col-lg-8">
+            <!-- Bloc 1 : Identification & Dates -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-file-earmark-check-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">1. Identification & Validité Juridique</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            {{ form_row(form.type_acte) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.numero) }}
+                        </div>
+
+                        <div class="col-md-4">
+                            {{ form_row(form.date_signature) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.date_effet) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.statut) }}
+                        </div>
+
+                        <div class="col-md-12">
+                            {{ form_row(form.date_publication) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloc 2 : Objet & Dispositif -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-pen-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">2. Dispositif & Autorité Signataire</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            {{ form_row(form.objet) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form_row(form.signataire_qualite) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.signataire_nom) }}
+                        </div>
+
+                        <div class="col-12">
+                            {{ form_row(form.contenu_resume) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boutons de soumission -->
+            <div class="d-flex justify-content-end gap-3 mb-6">
+                <a href="{{ path('app_acte_index') }}" class="btn btn-mci-light">
+                    <i class="bi bi-x-lg me-1"></i> Annuler
+                </a>
+                <button type="submit" class="btn btn-mci-primary px-6">
+                    <i class="bi bi-check-lg me-1"></i> Enregistrer l'acte officiel
+                </button>
+            </div>
+        </div>
+
+        <!-- Colonne Droite : Articulations & Pièces jointes -->
+        <div class="col-lg-4">
+            <!-- Bloc 3 : Rattachement Institutionnel & Carrière -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-diagram-3-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-5">3. Rattachements</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    {% if not isAgentPreset %}
+                        <div class="mb-4">
+                            {{ form_row(form.employe) }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        {{ form_row(form.structure) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_row(form.poste) }}
+                    </div>
+
+                    <div class="mb-2">
+                        {{ form_row(form.affectation) }}
+                        <div class="text-muted fs-8 mt-1">
+                            Lie cet acte à l'historique d'affectation de l'agent.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloc 4 : Numérisation & Filiation -->
+            <div class="card card-mci mb-6">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-file-earmark-pdf-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-5">4. Scan & Antériorité</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="mb-4">
+                        {{ form_row(form.document) }}
+                        <div class="text-muted fs-8 mt-1">
+                            Liez la copie scannée et signée déposée dans le Coffre-fort RH.
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        {{ form_row(form.acte_parent) }}
+                        <div class="text-muted fs-8 mt-1">
+                            À renseigner si cet acte modifie, complète ou abroge un acte précédent.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+</div>
+{% endblock %}

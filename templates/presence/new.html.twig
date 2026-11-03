@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Entrée au Registre de Présence — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Nouvelle Entrée de Présence
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Ajout manuel au registre d'émargement</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_presence_index') }}" class="text-muted text-hover-primary">Registre</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Nouvelle présence</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('app_presence_index') }}" class="btn btn-sm btn-light">
+        <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour au registre
+    </a>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card card-flush border-0 shadow-sm">
+            <div class="card-header pt-6">
+                <div class="card-title">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-45px symbol-circle me-3 bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-calendar-add fs-2 text-primary">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                                <span class="path4"></span>
+                                <span class="path5"></span>
+                                <span class="path6"></span>
+                            </i>
+                        </div>
+                        <div>
+                            <h2 class="fs-4 fw-bold text-gray-900 mb-0">Enregistrer une présence</h2>
+                            <span class="text-muted fs-7">Complétez les informations d'émargement</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body pt-5">
+                {{ include('presence/_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

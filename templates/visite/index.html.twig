@@ -1,0 +1,337 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Visites & Accueil — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Contrôle d'Accès &amp; Visiteurs
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Registre des entrées, sorties et badges d'accueil</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Visites &amp; Accueil</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_visite_new') }}" class="btn btn-sm btn-mci-primary">
+            <i class="ki-duotone ki-plus-circle fs-4 me-1">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+            Enregistrer un visiteur
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- Bannière Institutionnelle -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body p-6">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px symbol-circle me-4 bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                        <i class="ki-duotone ki-people fs-1 text-primary">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                            <span class="path4"></span>
+                            <span class="path5"></span>
+                        </i>
+                    </div>
+                    <div>
+                        <h2 class="fs-2 fw-bold text-gray-900 mb-1">Registre d'Accueil &amp; Sécurité des Bâtiments</h2>
+                        <div class="text-muted fs-7">
+                            Suivi des visiteurs au Ministère du Commerce et de l'Industrie pour la journée du
+                            <span class="fw-bold text-gray-800">{{ date_actuelle|date('d/m/Y') }}</span>.
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge badge-light-primary fw-bold py-2 px-3 fs-7">
+                        <i class="ki-duotone ki-calendar fs-6 text-primary me-1"></i>
+                        {{ date_actuelle|date('d/m/Y') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Row -->
+    <div class="row g-5">
+        <!-- Visites actives -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold fs-7 text-uppercase">Visites actives</span>
+                        <div class="symbol symbol-45px bg-light-success text-success d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-user-tick fs-2 text-success">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <span class="fs-2hx fw-bolder text-gray-900 lh-1">{{ stats.actives }}</span>
+                        <span class="badge badge-light-success fs-8 fw-bold">Dans les locaux</span>
+                    </div>
+                    <span class="text-muted fs-8">Visiteurs actuellement présents</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visites terminées -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold fs-7 text-uppercase">Visites terminées</span>
+                        <div class="symbol symbol-45px bg-light-secondary text-secondary d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-check fs-2 text-secondary"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <span class="fs-2hx fw-bolder text-gray-900 lh-1">{{ stats.terminees }}</span>
+                        <span class="badge badge-light-secondary fs-8 fw-bold">Sortis</span>
+                    </div>
+                    <span class="text-muted fs-8">Badges restitués aujourd'hui</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visites de la semaine -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold fs-7 text-uppercase">Total semaine</span>
+                        <div class="symbol symbol-45px bg-light-info text-info d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-calendar-8 fs-2 text-info">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                                <span class="path4"></span>
+                                <span class="path5"></span>
+                                <span class="path6"></span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <span class="fs-2hx fw-bolder text-gray-900 lh-1">{{ stats.semaine }}</span>
+                        <span class="text-muted fs-7">visiteurs</span>
+                    </div>
+                    <span class="text-muted fs-8">Flux hebdomadaire consolidé</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visites du mois -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold fs-7 text-uppercase">Total mois</span>
+                        <div class="symbol symbol-45px bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-chart-simple fs-2 text-primary">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                                <span class="path4"></span>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <span class="fs-2hx fw-bolder text-gray-900 lh-1">{{ stats.mois }}</span>
+                        <span class="text-muted fs-7">visiteurs</span>
+                    </div>
+                    <span class="text-muted fs-8">Flux mensuel global</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card card-flush border-0 shadow-sm">
+        <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+            <div class="card-title">
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                    <input type="text" data-kt-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Rechercher un visiteur..." />
+                </div>
+            </div>
+            <div class="card-toolbar flex-row-fluid justify-content-end gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <input type="date" class="form-control form-control-solid w-175px" id="date-filter" value="{{ date_actuelle }}" />
+                    <button class="btn btn-light-primary" type="button" id="filter-button">
+                        <i class="ki-duotone ki-filter fs-5 me-1"></i> Filtrer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table class="table align-middle table-row-dashed fs-6 gy-4" id="kt_visites_table">
+                    <thead>
+                        <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                            <th class="min-w-180px">Visiteur</th>
+                            <th class="min-w-160px">Collaborateur Visité</th>
+                            <th class="text-center">Heure d'arrivée</th>
+                            <th class="text-center">Heure de départ</th>
+                            <th class="text-center">Durée</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-center">Badge</th>
+                            <th class="text-end pe-4 min-w-120px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 fw-semibold">
+                        {% for visite in visites %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-40px symbol-circle me-3 bg-light-primary text-primary fw-bolder d-flex align-items-center justify-content-center">
+                                            {{ visite.visiteur ? visite.visiteur|first|upper : 'V' }}
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="text-gray-900 fw-bold fs-6">{{ visite.visiteur ?: 'Anonyme' }}</span>
+                                            {% if visite.email or visite.telephone %}
+                                                <span class="text-muted fs-8">
+                                                    {{ visite.telephone|default('') }}{% if visite.telephone and visite.email %} &bull; {% endif %}{{ visite.email|default('') }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if visite.employe %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="symbol symbol-30px symbol-circle me-2 bg-light-success text-success fw-bold d-flex align-items-center justify-content-center fs-8">
+                                                {{ visite.employe.nom ? visite.employe.nom|first|upper : 'E' }}
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <a href="{{ path('app_visite_par_employe', {'id': visite.employe.id}) }}" class="text-gray-900 text-hover-primary fw-semibold">
+                                                    {{ visite.employe.nom }} {{ visite.employe.prenom }}
+                                                </a>
+                                                <span class="text-muted fs-8">{{ visite.employe.service ? visite.employe.service.nom : 'Service non défini' }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted fs-7">Non assigné</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if visite.arrivee %}
+                                        <span class="badge badge-light-success font-monospace fw-bold fs-7">
+                                            {{ visite.arrivee|date('H:i') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if visite.depart %}
+                                        <span class="badge badge-light-secondary font-monospace fw-bold fs-7">
+                                            {{ visite.depart|date('H:i') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-light-warning fw-bold fs-8">En cours</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if visite.duration %}
+                                        <span class="badge badge-light-info fw-bold fs-8">{{ visite.duration }}</span>
+                                    {% else %}
+                                        <span class="text-muted fs-8">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if visite.statut %}
+                                        <span class="badge badge-light-secondary fw-bold py-2 px-3">
+                                            <i class="ki-duotone ki-check fs-7 text-secondary me-1"></i> Terminée
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-light-success fw-bold py-2 px-3">
+                                            <i class="ki-duotone ki-timer fs-7 text-success me-1"></i> En cours
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if visite.badge %}
+                                        <span class="badge badge-light-primary fw-bold font-monospace fs-7">
+                                            #{{ visite.badge }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted fs-8">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ path('app_visite_show', {'id': visite.id}) }}" class="btn btn-icon btn-light btn-active-color-primary btn-sm" title="Voir détails">
+                                            <i class="ki-duotone ki-eye fs-4 text-primary"></i>
+                                        </a>
+                                        <a href="{{ path('app_visite_edit', {'id': visite.id}) }}" class="btn btn-icon btn-light btn-active-color-warning btn-sm" title="Modifier">
+                                            <i class="ki-duotone ki-pencil fs-4 text-warning"></i>
+                                        </a>
+                                        {% if not visite.statut %}
+                                            <form method="post" action="{{ path('app_visite_terminer', {'id': visite.id}) }}" class="d-inline" onsubmit="return confirm('Confirmer la fin de cette visite et la restitution du badge ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('terminer' ~ visite.id) }}">
+                                                <button class="btn btn-icon btn-light btn-active-color-success btn-sm" title="Terminer la visite">
+                                                    <i class="ki-duotone ki-check fs-4 text-success"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        <form method="post" action="{{ path('app_visite_delete', {'id': visite.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette visite ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ visite.id) }}">
+                                            <button class="btn btn-icon btn-light btn-active-color-danger btn-sm" title="Supprimer">
+                                                <i class="ki-duotone ki-trash fs-4 text-danger"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-10 text-muted">
+                                    <i class="ki-duotone ki-people fs-3x text-muted mb-2"></i>
+                                    <div class="fs-6 fw-bold text-gray-700">Aucune visite enregistrée pour cette date</div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var filterBtn = document.getElementById('filter-button');
+        if (filterBtn) {
+            filterBtn.addEventListener('click', function() {
+                var selectedDate = document.getElementById('date-filter').value;
+                if (selectedDate) {
+                    window.location.href = "{{ path('app_visite_index') }}?date=" + encodeURIComponent(selectedDate);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

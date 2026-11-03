@@ -1,0 +1,611 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord institutionnel — {{ app.user.institution.nom }}{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Tableau de bord
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Vue d'ensemble et indicateurs de gestion administrative</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Pilotage</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Tableau de bord</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_employe_new') }}" class="btn btn-mci-primary btn-sm">
+                <i class="bi bi-person-plus fs-5"></i>
+                <span class="d-none d-sm-inline">Nouvel Agent</span>
+            </a>
+        {% endif %}
+        <a href="{{ path('app_pointage_new') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-clock-history fs-5"></i>
+            <span class="d-none d-sm-inline">Pointer</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    {# Bannière d'accueil institutionnelle #}
+    <div class="card card-mci border-0 overflow-hidden shadow-sm" style="background: linear-gradient(135deg, var(--mci-blue-dark) 0%, var(--mci-blue) 100%);">
+        <div class="card-body p-6 p-lg-8 text-white position-relative">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge" style="background: rgba(254, 203, 0, 0.2); color: var(--mci-gold); border: 1px solid rgba(254, 203, 0, 0.4); font-size: 0.8rem; font-weight: 700;">
+                            <i class="bi bi-shield-check me-1" style="color: var(--mci-gold);"></i>
+                            MCI e-Circuit • République du Tchad
+                        </span>
+                        <span class="badge bg-white bg-opacity-20 text-white fs-8 fw-semibold">
+                            {% if app.user.hasRole('ROLE_ADMIN') %}
+                                Administrateur
+                            {% elseif app.user.hasRole('ROLE_MANAGER') %}
+                                Responsable hiérarchique
+                            {% else %}
+                                Agent
+                            {% endif %}
+                        </span>
+                    </div>
+                    <h2 class="text-white fw-bolder fs-1 mb-2">
+                        Bienvenue, {{ app.user.fullName|default(app.user.email) }}
+                    </h2>
+                    <div class="d-flex flex-wrap align-items-center gap-4 text-white text-opacity-80 fs-6">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="bi bi-building fs-5 text-warning"></i>
+                            {{ app.user.institution.nom }}
+                        </span>
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="bi bi-calendar3 fs-5 text-warning"></i>
+                            {% set days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'] %}
+                            {% set months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'] %}
+                            {% set now = "now"|date_modify("Africa/Ndjamena") %}
+                            {{ days[now|date('w')] }} {{ now|date('d') }} {{ months[now|date('n') - 1] }} {{ now|date('Y') }}
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-inline-flex flex-column align-items-lg-end bg-white bg-opacity-10 p-4 rounded-3 border border-white border-opacity-20">
+                        <span class="fs-7 text-white text-opacity-75 text-uppercase fw-semibold mb-1">Disponibilité administrative</span>
+                        <span class="fs-2 fw-bolder text-white">
+                            {% if stats.totalEmployes > 0 %}
+                                {{ ((stats.presentsAujourdhui / stats.totalEmployes) * 100)|round(1) }}%
+                            {% else %}
+                                100%
+                            {% endif %}
+                        </span>
+                        <span class="fs-8 text-warning fw-semibold mt-1">
+                            {{ stats.presentsAujourdhui }} agent(s) en service aujourd'hui
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Alertes et actions en attente #}
+    {% if stats.congesEnAttente > 0 or stats.visitesEnAttente > 0 %}
+    <div class="alert alert-mci alert-mci-warning d-flex align-items-center justify-content-between p-5 mb-0">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill fs-2 me-4 text-warning"></i>
+            <div class="d-flex flex-column">
+                <span class="fw-bold fs-6 text-dark">Circuits et validations en attente</span>
+                <span class="text-muted fs-7">Des demandes requièrent votre arbitrage administratif.</span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            {% if stats.congesEnAttente > 0 %}
+                <a href="{{ path('app_conges_index') }}" class="btn btn-sm btn-warning fw-bold">
+                    <i class="bi bi-hourglass-split me-1"></i>
+                    {{ stats.congesEnAttente }} congé(s) à valider
+                </a>
+            {% endif %}
+            {% if stats.visitesEnAttente > 0 %}
+                <a href="{{ path('app_visite_index') }}" class="btn btn-sm btn-mci-secondary fw-bold">
+                    <i class="bi bi-people me-1"></i>
+                    {{ stats.visitesEnAttente }} visite(s)
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# 4 Grands indicateurs clés de la vie administrative #}
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Effectif Total</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.totalEmployes }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-people me-1 text-mci-blue"></i>
+                            Agents enregistrés
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-people-fill fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Présents du jour</span>
+                        <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.presentsAujourdhui }}</span>
+                        <span class="fs-8 text-success fw-semibold">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            {% if stats.totalEmployes > 0 %}
+                                {{ ((stats.presentsAujourdhui / stats.totalEmployes) * 100)|round(1) }}% de présence
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-success">
+                        <span class="symbol-label">
+                            <i class="bi bi-person-check-fill fs-2 text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Absents du jour</span>
+                        <span class="fs-2hx fw-bolder text-danger mb-1">{{ stats.absentsAujourdhui }}</span>
+                        <span class="fs-8 text-danger fw-semibold">
+                            <i class="bi bi-x-circle-fill me-1"></i>
+                            {% if stats.totalEmployes > 0 %}
+                                {{ ((stats.absentsAujourdhui / stats.totalEmployes) * 100)|round(1) }}% d'absence
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-red-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-person-x-fill fs-2 text-danger"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">En Congé actif</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.congesEnCours }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-calendar2-range me-1 text-warning"></i>
+                            Agents en période de congé
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-gold-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-calendar2-check-fill fs-2 text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Indicateurs secondaires #}
+    <div class="row g-4 g-xl-6">
+        <div class="col-md-4">
+            <div class="card card-mci h-100 p-5">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="fs-7 fw-bolder text-muted text-uppercase mb-1 d-block">Visites du jour</span>
+                        <span class="fs-2 fw-bolder text-dark">{{ stats.visitesAujourdhui|default(0) }}</span>
+                        <span class="fs-8 text-muted d-block mt-1">Visiteurs au registre</span>
+                    </div>
+                    <div class="symbol symbol-45px symbol-circle bg-light">
+                        <span class="symbol-label text-dark">
+                            <i class="bi bi-person-badge fs-3 text-primary"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-mci h-100 p-5">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="fs-7 fw-bolder text-muted text-uppercase mb-1 d-block">Taux de présence moyen</span>
+                        <span class="fs-2 fw-bolder text-dark">{{ stats.tauxPresenceMoyen|default(0)|round(1) }}%</span>
+                        <span class="fs-8 text-muted d-block mt-1">Moyenne sur 30 jours</span>
+                    </div>
+                    <div class="symbol symbol-45px symbol-circle bg-light">
+                        <span class="symbol-label text-dark">
+                            <i class="bi bi-graph-up-arrow fs-3 text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-mci h-100 p-5">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="fs-7 fw-bolder text-muted text-uppercase mb-1 d-block">Services & Divisions</span>
+                        <span class="fs-2 fw-bolder text-dark">{{ stats.totalServices|default(0) }}</span>
+                        <span class="fs-8 text-muted d-block mt-1">Unités organisationnelles</span>
+                    </div>
+                    <div class="symbol symbol-45px symbol-circle bg-light">
+                        <span class="symbol-label text-dark">
+                            <i class="bi bi-diagram-3 fs-3 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Graphiques institutionnels #}
+    <div class="row g-6">
+        <div class="col-xl-8">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6 pb-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="card-title align-items-start flex-column mb-0">
+                            <span class="card-label fw-bolder fs-4 text-dark">Évolution du taux de présence</span>
+                            <span class="text-muted mt-1 fw-semibold fs-7">Historique consolidé des 6 derniers mois</span>
+                        </h3>
+                    </div>
+                    <span class="badge badge-mci badge-mci-blue px-3 py-2 fs-8 fw-bold">
+                        <i class="bi bi-calendar-month me-1"></i>
+                        Semestriel
+                    </span>
+                </div>
+                <div class="card-body pt-4">
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="presenceRateChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6 pb-2">
+                    <h3 class="card-title align-items-start flex-column mb-0">
+                        <span class="card-label fw-bolder fs-4 text-dark">Répartition des congés</span>
+                        <span class="text-muted mt-1 fw-semibold fs-7">Par statut et typologie</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-4 d-flex align-items-center justify-content-center">
+                    <div style="height: 300px; width: 100%; position: relative;">
+                        <canvas id="leavesByStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Tables opérationnelles #}
+    <div class="row g-6">
+        {# Services avec le plus d'absences #}
+        <div class="col-xl-6">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6 pb-4">
+                    <h3 class="card-title align-items-start flex-column mb-0">
+                        <span class="card-label fw-bolder fs-5 text-dark">Suivi des absences par service</span>
+                        <span class="text-muted mt-1 fw-semibold fs-8">Top des services sur les 30 derniers jours</span>
+                    </h3>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table table-mci align-middle gs-0 gy-3">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-8 text-uppercase">
+                                    <th class="min-w-150px">Service</th>
+                                    <th class="min-w-80px text-center">Absences</th>
+                                    <th class="min-w-120px text-end">Proportion</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-semibold text-gray-700 fs-7">
+                                {% set maxAbsences = topAbsencesByService|first ? topAbsencesByService|first.absences : 1 %}
+                                {% for service in topAbsencesByService|slice(0, 5) %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="symbol symbol-35px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                                    <span class="symbol-label text-mci-blue fw-bold fs-7">
+                                                        <i class="bi bi-building text-mci-blue"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <span class="text-dark fw-bold fs-7">{{ service.service|default('Direction / Service') }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-mci badge-mci-gold px-3 py-1 fs-8 fw-bolder">
+                                                {{ service.absences }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            {% set percentage = maxAbsences > 0 ? (service.absences / maxAbsences * 100) : 0 %}
+                                            <div class="d-flex align-items-center justify-content-end gap-2">
+                                                <div class="progress w-80px h-6px bg-light rounded-pill">
+                                                    <div class="progress-bar rounded-pill" 
+                                                         style="width: {{ percentage }}%; background-color: var(--mci-red);"
+                                                         role="progressbar" 
+                                                         aria-valuenow="{{ percentage }}" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <span class="fs-8 fw-bold text-muted w-35px">{{ percentage|round }}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-6">
+                                            <i class="bi bi-shield-check fs-2 text-success d-block mb-2"></i>
+                                            Aucune absence signalée sur cette période
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Derniers pointages #}
+        <div class="col-xl-6">
+            <div class="card card-mci h-100">
+                <div class="card-header border-0 pt-6 pb-4 d-flex justify-content-between align-items-center">
+                    <h3 class="card-title align-items-start flex-column mb-0">
+                        <span class="card-label fw-bolder fs-5 text-dark">Derniers pointages enregistrés</span>
+                        <span class="text-muted mt-1 fw-semibold fs-8">Flux d'émargement du jour</span>
+                    </h3>
+                    <a href="{{ path('app_pointage_index') }}" class="btn btn-sm btn-mci-ghost">
+                        <span>Voir tout</span>
+                        <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table table-mci align-middle gs-0 gy-3">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-8 text-uppercase">
+                                    <th class="min-w-160px">Agent</th>
+                                    <th class="min-w-80px text-center">Heure</th>
+                                    <th class="min-w-100px text-end pe-2">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-semibold text-gray-700 fs-7">
+                                {% for pointage in derniersPointages|default([]) %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="symbol symbol-35px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                                    {% if pointage.employe.photo %}
+                                                        <img src="{{ asset('uploads/photos/' ~ pointage.employe.photo) }}" alt="{{ pointage.employe.nomComplet }}" />
+                                                    {% else %}
+                                                        <span class="symbol-label text-mci-blue fw-bold fs-8">
+                                                            {{ pointage.employe.nom|first|upper }}{{ pointage.employe.prenom|first|upper }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <a href="{{ path('app_employe_show', {'id': pointage.employe.id}) }}" class="text-dark text-hover-primary fw-bolder fs-7">
+                                                        {{ pointage.employe.nomComplet }}
+                                                    </a>
+                                                    <span class="text-muted fs-8">{{ pointage.employe.service.libelle|default('Non assigné') }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark fw-bold fs-8">
+                                                <i class="bi bi-clock me-1 text-muted"></i>
+                                                {{ pointage.heureArrivee ? pointage.heureArrivee|date('H:i') : '-' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-2">
+                                            {% if pointage.estPresent %}
+                                                <span class="badge badge-mci badge-mci-green px-3 py-1 fs-8 fw-bold">
+                                                    <i class="bi bi-check-circle me-1"></i>Présent
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-mci badge-mci-red px-3 py-1 fs-8 fw-bold">
+                                                    <i class="bi bi-x-circle me-1"></i>Absent
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-6">
+                                            <i class="bi bi-clock-history fs-2 text-muted d-block mb-2"></i>
+                                            Aucun pointage enregistré pour cette journée
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    (function() {
+        let presenceChartInstance = null;
+        let leavesChartInstance = null;
+
+        function initDashboardCharts() {
+            // Nettoyage préalable pour compatibilité Turbo
+            if (presenceChartInstance) {
+                presenceChartInstance.destroy();
+                presenceChartInstance = null;
+            }
+            if (leavesChartInstance) {
+                leavesChartInstance.destroy();
+                leavesChartInstance = null;
+            }
+
+            if (typeof Chart === 'undefined') {
+                return;
+            }
+
+            // 1. Graphique d'évolution de la présence (Ligne institutionnelle bleu & or)
+            const presenceCanvas = document.getElementById('presenceRateChart');
+            if (presenceCanvas) {
+                const presenceData = {{ presenceRateByMonth|json_encode|raw }};
+                const ctx = presenceCanvas.getContext('2d');
+                
+                const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(0, 38, 100, 0.25)');
+                gradient.addColorStop(1, 'rgba(0, 38, 100, 0.00)');
+
+                presenceChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: presenceData.map(item => item.month),
+                        datasets: [{
+                            label: 'Taux de présence (%)',
+                            data: presenceData.map(item => item.rate),
+                            backgroundColor: gradient,
+                            borderColor: '#002664',
+                            borderWidth: 2.5,
+                            tension: 0.35,
+                            fill: true,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#002664',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: '#FECB00',
+                            pointHoverBorderColor: '#002664'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#001844',
+                                titleColor: '#FECB00',
+                                bodyColor: '#ffffff',
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        return ' Présence : ' + Number(context.parsed.y).toFixed(1) + '%';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: { color: 'rgba(0, 38, 100, 0.06)' },
+                                ticks: {
+                                    callback: function(val) { return val + '%'; },
+                                    color: '#667085',
+                                    font: { size: 11 }
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#667085', font: { size: 11 } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Graphique de répartition des congés (Donut palette Tchad)
+            const leavesCanvas = document.getElementById('leavesByStatusChart');
+            if (leavesCanvas) {
+                const congesData = {{ congesByType|json_encode|raw }};
+                const ctx = leavesCanvas.getContext('2d');
+
+                // Palette institutionnelle : Bleu, Or, Vert, Rouge, Gris ardoise
+                const colors = ['#002664', '#FECB00', '#10b981', '#C60C30', '#64748b'];
+
+                leavesChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: congesData.map(item => item.label),
+                        datasets: [{
+                            data: congesData.map(item => item.value),
+                            backgroundColor: colors.slice(0, congesData.length),
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '72%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 14,
+                                    font: { size: 11, family: 'Poppins' },
+                                    boxWidth: 12,
+                                    usePointStyle: true
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#001844',
+                                titleColor: '#FECB00',
+                                bodyColor: '#ffffff',
+                                padding: 12,
+                                cornerRadius: 8
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('turbo:load', initDashboardCharts);
+        document.addEventListener('DOMContentLoaded', initDashboardCharts);
+        document.addEventListener('turbo:before-cache', function() {
+            if (presenceChartInstance) { presenceChartInstance.destroy(); presenceChartInstance = null; }
+            if (leavesChartInstance) { leavesChartInstance.destroy(); leavesChartInstance = null; }
+        });
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% for label, messages in app.flashes %}
+    {% set alertClass = 'primary' %}
+    {% set iconClass = 'bi-info-circle-fill' %}
+    {% set borderClass = 'border-primary' %}
+
+    {% if label in ['success', 'ok'] %}
+        {% set alertClass = 'success' %}
+        {% set iconClass = 'bi-check-circle-fill' %}
+        {% set borderClass = 'border-success' %}
+    {% elseif label in ['error', 'danger', 'fail'] %}
+        {% set alertClass = 'danger' %}
+        {% set iconClass = 'bi-exclamation-octagon-fill' %}
+        {% set borderClass = 'border-danger' %}
+    {% elseif label in ['warning', 'alert'] %}
+        {% set alertClass = 'warning' %}
+        {% set iconClass = 'bi-exclamation-triangle-fill' %}
+        {% set borderClass = 'border-warning' %}
+    {% elseif label in ['info', 'notice'] %}
+        {% set alertClass = 'info' %}
+        {% set iconClass = 'bi-info-circle-fill' %}
+        {% set borderClass = 'border-info' %}
+    {% endif %}
+
+    {% for message in messages %}
+        <div class="alert alert-{{ alertClass }} alert-dismissible bg-light-{{ alertClass }} d-flex flex-column flex-sm-row p-5 mb-5 border-start border-4 {{ borderClass }} shadow-sm"
+             data-controller="notification"
+             data-notification-auto-dismiss-value="true"
+             data-notification-duration-value="6000"
+             role="alert">
+            <span class="svg-icon svg-icon-2hx svg-icon-{{ alertClass }} me-4 mb-5 mb-sm-0 d-flex align-items-center">
+                <i class="bi {{ iconClass }} fs-1 text-{{ alertClass }}"></i>
+            </span>
+            <div class="d-flex flex-column pe-0 pe-sm-10 justify-content-center">
+                <h5 class="mb-1 text-{{ alertClass }} fw-bolder">{{ label|capitalize }}</h5>
+                <span class="text-gray-800 fs-6">{{ message|trans }}</span>
+            </div>
+            <button type="button" 
+                    class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" 
+                    data-action="click->notification#close"
+                    aria-label="Fermer">
+                <i class="bi bi-x fs-2 text-{{ alertClass }}"></i>
+            </button>
+        </div>
+    {% endfor %}
+{% endfor %}

@@ -1,0 +1,355 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Carrières & Affectations — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h2 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Carrière & Mouvements du Personnel
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Mutations, promotions, changements de poste et cessations d'activité</small>
+    </h2>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Carrière & Actes</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Mouvements & Affectations</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_affectation_new') }}" class="btn btn-mci-primary btn-sm">
+                <i class="bi bi-plus-circle fs-5 me-1"></i>
+                <span class="d-none d-sm-inline">Nouveau mouvement</span>
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- KPIs Row -->
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Mouvements</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.total }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-arrow-left-right me-1 text-mci-blue"></i>
+                            Actes enregistrés
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-arrow-left-right fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">En attente</span>
+                        <span class="fs-2hx fw-bolder text-warning mb-1">{{ stats.proposees + stats.validees }}</span>
+                        <span class="fs-8 text-warning fw-semibold">
+                            {{ stats.proposees }} à valider • {{ stats.validees }} à installer
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-gold-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-clock-history fs-2 text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Affectations Actives</span>
+                        <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.actives }}</span>
+                        <span class="fs-8 text-success fw-semibold">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            En cours d'exercice
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-success">
+                        <span class="symbol-label">
+                            <i class="bi bi-person-check-fill fs-2 text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Historique / Clôturées</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.cloturees }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-archive me-1"></i>
+                            Mouvements passés
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light">
+                        <span class="symbol-label">
+                            <i class="bi bi-archive-fill fs-2 text-muted"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card card-mci">
+        <div class="card-body p-6">
+            <form method="get" action="{{ path('app_affectation_index') }}" class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <select name="statut" class="form-select form-select-solid fs-7">
+                        <option value="">-- Tous les statuts --</option>
+                        <option value="PROPOSEE" {{ currentStatut == 'PROPOSEE' ? 'selected' : '' }}>Proposée (À valider)</option>
+                        <option value="VALIDEE" {{ currentStatut == 'VALIDEE' ? 'selected' : '' }}>Validée (En attente prise de service)</option>
+                        <option value="ACTIVE" {{ currentStatut == 'ACTIVE' ? 'selected' : '' }}>Active (En cours)</option>
+                        <option value="CLOTUREE" {{ currentStatut == 'CLOTUREE' ? 'selected' : '' }}>Clôturée (Historique)</option>
+                        <option value="ANNULEE" {{ currentStatut == 'ANNULEE' ? 'selected' : '' }}>Annulée</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <select name="type" class="form-select form-select-solid fs-7">
+                        <option value="">-- Tous les types de mouvements --</option>
+                        <option value="AFFECTATION_INITIALE" {{ currentType == 'AFFECTATION_INITIALE' ? 'selected' : '' }}>Affectation initiale</option>
+                        <option value="MUTATION" {{ currentType == 'MUTATION' ? 'selected' : '' }}>Mutation</option>
+                        <option value="PROMOTION" {{ currentType == 'PROMOTION' ? 'selected' : '' }}>Promotion</option>
+                        <option value="CHANGEMENT_POSTE" {{ currentType == 'CHANGEMENT_POSTE' ? 'selected' : '' }}>Changement de poste</option>
+                        <option value="DETACHEMENT" {{ currentType == 'DETACHEMENT' ? 'selected' : '' }}>Détachement</option>
+                        <option value="REINTEGRATION" {{ currentType == 'REINTEGRATION' ? 'selected' : '' }}>Réintégration</option>
+                        <option value="CESSATION" {{ currentType == 'CESSATION' ? 'selected' : '' }}>Cessation d'activité</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-mci-primary btn-sm flex-grow-1">
+                        <i class="bi bi-funnel-fill me-1"></i> Filtrer
+                    </button>
+                    {% if currentStatut or currentType %}
+                        <a href="{{ path('app_affectation_index') }}" class="btn btn-mci-light btn-sm" title="Réinitialiser">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tableau des affectations -->
+    <div class="card card-mci">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="bi bi-list-check fs-2 text-mci-blue me-3"></i>
+                    <h3 class="fw-bolder text-dark mb-0 fs-4">Liste des Affectations & Mouvements</h3>
+                    <span class="badge badge-mci-blue ms-3">{{ affectations|length }}</span>
+                </div>
+            </div>
+            <div class="card-toolbar">
+                <span class="text-muted fs-8">Institution : <strong>{{ institution ? institution.nom : 'MCI' }}</strong></span>
+            </div>
+        </div>
+
+        <div class="card-body py-4">
+            <div class="table-responsive">
+                <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
+                    <thead>
+                        <tr class="fw-bolder text-muted bg-light text-uppercase fs-8 tracking-wide">
+                            <th class="ps-4 min-w-150px rounded-start">Réf. & Type</th>
+                            <th class="min-w-180px">Agent</th>
+                            <th class="min-w-200px">Origine (Provenance)</th>
+                            <th class="min-w-200px">Destination (Nouvelle)</th>
+                            <th class="min-w-140px">Dates clés</th>
+                            <th class="min-w-110px">Statut</th>
+                            <th class="pe-4 text-end min-w-120px rounded-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fw-semibold text-gray-600 fs-7">
+                        {% for aff in affectations %}
+                            <tr>
+                                <!-- Réf & Type -->
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-35px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-arrow-left-right text-mci-blue fs-5"></i>
+                                            </span>
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <a href="{{ path('app_affectation_show', {'id': aff.id}) }}" class="text-dark fw-bolder text-hover-primary fs-7">
+                                                {{ aff.reference }}
+                                            </a>
+                                            {% set typeBadgeClass = aff.typeMouvement == 'PROMOTION' ? 'badge-mci-success' : (aff.typeMouvement == 'MUTATION' ? 'badge-mci-blue' : (aff.typeMouvement == 'CESSATION' ? 'badge-mci-danger' : (aff.typeMouvement == 'DETACHEMENT' ? 'badge-mci-warning' : 'bg-secondary text-white'))) %}
+                                            <span class="badge {{ typeBadgeClass }} mt-1 align-self-start fs-9">
+                                                {{ aff.typeMouvement|replace({'_': ' '}) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Agent -->
+                                <td>
+                                    {% if aff.employe %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="symbol symbol-30px symbol-circle me-2 bg-light-primary text-primary fw-bold fs-8 d-flex align-items-center justify-content-center">
+                                                {{ aff.employe.prenom|slice(0, 1)|upper }}{{ aff.employe.nom|slice(0, 1)|upper }}
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <a href="{{ path('app_employe_show', {'id': aff.employe.id}) }}" class="text-dark fw-bold text-hover-primary fs-7">
+                                                    {{ aff.employe.nomComplet }}
+                                                </a>
+                                                <span class="text-muted fs-8">Matr: {{ aff.employe.matricule ?? 'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted fs-8 fst-italic">Agent non renseigné</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Origine -->
+                                <td>
+                                    {% if aff.ancienPoste or aff.ancienneStructure %}
+                                        <div class="fw-semibold text-gray-800 fs-7">
+                                            <i class="bi bi-arrow-left text-muted me-1"></i>
+                                            {{ aff.ancienPoste ? aff.ancienPoste.intitule : (aff.ancienneFonction ? aff.ancienneFonction.libelle : 'Non précisé') }}
+                                        </div>
+                                        <div class="text-muted fs-8">
+                                            {{ aff.ancienneStructure ? aff.ancienneStructure.nom : '' }}
+                                        </div>
+                                    {% else %}
+                                        <span class="badge badge-mci-light text-muted fst-italic fs-8">Entrée / Recrutement initial</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Destination -->
+                                <td>
+                                    <div class="fw-bold text-dark fs-7">
+                                        <i class="bi bi-arrow-right text-mci-blue me-1"></i>
+                                        {{ aff.poste ? aff.poste.intitule : (aff.fonction ? aff.fonction.libelle : (aff.typeMouvement == 'CESSATION' ? 'Cessation d\'activité' : 'Poste non assigné')) }}
+                                    </div>
+                                    <div class="text-muted fs-8">
+                                        {{ aff.structure ? aff.structure.nom : (aff.service ? aff.service.nom : '') }}
+                                    </div>
+                                </td>
+
+                                <!-- Dates clés -->
+                                <td>
+                                    <div class="fs-8">
+                                        <i class="bi bi-calendar-event me-1 text-muted"></i>
+                                        Effet : <strong>{{ aff.dateEffet|date('d/m/Y') }}</strong>
+                                    </div>
+                                    {% if aff.datePriseService %}
+                                        <div class="fs-8 text-success fw-semibold mt-1">
+                                            <i class="bi bi-check-circle-fill me-1"></i>
+                                            Prise : {{ aff.datePriseService|date('d/m/Y') }}
+                                        </div>
+                                    {% endif %}
+                                    {% if aff.dateFin %}
+                                        <div class="fs-8 text-muted mt-1">
+                                            Fin : {{ aff.dateFin|date('d/m/Y') }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Statut -->
+                                <td>
+                                    {% if aff.statut == 'ACTIVE' %}
+                                        <span class="badge badge-mci-success fs-8"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
+                                    {% elseif aff.statut == 'VALIDEE' %}
+                                        <span class="badge badge-mci-blue fs-8"><i class="bi bi-clock-history me-1"></i>Validée</span>
+                                    {% elseif aff.statut == 'PROPOSEE' %}
+                                        <span class="badge badge-mci-warning fs-8"><i class="bi bi-hourglass-split me-1"></i>Proposée</span>
+                                    {% elseif aff.statut == 'CLOTUREE' %}
+                                        <span class="badge bg-secondary text-white fs-8"><i class="bi bi-archive-fill me-1"></i>Clôturée</span>
+                                    {% elseif aff.statut == 'ANNULEE' %}
+                                        <span class="badge badge-mci-danger fs-8"><i class="bi bi-x-circle-fill me-1"></i>Annulée</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ path('app_affectation_show', {'id': aff.id}) }}" class="btn btn-icon btn-mci-light btn-sm" title="Détails du mouvement">
+                                            <i class="bi bi-eye-fill fs-6 text-mci-blue"></i>
+                                        </a>
+                                        {% if aff.statut == 'PROPOSEE' and is_granted('AFFECTATION_VALIDATE', aff) %}
+                                            <form method="post" action="{{ path('app_affectation_valider', {'id': aff.id}) }}" class="d-inline" onsubmit="return confirm('Valider ce mouvement ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('valider' ~ aff.id) }}">
+                                                <button type="submit" class="btn btn-icon btn-light-success btn-sm" title="Valider le mouvement">
+                                                    <i class="bi bi-check-lg fs-6"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        {% if (aff.statut == 'PROPOSEE' or aff.statut == 'VALIDEE') and is_granted('AFFECTATION_PRISE_SERVICE', aff) %}
+                                            <a href="{{ path('app_affectation_prise_service', {'id': aff.id}) }}" class="btn btn-icon btn-light-primary btn-sm" title="Confirmer la prise de service">
+                                                <i class="bi bi-person-check fs-6"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-10">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <div class="symbol symbol-75px symbol-circle mb-4" style="background-color: var(--mci-blue-subtle);">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-arrow-left-right fs-1 text-mci-blue"></i>
+                                            </span>
+                                        </div>
+                                        <h4 class="fw-bolder text-dark mb-1">Aucun mouvement ou affectation trouvé</h4>
+                                        <p class="text-muted fs-7 mb-4">Modifiez vos critères de recherche ou enregistrez une nouvelle décision administrative.</p>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_affectation_new') }}" class="btn btn-mci-primary btn-sm">
+                                                <i class="bi bi-plus-circle me-1"></i> Nouveau mouvement
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle demande d'autorisation d'absence — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-file-earmark-plus-fill text-mci-blue me-3"></i>
+        Nouvelle demande d'autorisation d'absence
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Dépôt réglementaire d'une absence exceptionnelle ou autorisation</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Temps & Absences</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_absence_index') }}" class="text-muted text-hover-primary">Autorisations d'absence</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Nouvelle demande</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_absence_index') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Retour à la liste</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'id': 'absence-form', 'class': 'needs-validation', 'novalidate': true}}) }}
+
+    <div class="row g-6">
+        <!-- Formulaire principal -->
+        <div class="col-lg-8">
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-pencil-square fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Détails de l'autorisation d'absence</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-5">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.employe.vars.id }}">
+                                <i class="bi bi-person-fill me-1 text-mci-blue"></i>Agent concerné *
+                            </label>
+                            {{ form_widget(form.employe, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.employe) }}
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.typeAbsence.vars.id }}">
+                                <i class="bi bi-tag-fill me-1 text-mci-blue"></i>Type d'absence / motif réglementaire *
+                            </label>
+                            {{ form_widget(form.typeAbsence, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.typeAbsence) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.dateDebut.vars.id }}">
+                                <i class="bi bi-calendar-event me-1 text-success"></i>Date de début *
+                            </label>
+                            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control form-control-solid fs-7'}}) }}
+                            {{ form_errors(form.dateDebut) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.dateFin.vars.id }}">
+                                <i class="bi bi-calendar-check me-1 text-danger"></i>Date de fin *
+                            </label>
+                            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control form-control-solid fs-7'}}) }}
+                            {{ form_errors(form.dateFin) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7 text-muted" for="{{ form.heureDebut.vars.id }}">
+                                <i class="bi bi-clock me-1 text-muted"></i>Heure de début (optionnel)
+                            </label>
+                            {{ form_widget(form.heureDebut, {'attr': {'class': 'form-control form-control-solid fs-7'}}) }}
+                            {{ form_errors(form.heureDebut) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7 text-muted" for="{{ form.heureFin.vars.id }}">
+                                <i class="bi bi-clock-history me-1 text-muted"></i>Heure de fin (optionnel)
+                            </label>
+                            {{ form_widget(form.heureFin, {'attr': {'class': 'form-control form-control-solid fs-7'}}) }}
+                            {{ form_errors(form.heureFin) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.unite.vars.id }}">
+                                <i class="bi bi-rulers me-1 text-mci-blue"></i>Unité de décompte *
+                            </label>
+                            {{ form_widget(form.unite, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                            {{ form_errors(form.unite) }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.duree.vars.id }}">
+                                <i class="bi bi-hourglass-split me-1 text-mci-blue"></i>Durée
+                            </label>
+                            {{ form_widget(form.duree, {'attr': {'class': 'form-control form-control-solid fs-7', 'placeholder': 'Calcul automatique si vide'}}) }}
+                            {{ form_errors(form.duree) }}
+                            <div class="text-muted fs-8 mt-1">Si non renseigné, la durée est calculée automatiquement selon les dates.</div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.motif.vars.id }}">
+                                <i class="bi bi-chat-text-fill me-1 text-mci-blue"></i>Motif / Justification circonstanciée *
+                            </label>
+                            {{ form_widget(form.motif, {'attr': {'class': 'form-control form-control-solid fs-7', 'rows': 3, 'placeholder': 'Précisez la situation ou l\'obligation justifiant l\'autorisation...'}}) }}
+                            {{ form_errors(form.motif) }}
+                        </div>
+
+                        {% if form.document is defined %}
+                            <div class="col-12">
+                                <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.document.vars.id }}">
+                                    <i class="bi bi-paperclip me-1 text-warning"></i>Pièce justificative (Documents RH de l'agent)
+                                </label>
+                                {{ form_widget(form.document, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                                {{ form_errors(form.document) }}
+                                <div class="text-muted fs-8 mt-1">Requis pour les examens/concours, convocations judiciaires ou motifs médicaux.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panneau latéral / Actions -->
+        <div class="col-lg-4">
+            <!-- Rappel institutionnel -->
+            <div class="card card-mci mb-6 p-6">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="symbol symbol-40px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-shield-check fs-3 text-mci-blue"></i>
+                        </span>
+                    </div>
+                    <div>
+                        <h5 class="fw-bolder text-dark mb-0 fs-6">Cadre réglementaire</h5>
+                        <span class="text-muted fs-8">Statut Général de la Fonction Publique</span>
+                    </div>
+                </div>
+                <p class="text-muted fs-7 mb-0">
+                    Les autorisations d'absence sont soumises à la validation hiérarchique et au respect des plafonds annuels par type d'événement.
+                </p>
+            </div>
+
+            <!-- Soumission -->
+            <div class="card card-mci p-6">
+                <div class="d-flex flex-column gap-3">
+                    <button type="submit" class="btn btn-mci-primary w-100 py-3">
+                        <i class="bi bi-send-check me-1"></i> Soumettre la demande
+                    </button>
+                    <a href="{{ path('app_absence_index') }}" class="btn btn-mci-light w-100">
+                        <i class="bi bi-x-lg me-1"></i> Annuler
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+</div>
+{% endblock %}

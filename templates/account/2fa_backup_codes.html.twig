@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Codes de Secours 2FA — PRIMATECH{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Header -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body py-5 px-6">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge badge-light-success fw-bold text-uppercase px-3 py-2">
+                    <i class="ki-outline ki-shield-tick fs-7 me-1 text-success"></i> 2FA Activée avec Succès
+                </span>
+            </div>
+            <h1 class="text-gray-900 fw-bolder fs-2 mb-1">Codes de Récupération & de Secours</h1>
+            <p class="text-gray-600 fs-7 mb-0">Ces codes à usage unique vous permettront de vous connecter en cas de perte de votre appareil d'authentification.</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card card-mci border-0 shadow-sm">
+                <div class="card-body p-8">
+                    <div class="alert alert-light-warning d-flex align-items-center p-4 mb-6 rounded">
+                        <i class="ki-outline ki-information-5 fs-2x text-warning me-3"></i>
+                        <div class="d-flex flex-column">
+                            <span class="fw-bolder text-gray-900">Important : Sauvegardez ces codes dès maintenant !</span>
+                            <span class="text-gray-700 fs-7">Ces codes ne seront <strong>plus jamais réaffichés</strong>. Conservez-les dans un gestionnaire de mots de passe ou imprimez-les en lieu sûr.</span>
+                        </div>
+                    </div>
+
+                    <!-- Backup codes container with .bg-light for test compatibility -->
+                    <div class="p-6 bg-light rounded text-center border my-6">
+                        <div class="row g-3">
+                            {% for code in backupCodes %}
+                                <div class="col-6 py-2">
+                                    <div class="p-2 bg-white rounded border border-dashed">
+                                        <code class="fs-5 fw-bolder text-gray-900 font-monospace letter-spacing-1">{{ code }}</code>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <p class="text-gray-600 fs-7 text-center mb-6">
+                        Chaque code est utilisable une seule fois. Vous pourrez régénérer une nouvelle série à tout moment depuis vos paramètres de sécurité.
+                    </p>
+
+                    <div class="text-center">
+                        <a href="{{ path('app_account_security') }}" class="btn btn-mci-primary">
+                            <i class="ki-outline ki-check-circle fs-6 me-1"></i> J'ai sauvegardé mes codes de secours
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

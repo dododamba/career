@@ -1,0 +1,139 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rapport de mission {{ mission.reference }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        <i class="bi bi-file-earmark-text-fill text-mci-blue me-3"></i>
+        Rapport de fin de mission
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">{{ mission.reference }} — {{ mission.destination }}</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Carrière & Mobilité</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_mission_index') }}" class="text-muted text-hover-primary">Missions</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_mission_show', {'id': mission.id}) }}" class="text-muted text-hover-primary">{{ mission.reference }}</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Rapport d'exécution</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_mission_show', {'id': mission.id}) }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-arrow-left fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Retour aux détails</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'id': 'rapport-form', 'class': 'needs-validation', 'novalidate': true}}) }}
+
+    <div class="row g-6">
+        <div class="col-lg-8">
+            <div class="card card-mci">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="bi bi-file-earmark-check-fill fs-2 text-mci-blue me-3"></i>
+                        <h3 class="fw-bolder text-dark mb-0 fs-4">Compte-rendu d'exécution</h3>
+                    </div>
+                </div>
+                <div class="card-body py-4">
+                    <div class="alert alert-mci alert-mci-info d-flex align-items-center p-4 mb-5">
+                        <i class="bi bi-info-circle-fill fs-3 text-info me-3"></i>
+                        <span class="fs-7 text-dark">
+                            Le rapport d'exécution doit décrire le déroulement des activités sur le terrain, les résultats obtenus au regard des termes de référence initiaux, les difficultés rencontrées et les recommandations formulées.
+                        </span>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.rapportTexte.vars.id }}">
+                            <i class="bi bi-card-text me-1 text-mci-blue"></i>Synthèse & Conclusions du rapport *
+                        </label>
+                        {{ form_widget(form.rapportTexte, {'attr': {'class': 'form-control form-control-solid fs-7', 'rows': 8, 'placeholder': 'Rédigez la synthèse des travaux, les conclusions et les recommandations...'}}) }}
+                        {{ form_errors(form.rapportTexte) }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bolder fs-7 text-dark" for="{{ form.documentRapport.vars.id }}">
+                            <i class="bi bi-paperclip me-1 text-warning"></i>Pièce jointe officielle (Rapport complet numérisé)
+                        </label>
+                        {{ form_widget(form.documentRapport, {'attr': {'class': 'form-select form-select-solid fs-7'}}) }}
+                        {{ form_errors(form.documentRapport) }}
+                        <div class="text-muted fs-8 mt-1">Si le rapport a été rédigé au format PDF/DOCX certifié, vous pouvez le rattacher directement depuis les documents de l'institution.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Rappel institutionnel -->
+            <div class="card card-mci mb-6 p-6">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="symbol symbol-40px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-shield-check fs-3 text-mci-blue"></i>
+                        </span>
+                    </div>
+                    <div>
+                        <h5 class="fw-bolder text-dark mb-0 fs-6">Obligation de rapportage</h5>
+                        <span class="text-muted fs-8">Article réglementaire régissant les missions</span>
+                    </div>
+                </div>
+                <p class="text-muted fs-7 mb-0">
+                    Le dépôt du rapport de mission est une condition préalable obligatoire pour la clôture administrative du dossier et la régularisation financière définitive des frais de mission.
+                </p>
+            </div>
+
+            <!-- Soumission -->
+            <div class="card card-mci p-6">
+                <div class="d-flex flex-column gap-3">
+                    <button type="submit" class="btn btn-mci-primary w-100 py-3">
+                        <i class="bi bi-check2-circle me-1"></i> Enregistrer le rapport
+                    </button>
+                    <a href="{{ path('app_mission_show', {'id': mission.id}) }}" class="btn btn-mci-light w-100">
+                        <i class="bi bi-x-lg me-1"></i> Annuler
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+</div>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail du service {{ service.nom }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Détail du service
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">{{ service.nom }}</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Administration</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_service_index') }}" class="text-muted text-hover-primary">Services</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">{{ service.nom }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    {% if is_granted('SERVICE_EDIT', service) %}
+        <a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-mci-primary me-2">
+            <i class="bi bi-pencil-square me-1"></i>Modifier
+        </a>
+    {% endif %}
+    <a href="{{ path('app_service_index') }}" class="btn btn-mci-light">
+        <i class="bi bi-arrow-left me-1"></i>Retour à la liste
+    </a>
+{% endblock %}
+
+{% block body %}
+<div class="row g-6">
+    <!--begin::Fiche Récapitulative du service-->
+    <div class="col-lg-5 col-xl-4">
+        <div class="card card-mci mb-6">
+            <div class="card-body p-8 text-center">
+                <div class="symbol symbol-80px symbol-circle mx-auto mb-4" style="background-color: var(--mci-blue-subtle);">
+                    <i class="bi bi-diagram-3-fill text-mci-blue fs-1"></i>
+                </div>
+                <h3 class="fs-2 fw-bolder text-dark mb-1">{{ service.nom }}</h3>
+                {% if service.code %}
+                    <span class="badge badge-mci badge-mci-blue fs-7 fw-bold mb-3">{{ service.code }}</span>
+                {% endif %}
+
+                <div class="d-flex justify-content-center flex-wrap gap-2 mb-6">
+                    {% if service.statut == 'ACTIVE' %}
+                        <span class="badge badge-mci badge-mci-active">Actif</span>
+                    {% elseif service.statut == 'INACTIVE' %}
+                        <span class="badge badge-mci badge-mci-inactive">Inactif</span>
+                    {% else %}
+                        <span class="badge badge-mci badge-mci-gold">Archivé</span>
+                    {% endif %}
+                    <span class="badge badge-mci badge-mci-blue">
+                        <i class="bi bi-people-fill me-1"></i>{{ service.employes|length }} agent(s)
+                    </span>
+                </div>
+
+                <div class="separator my-4 border-gray-200"></div>
+
+                <div class="text-start mb-4">
+                    <span class="text-muted fw-bold fs-8 text-uppercase d-block mb-1">Direction / Structure de rattachement :</span>
+                    {% if service.structure %}
+                        <div class="d-flex align-items-center bg-light p-3 rounded-2">
+                            <i class="bi bi-folder2-open text-primary fs-4 me-2"></i>
+                            <span class="fw-bold text-dark fs-7">{{ service.structure.nom }}</span>
+                        </div>
+                    {% else %}
+                        <span class="text-muted fs-7">Rattaché directement à l'institution centrale</span>
+                    {% endif %}
+                </div>
+
+                <div class="text-start mb-4">
+                    <span class="text-muted fw-bold fs-8 text-uppercase d-block mb-1">Responsable désigné :</span>
+                    {% if service.responsable %}
+                        <div class="d-flex align-items-center bg-light p-3 rounded-2">
+                            <div class="symbol symbol-35px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                <span class="symbol-label text-mci-blue fw-bold fs-7">
+                                    {{ service.responsable.nom|first }}{{ service.responsable.prenom|first }}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="fw-bold text-dark fs-7 d-block">{{ service.responsable.nom }} {{ service.responsable.prenom }}</span>
+                                <span class="text-muted fs-8">Matricule: {{ service.responsable.matricule|default('N/A') }}</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="badge badge-mci badge-mci-inactive fs-8">Aucun responsable affecté</span>
+                    {% endif %}
+                </div>
+
+                <div class="text-start">
+                    <span class="text-muted fw-bold fs-8 text-uppercase d-block mb-1">Attributions et missions :</span>
+                    <p class="text-gray-800 fs-7 bg-light p-4 rounded-2 mb-0" style="white-space: pre-line;">
+                        {{ service.description|default('Aucune description détaillée enregistrée pour ce service.') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end::Fiche Récapitulative-->
+
+    <!--begin::Personnel affecté au service-->
+    <div class="col-lg-7 col-xl-8">
+        <div class="card card-mci">
+            <div class="card-header border-0 pt-6 pb-6 d-flex align-items-center justify-content-between">
+                <div class="card-title d-flex align-items-center">
+                    <i class="bi bi-people text-mci-blue fs-2 me-2"></i>
+                    <h3 class="fs-4 fw-bolder text-dark mb-0">Agents affectés à ce service</h3>
+                </div>
+                <span class="badge badge-mci badge-mci-blue fs-7 fw-bold">
+                    {{ service.employes|length }} agent(s)
+                </span>
+            </div>
+
+            <div class="card-body pt-0">
+                {% if service.employes is not empty %}
+                    <div class="table-responsive">
+                        <table class="table table-mci align-middle table-row-dashed fs-6 gy-3">
+                            <thead>
+                                <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0">
+                                    <th>Agent</th>
+                                    <th>Fonction</th>
+                                    <th>Statut</th>
+                                    <th class="text-end">Fiche</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employe in service.employes %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="symbol symbol-35px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                                    <span class="symbol-label text-mci-blue fw-bold fs-7">
+                                                        {{ employe.nom|first }}{{ employe.prenom|first }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <a href="{{ path('app_employe_show', {'id': employe.id}) }}" class="text-dark fw-bold text-hover-primary">
+                                                        {{ employe.nom }} {{ employe.prenom }}
+                                                    </a>
+                                                    <div class="text-muted fs-8">Matricule: {{ employe.matricule|default('N/A') }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-gray-800 fs-7">
+                                                {{ employe.fonction ? employe.fonction.libelle : '— Non définie —' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if employe.actif %}
+                                                <span class="badge badge-mci badge-mci-active fs-8">Actif</span>
+                                            {% else %}
+                                                <span class="badge badge-mci badge-mci-inactive fs-8">Inactif</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{{ path('app_employe_show', {'id': employe.id}) }}" class="btn btn-sm btn-icon btn-mci-light btn-action-icon" data-bs-toggle="tooltip" title="Voir l'agent">
+                                                <i class="bi bi-person-badge text-primary"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-10">
+                        <i class="bi bi-people text-muted fs-3x mb-3 d-block"></i>
+                        <h5 class="text-dark fw-bold mb-1">Aucun agent dans ce service</h5>
+                        <p class="text-muted fs-7 mb-0">Aucun membre du personnel n'est actuellement rattaché à cette unité.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!--end::Personnel affecté-->
+</div>
+{% endblock %}

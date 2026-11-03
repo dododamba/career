@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Journal d'audit et de sécurité{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12 mb-3">
+            <h2 class="h4 font-weight-bold text-gray-800">
+                <i class="fa fa-history text-primary me-2"></i> Journal d'audit et de sécurité
+            </h2>
+            <p class="text-muted small">
+                Traçabilité des événements d'authentification, de sécurité et des activités administratives.
+            </p>
+        </div>
+    </div>
+
+    <!-- Événements de sécurité IAM -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center bg-light">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fa fa-shield me-1"></i> Événements de sécurité IAM (Connexions, Mots de passe, MFA, Rôles)
+                    </h6>
+                    <span class="badge bg-primary text-white">{{ securityLogs|length }} événements</span>
+                </div>
+                <div class="card-body">
+                    {% if securityLogs is empty %}
+                        <div class="text-center py-4">
+                            <i class="fa fa-lock fa-3x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">Aucun événement de sécurité enregistré pour le moment.</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date & Heure</th>
+                                        <th>Identifiant</th>
+                                        <th>Événement</th>
+                                        <th>Description</th>
+                                        <th>Adresse IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in securityLogs %}
+                                        <tr>
+                                            <td>
+                                                <small class="text-muted">{{ log.createdAt|date('d/m/Y H:i:s') }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="fw-semibold small">
+                                                    {{ log.user ? log.user.fullName ~ ' (' ~ log.userIdentifier ~ ')' : log.userIdentifier }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% set badgeClass = 'bg-secondary' %}
+                                                {% if 'SUCCESS' in log.event or 'ENABLED' in log.event or 'COMPLETED' in log.event %}
+                                                    {% set badgeClass = 'bg-success' %}
+                                                {% elseif 'FAILURE' in log.event or 'DISABLED' in log.event %}
+                                                    {% set badgeClass = 'bg-danger' %}
+                                                {% elseif 'REQUESTED' in log.event or 'CHANGED' in log.event %}
+                                                    {% set badgeClass = 'bg-warning text-dark' %}
+                                                {% endif %}
+                                                <span class="badge {{ badgeClass }} text-white">
+                                                    {{ log.eventLabel }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small>{{ log.description ?: '-' }}</small>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted font-monospace">{{ log.ipAddress ?: '-' }}</small>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activités des congés -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center bg-light">
+                    <h6 class="m-0 font-weight-bold text-secondary">
+                        <i class="fa fa-calendar-check-o me-1"></i> Activités métier (Demandes et validations de congés)
+                    </h6>
+                    <span class="badge bg-secondary text-white">{{ congesLogs|length }} enregistrements</span>
+                </div>
+                <div class="card-body">
+                    {% if congesLogs is empty %}
+                        <div class="text-center py-4">
+                            <i class="fa fa-clipboard-list fa-3x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">Aucune activité de congé enregistrée.</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date & Heure</th>
+                                        <th>Utilisateur</th>
+                                        <th>Action</th>
+                                        <th>Description</th>
+                                        <th>Contexte</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in congesLogs %}
+                                        <tr>
+                                            <td><small class="text-muted">{{ log.createdAt|date('d/m/Y H:i:s') }}</small></td>
+                                            <td><span class="fw-semibold small">{{ log.user ? log.user.fullName : 'Système' }}</span></td>
+                                            <td><span class="badge bg-secondary text-white">{{ log.actionLabel ?: log.action }}</span></td>
+                                            <td><small>{{ log.description ?: '-' }}</small></td>
+                                            <td>
+                                                {% if log.conges is defined and log.conges and log.conges.employe is defined and log.conges.employe %}
+                                                    <span class="small text-muted">
+                                                        Congé #{{ log.conges.id }} ({{ log.conges.employe.nomComplet }})
+                                                    </span>
+                                                {% else %}
+                                                    <span class="small text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,327 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Postes & Nomenclature RH — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Gestion des Postes & Nomenclature RH
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Catalogue des emplois et cartographie des postes de travail</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Organisation</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Postes</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_poste_vacants') }}" class="btn btn-mci-secondary btn-sm">
+            <i class="bi bi-door-open fs-5"></i>
+            <span class="d-none d-sm-inline">Postes vacants ({{ stats.vacants }})</span>
+        </a>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_poste_new') }}" class="btn btn-mci-primary btn-sm">
+                <i class="bi bi-plus-lg fs-5"></i>
+                <span class="d-none d-sm-inline">Nouveau poste</span>
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- KPIs Row -->
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Postes</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.total }}</span>
+                        <span class="fs-8 text-muted">
+                            <i class="bi bi-briefcase me-1 text-mci-blue"></i>
+                            {{ stats.actifs }} postes actifs
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-briefcase-fill fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Postes Occupés</span>
+                        <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.occupes }}</span>
+                        <span class="fs-8 text-success fw-semibold">
+                            <i class="bi bi-person-check-fill me-1"></i>
+                            Titulaires en fonction
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle bg-light-success">
+                        <span class="symbol-label">
+                            <i class="bi bi-person-check-fill fs-2 text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Postes Vacants</span>
+                        <span class="fs-2hx fw-bolder text-warning mb-1">{{ stats.vacants }}</span>
+                        <span class="fs-8 text-warning fw-semibold">
+                            <i class="bi bi-door-open me-1"></i>
+                            À pourvoir / Recrutement
+                        </span>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle" style="background-color: var(--mci-gold-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-door-open-fill fs-2 text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-6">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex flex-column w-100">
+                        <span class="fs-7 fw-bolder text-muted text-uppercase tracking-wide mb-1">Taux d'Occupation</span>
+                        <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.tauxOccupation }}%</span>
+                        <div class="progress w-100 h-6px bg-light rounded-pill mt-2">
+                            <div class="progress-bar rounded-pill" 
+                                 style="width: {{ stats.tauxOccupation }}%; background-color: var(--mci-blue);" 
+                                 role="progressbar"></div>
+                        </div>
+                    </div>
+                    <div class="symbol symbol-50px symbol-circle ms-3" style="background-color: var(--mci-blue-subtle);">
+                        <span class="symbol-label">
+                            <i class="bi bi-pie-chart-fill fs-2 text-mci-blue"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres de recherche -->
+    <div class="card card-mci">
+        <div class="card-body p-6">
+            <form method="get" action="{{ path('app_poste_index') }}" class="row g-4 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fs-7 fw-bold text-dark mb-2">Recherche par mot-clé</label>
+                    <div class="position-relative">
+                        <i class="bi bi-search fs-5 position-absolute ms-3 top-50 translate-middle-y text-muted"></i>
+                        <input type="text" name="q" value="{{ currentQuery }}" class="form-control form-control-mci ps-10" placeholder="Intitulé, référence, nom d'agent...">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fs-7 fw-bold text-dark mb-2">Statut du poste</label>
+                    <select name="statut" class="form-select form-control-mci">
+                        <option value="ALL">Tous les statuts</option>
+                        <option value="VACANT" {{ currentStatut == 'VACANT' ? 'selected' : '' }}>Vacant (Disponible)</option>
+                        <option value="OCCUPE" {{ currentStatut == 'OCCUPE' ? 'selected' : '' }}>Occupé</option>
+                        <option value="SUSPENDU" {{ currentStatut == 'SUSPENDU' ? 'selected' : '' }}>Suspendu</option>
+                        <option value="FERME" {{ currentStatut == 'FERME' ? 'selected' : '' }}>Fermé</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fs-7 fw-bold text-dark mb-2">Structure de rattachement</label>
+                    <select name="structure_id" class="form-select form-control-mci">
+                        <option value="0">Toutes les structures</option>
+                        {% for st in structures %}
+                            <option value="{{ st.id }}" {{ currentStructure == st.id ? 'selected' : '' }}>{{ st.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-mci-primary w-100">
+                        <i class="bi bi-funnel fs-5"></i>
+                        <span>Filtrer</span>
+                    </button>
+                    {% if currentQuery or currentStatut or currentStructure %}
+                        <a href="{{ path('app_poste_index') }}" class="btn btn-mci-ghost" title="Réinitialiser">
+                            <i class="bi bi-arrow-counterclockwise fs-5"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Catalogue des postes -->
+    <div class="card card-mci">
+        <div class="card-header border-0 pt-6 pb-6 d-flex flex-wrap align-items-center justify-content-between gap-4">
+            <h3 class="card-title align-items-start flex-column mb-0">
+                <span class="card-label fw-bolder fs-4 text-dark">Catalogue des Postes de Travail</span>
+                <span class="text-muted mt-1 fw-semibold fs-7">Cartographie des compétences et effectifs pour {{ institution ? institution.nom : 'l\'organisation' }}</span>
+            </h3>
+            <span class="badge badge-mci badge-mci-blue fs-7 fw-bold px-3 py-2">
+                <i class="bi bi-briefcase me-1"></i>
+                {{ postes|length }} poste(s) affiché(s)
+            </span>
+        </div>
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table class="table table-mci align-middle table-row-dashed fs-6 gy-4">
+                    <thead>
+                        <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0">
+                            <th class="min-w-220px ps-4">Référence & Intitulé</th>
+                            <th class="min-w-180px">Structure / Service</th>
+                            <th class="min-w-120px">Niveau</th>
+                            <th class="min-w-120px text-center">Statut</th>
+                            <th class="min-w-180px">Occupant Actuel</th>
+                            <th class="min-w-120px text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 fw-semibold">
+                        {% for p in postes %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-40px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
+                                            <span class="symbol-label text-mci-blue fw-bold fs-6">
+                                                <i class="bi bi-briefcase text-mci-blue fs-5"></i>
+                                            </span>
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <a href="{{ path('app_poste_show', {'id': p.id}) }}" class="text-dark text-hover-primary fw-bolder fs-6">
+                                                {{ p.intitule }}
+                                            </a>
+                                            <div class="d-flex align-items-center gap-2 mt-1">
+                                                <span class="badge bg-light text-dark fs-8 fw-bold">{{ p.reference }}</span>
+                                                {% if p.fonction %}
+                                                    <span class="text-muted fs-8">{{ p.fonction.libelle }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-dark fw-bold fs-7">
+                                            {{ p.structure ? p.structure.nom : '<span class="text-muted fst-italic">Non rattaché</span>'|raw }}
+                                        </span>
+                                        {% if p.service %}
+                                            <span class="text-muted fs-8"><i class="bi bi-building me-1"></i>{{ p.service.nom }}</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark fs-8 fw-semibold">{{ p.niveau ?: 'Cadre' }}</span>
+                                </td>
+                                <td class="text-center">
+                                    {% if p.statut == 'OCCUPE' and p.occupantActuel %}
+                                        <span class="badge badge-mci badge-mci-green px-3 py-1 fs-8 fw-bold">
+                                            <i class="bi bi-check-circle me-1"></i>Occupé
+                                        </span>
+                                    {% elseif p.statut == 'SUSPENDU' %}
+                                        <span class="badge bg-light text-muted px-3 py-1 fs-8 fw-semibold">
+                                            <i class="bi bi-pause-circle me-1"></i>Suspendu
+                                        </span>
+                                    {% elseif p.statut == 'FERME' %}
+                                        <span class="badge badge-mci badge-mci-red px-3 py-1 fs-8 fw-bold">
+                                            <i class="bi bi-x-circle me-1"></i>Fermé
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-mci badge-mci-gold px-3 py-1 fs-8 fw-bold">
+                                            <i class="bi bi-door-open me-1"></i>Vacant
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.occupantActuel %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="symbol symbol-35px symbol-circle me-2" style="background-color: var(--mci-blue-subtle);">
+                                                <span class="symbol-label text-mci-blue fw-bold fs-8">
+                                                    {{ p.occupantActuel.prenom|slice(0, 1)|upper }}{{ p.occupantActuel.nom|slice(0, 1)|upper }}
+                                                </span>
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <a href="{{ path('app_employe_show', {'id': p.occupantActuel.id}) }}" class="text-dark text-hover-primary fw-bold fs-7">
+                                                    {{ p.occupantActuel.nomComplet }}
+                                                </a>
+                                                <span class="text-muted fs-8">{{ p.occupantActuel.matricule }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted fs-8 fst-italic">
+                                            <i class="bi bi-dash-circle me-1"></i>Aucun titulaire
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-1">
+                                        <a href="{{ path('app_poste_show', {'id': p.id}) }}" 
+                                           class="btn btn-sm btn-icon btn-mci-ghost" 
+                                           title="Fiche de Poste 360°" 
+                                           data-bs-toggle="tooltip">
+                                            <i class="bi bi-eye fs-5"></i>
+                                        </a>
+                                        <a href="{{ path('app_poste_affecter', {'id': p.id}) }}" 
+                                           class="btn btn-sm btn-icon btn-mci-ghost" 
+                                           title="Affecter un agent" 
+                                           data-bs-toggle="tooltip">
+                                            <i class="bi bi-person-plus fs-5 text-success"></i>
+                                        </a>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_poste_edit', {'id': p.id}) }}" 
+                                               class="btn btn-sm btn-icon btn-mci-ghost" 
+                                               title="Modifier" 
+                                               data-bs-toggle="tooltip">
+                                                <i class="bi bi-pencil fs-5"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-10 text-muted">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <div class="symbol symbol-65px symbol-circle mb-4" style="background-color: var(--mci-blue-subtle);">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-briefcase fs-2hx text-mci-blue"></i>
+                                            </span>
+                                        </div>
+                                        <h4 class="text-dark fw-bold mb-2">Aucun poste trouvé</h4>
+                                        <p class="text-muted fs-6 mb-4">Aucun poste ne correspond aux critères de recherche actuels.</p>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_poste_new') }}" class="btn btn-mci-primary">
+                                                <i class="bi bi-plus-lg fs-5"></i>
+                                                <span>Créer le premier poste</span>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

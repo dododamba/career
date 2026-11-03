@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un Compte Utilisateur — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Créer un Compte Utilisateur
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Ouverture d'accès applicatif</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_user_index') }}" class="text-muted text-hover-primary">Utilisateurs</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Nouveau compte</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('app_user_index') }}" class="btn btn-sm btn-light">
+        <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour à la liste
+    </a>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        <div class="card card-flush border-0 shadow-sm">
+            <div class="card-header pt-6">
+                <div class="card-title">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-45px symbol-circle me-3 bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-user-plus fs-2 text-primary">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                            </i>
+                        </div>
+                        <div>
+                            <h2 class="fs-4 fw-bold text-gray-900 mb-0">Création de Compte</h2>
+                            <span class="text-muted fs-7">Renseignez l'identité et les autorisations de l'utilisateur</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body pt-5">
+                <div class="alert alert-light-primary d-flex align-items-center p-4 border border-primary border-dashed rounded mb-6">
+                    <i class="ki-duotone ki-information-5 fs-2x text-primary me-3">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                    </i>
+                    <div class="fs-7 text-gray-800">
+                        La création d'un compte utilisateur génère automatiquement un dossier d'agent associé dans l'institution 
+                        <strong class="text-gray-900">{{ institution ? institution.nom : 'MCI' }}</strong>.
+                    </div>
+                </div>
+
+                {{ form_start(form, {'attr': {'class': 'form d-flex flex-column gap-6'}}) }}
+
+                <div class="row g-5">
+                    <div class="col-md-6">
+                        <label class="form-label required fw-semibold fs-6 text-gray-700">Prénom</label>
+                        {{ form_widget(form.firstname, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Prénom'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.firstname) }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required fw-semibold fs-6 text-gray-700">Nom de famille</label>
+                        {{ form_widget(form.lastname, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Nom'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.lastname) }}</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label required fw-semibold fs-6 text-gray-700">Adresse email professionnelle</label>
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'prenom.nom@commerce.gouv.td'}}) }}
+                    <div class="text-danger fs-7 mt-1">{{ form_errors(form.email) }}</div>
+                </div>
+
+                {% if form.password is defined %}
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <label class="form-label required fw-semibold fs-6 text-gray-700">Mot de passe</label>
+                            {{ form_widget(form.password.first, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Mot de passe sécurisé'}}) }}
+                            <div class="text-danger fs-7 mt-1">{{ form_errors(form.password.first) }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required fw-semibold fs-6 text-gray-700">Confirmation du mot de passe</label>
+                            {{ form_widget(form.password.second, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Répétez le mot de passe'}}) }}
+                            <div class="text-danger fs-7 mt-1">{{ form_errors(form.password.second) }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="row g-5">
+                    {% if form.roles is defined %}
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold fs-6 text-gray-700">Rôles et autorisations</label>
+                            {{ form_widget(form.roles, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                            <div class="text-danger fs-7 mt-1">{{ form_errors(form.roles) }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if form.isVerified is defined %}
+                        <div class="col-md-4 d-flex align-items-center">
+                            <div class="form-check form-switch form-check-custom form-check-solid mt-6">
+                                {{ form_widget(form.isVerified, {'attr': {'class': 'form-check-input h-25px w-45px'}}) }}
+                                <label class="form-check-label fw-semibold text-gray-800 fs-7 ms-2" for="{{ form.isVerified.vars.id }}">
+                                    Compte vérifié
+                                </label>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.image is defined %}
+                    <div>
+                        <label class="form-label fw-semibold fs-6 text-gray-700">Photo de profil</label>
+                        {{ form_widget(form.image, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.image) }}</div>
+                    </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-end gap-3 pt-4 border-top">
+                    <a href="{{ path('app_user_index') }}" class="btn btn-light">Annuler</a>
+                    <button type="submit" class="btn btn-mci-primary">
+                        <i class="ki-duotone ki-check fs-4 me-1"></i> Créer l'utilisateur
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

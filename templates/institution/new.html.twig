@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Institution{% endblock %}
+
+{% block body %}
+
+	<div
+		class="card">
+		<!--begin::Card header-->
+		<div
+			class="card-header border-0 pt-6">
+			<!--begin::Card title-->
+			<div
+				class="card-title">
+				<!--begin::Search-->
+				<div></div>
+				<!--end::Search-->
+			</div>
+
+		</div>
+
+		<div class="card-body pt-0">
+
+
+    {{ include('institution/_form.html.twig') }}
+
+		</div>
+	</div>
+
+
+{% endblock %}

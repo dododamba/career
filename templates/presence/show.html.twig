@@ -1,0 +1,148 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail Présence #{{ presence.id }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Fiche de Présence #{{ presence.id }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Détails d'enregistrement au registre</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_presence_index') }}" class="text-muted text-hover-primary">Registre</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Présence #{{ presence.id }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_presence_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour au registre
+        </a>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_presence_edit', {'id': presence.id}) }}" class="btn btn-sm btn-mci-primary">
+                <i class="ki-duotone ki-pencil fs-4 me-1"></i> Modifier
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card card-flush border-0 shadow-sm">
+            <div class="card-header pt-6">
+                <div class="card-title">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-50px symbol-circle me-4 bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-calendar-tick fs-1 text-primary">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                        </div>
+                        <div>
+                            <h2 class="fs-4 fw-bold text-gray-900 mb-1">
+                                {{ presence.employe ? presence.employe.nomComplet : 'Présence Collaborateur' }}
+                            </h2>
+                            <span class="text-muted fs-7">
+                                Date : {{ presence.datePresence ? presence.datePresence|date('d/m/Y') : 'Non renseignée' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-toolbar">
+                    {% if presence.statut %}
+                        <span class="badge badge-light-success fs-7 fw-bold py-2 px-3">
+                            <i class="ki-duotone ki-check fs-6 text-success me-1"></i> Validé
+                        </span>
+                    {% else %}
+                        <span class="badge badge-light-warning fs-7 fw-bold py-2 px-3">
+                            <i class="ki-duotone ki-timer fs-6 text-warning me-1"></i> En attente
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-body pt-4">
+                <div class="table-responsive">
+                    <table class="table align-middle table-row-bordered fs-6 gy-4 mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted min-w-150px">Numéro d'enregistrement</td>
+                                <td class="fw-bold text-gray-900">#{{ presence.id }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Agent associé</td>
+                                <td class="fw-bold text-gray-900">
+                                    {{ presence.employe ? presence.employe.nomComplet : 'Non assigné' }}
+                                    {% if presence.employe and presence.employe.matricule %}
+                                        <span class="text-muted fs-8 ms-2">({{ presence.employe.matricule }})</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Date de présence</td>
+                                <td class="text-gray-900">
+                                    <i class="ki-duotone ki-calendar fs-6 text-primary me-2"></i>
+                                    {{ presence.datePresence ? presence.datePresence|date('d/m/Y') : '—' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Heure d'entrée</td>
+                                <td>
+                                    {% if presence.heureEntree %}
+                                        <span class="badge badge-light-success font-monospace fw-bold fs-7">
+                                            {{ presence.heureEntree|date('H:i:s') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Heure de sortie</td>
+                                <td>
+                                    {% if presence.heureSortie %}
+                                        <span class="badge badge-light-primary font-monospace fw-bold fs-7">
+                                            {{ presence.heureSortie|date('H:i:s') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Statut opposable</td>
+                                <td>
+                                    {{ presence.statut ? 'Présence certifiée conforme' : 'En attente de certification' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-6 mt-4 border-top">
+                    <a href="{{ path('app_presence_index') }}" class="btn btn-light">
+                        <i class="ki-duotone ki-arrow-left fs-5 me-1"></i> Retour au registre
+                    </a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        {{ include('presence/_delete_form.html.twig') }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

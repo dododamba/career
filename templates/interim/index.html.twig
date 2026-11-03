@@ -1,0 +1,297 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Intérim & Délégations — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-dark fw-bolder fs-2 my-1">
+        Intérim & Délégations
+        <span class="h-20px border-gray-300 border-start ms-3 mx-2 d-none d-md-inline"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Continuité de service public, suppléance et délégations officielles</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">Carrière & Mobilité</li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-dark fw-bold">Intérim & Délégations</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_interim_new') }}" class="btn btn-mci-primary btn-sm">
+            <i class="bi bi-plus-circle fs-5 me-1"></i>
+            <span class="d-none d-sm-inline">Désigner un intérimaire</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-mci alert-mci-{{ label == 'error' or label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} d-flex align-items-center p-5 mb-2" role="alert">
+                <i class="bi bi-{{ label == 'error' or label == 'danger' ? 'exclamation-octagon-fill text-danger' : (label == 'warning' ? 'exclamation-triangle-fill text-warning' : 'check-circle-fill text-success') }} fs-2 me-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold">{{ message }}</span>
+                </div>
+                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                    <i class="bi bi-x fs-2"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- 4 Cartes Statistiques / KPIs -->
+    <div class="row g-4 g-xl-6">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Total Intérims</span>
+                <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.total }}</span>
+                <span class="fs-9 text-muted">désignations enregistrées</span>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5 border-start border-4 border-success">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Actifs (En cours)</span>
+                <span class="fs-2hx fw-bolder text-success mb-1">{{ stats.actifs }}</span>
+                <span class="fs-9 text-success fw-semibold">délégations actives</span>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">En attente</span>
+                <span class="fs-2hx fw-bolder text-warning mb-1">{{ stats.soumis }}</span>
+                <span class="fs-9 text-warning fw-semibold">à valider</span>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-mci h-100 p-5">
+                <span class="fs-8 fw-bolder text-muted text-uppercase tracking-wide mb-1">Terminés / Échus</span>
+                <span class="fs-2hx fw-bolder text-dark mb-1">{{ stats.termines }}</span>
+                <span class="fs-9 text-muted">historique des clôtures</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres de recherche -->
+    <div class="card card-mci">
+        <div class="card-body p-6">
+            <form method="GET" action="{{ path('app_interim_index') }}" class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <select name="status" class="form-select form-select-solid fs-7">
+                        <option value="all">Tous les statuts</option>
+                        <option value="0" {% if current_status is defined and current_status == '0' %}selected{% endif %}>Brouillon</option>
+                        <option value="1" {% if current_status is defined and current_status == '1' %}selected{% endif %}>En attente de validation</option>
+                        <option value="2" {% if current_status is defined and current_status == '2' %}selected{% endif %}>Actif (En cours)</option>
+                        <option value="3" {% if current_status is defined and current_status == '3' %}selected{% endif %}>Terminé / Échu</option>
+                        <option value="4" {% if current_status is defined and current_status == '4' %}selected{% endif %}>Révoqué</option>
+                        <option value="5" {% if current_status is defined and current_status == '5' %}selected{% endif %}>Refusé</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <select name="agent" class="form-select form-select-solid fs-7">
+                        <option value="">Tous les agents</option>
+                        {% for emp in employees %}
+                            <option value="{{ emp.id }}" {% if current_agent is defined and current_agent == emp.id %}selected{% endif %}>
+                                {{ emp.nomComplet }} ({{ emp.matricule }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <select name="type" class="form-select form-select-solid fs-7">
+                        <option value="all">Tous les types</option>
+                        <option value="INTERIM_TOTAL" {% if current_type is defined and current_type == 'INTERIM_TOTAL' %}selected{% endif %}>Intérim total</option>
+                        <option value="DELEGATION_SIGNATURE" {% if current_type is defined and current_type == 'DELEGATION_SIGNATURE' %}selected{% endif %}>Délégation de signature</option>
+                        <option value="DELEGATION_POUVOIR" {% if current_type is defined and current_type == 'DELEGATION_POUVOIR' %}selected{% endif %}>Délégation de pouvoir</option>
+                        <option value="GESTION_COURANTE" {% if current_type is defined and current_type == 'GESTION_COURANTE' %}selected{% endif %}>Affaires courantes</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="position-relative">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y ms-4 text-muted fs-6"></i>
+                        <input type="text" name="search" value="{{ search ?? '' }}" class="form-control form-control-solid ps-12 fs-7" placeholder="Réf, motif, agent, poste...">
+                    </div>
+                </div>
+
+                <div class="col-md-1 d-flex gap-2">
+                    <button type="submit" class="btn btn-mci-primary btn-sm flex-grow-1" title="Filtrer">
+                        <i class="bi bi-funnel-fill"></i>
+                    </button>
+                    <a href="{{ path('app_interim_index') }}" class="btn btn-mci-secondary btn-sm" title="Réinitialiser">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table des Intérims -->
+    <div class="card card-mci">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title">
+                <i class="bi bi-shield-lock-fill fs-2 text-mci-blue me-3"></i>
+                <h3 class="fw-bolder text-dark mb-0 fs-4">Registres des Intérims & Délégations ({{ total }})</h3>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-row-dashed align-middle mb-0 gs-5 gy-4">
+                    <thead>
+                        <tr class="text-start text-muted fw-bolder fs-7 text-uppercase gs-0 bg-light">
+                            <th class="ps-6">Réf. & Type</th>
+                            <th>Titulaire remplacé</th>
+                            <th>Intérimaire désigné</th>
+                            <th>Poste / Structure</th>
+                            <th>Période & Durée</th>
+                            <th>Périmètre délégué</th>
+                            <th>Statut</th>
+                            <th>Décision officielle</th>
+                            <th class="text-end pe-6">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fs-7 fw-semibold text-gray-600">
+                        {% for interim in interims %}
+                            <tr>
+                                <td class="ps-6">
+                                    <a href="{{ path('app_interim_show', {'id': interim.id}) }}" class="fw-bolder text-dark text-hover-primary fs-6">
+                                        {{ interim.reference }}
+                                    </a>
+                                    <div class="mt-1">
+                                        <span class="badge badge-light-secondary fs-8">{{ interim.typeDelegationLabel }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-35px symbol-circle me-3" style="background-color: #fee2e2;">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-person-x-fill text-danger fs-5"></i>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <a href="{{ path('app_employe_show', {'id': interim.titulaire.id}) }}" class="fw-bold text-dark text-hover-primary">
+                                                {{ interim.titulaire.nomComplet }}
+                                            </a>
+                                            <div class="text-muted fs-8 font-monospace">{{ interim.titulaire.matricule }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-35px symbol-circle me-3" style="background-color: #dcfce7;">
+                                            <span class="symbol-label">
+                                                <i class="bi bi-person-check-fill text-success fs-5"></i>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <a href="{{ path('app_employe_show', {'id': interim.interimaire.id}) }}" class="fw-bold text-mci-blue text-hover-primary">
+                                                {{ interim.interimaire.nomComplet }}
+                                            </a>
+                                            <div class="text-muted fs-8 font-monospace">{{ interim.interimaire.matricule }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ interim.poste ? interim.poste.titre : (interim.titulaire.fonction ? interim.titulaire.fonction.libelle : 'Non spécifié') }}</div>
+                                    <div class="text-muted fs-8">{{ interim.structure ? interim.structure.nom : (interim.titulaire.structure ? interim.titulaire.structure.nom : '-') }}</div>
+                                </td>
+                                <td>
+                                    <div class="text-dark">
+                                        {{ interim.dateDebut ? interim.dateDebut|date('d/m/Y') : '' }}
+                                        <i class="bi bi-arrow-right text-muted mx-1 fs-8"></i>
+                                        {{ interim.dateFin ? interim.dateFin|date('d/m/Y') : '' }}
+                                    </div>
+                                    <span class="badge badge-light-secondary fs-8 mt-1">{{ interim.dureeEnJours }} jour(s)</span>
+                                </td>
+                                <td>
+                                    {% if interim.hasPouvoir('TOUS_POUVOIRS') %}
+                                        <span class="badge badge-light-primary fs-8">Plein pouvoir</span>
+                                    {% else %}
+                                        <span class="badge badge-light-secondary fs-8">{{ interim.perimetre|length }} pouvoir(s)</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% set badge = interim.statutBadge %}
+                                    <span class="badge bg-{{ badge.class }}">{{ badge.label }}</span>
+                                </td>
+                                <td>
+                                    {% if interim.acte %}
+                                        <a href="{{ path('app_acte_show', {'id': interim.acte.id}) }}" class="badge badge-light-success text-hover-success fs-8">
+                                            <i class="bi bi-file-earmark-check-fill me-1"></i> {{ interim.acte.numero }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted fs-8">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-6">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ path('app_interim_show', {'id': interim.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Consulter la fiche">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                        {% if is_granted('INTERIM_EDIT', interim) %}
+                                            <a href="{{ path('app_interim_edit', {'id': interim.id}) }}" class="btn btn-icon btn-mci-secondary btn-sm" title="Modifier">
+                                                <i class="bi bi-pencil-square text-warning"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center py-10 text-muted">
+                                    <div class="symbol symbol-60px symbol-circle mx-auto mb-3" style="background-color: var(--mci-blue-subtle);">
+                                        <span class="symbol-label">
+                                            <i class="bi bi-shield-lock fs-1 text-mci-blue"></i>
+                                        </span>
+                                    </div>
+                                    <div class="fw-bolder fs-5 text-dark">Aucun intérim ou délégation trouvé</div>
+                                    <div class="fs-7 text-muted mt-1 mb-4">Créez une première désignation pour assurer la continuité des fonctions administratives.</div>
+                                    <a href="{{ path('app_interim_new') }}" class="btn btn-mci-primary btn-sm">
+                                        <i class="bi bi-plus-circle me-1"></i> Désigner un intérimaire
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if pages_count > 1 %}
+                <div class="d-flex justify-content-between align-items-center p-6 border-top">
+                    <span class="text-muted fs-7">Page {{ page }} sur {{ pages_count }} (Total : {{ total }} intérims)</span>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                                <a class="page-link" href="{{ path('app_interim_index', app.request.query.all|merge({'page': page - 1})) }}">Précédent</a>
+                            </li>
+                            {% for p in 1..pages_count %}
+                                <li class="page-item {% if p == page %}active{% endif %}">
+                                    <a class="page-link" href="{{ path('app_interim_index', app.request.query.all|merge({'page': p})) }}">{{ p }}</a>
+                                </li>
+                            {% endfor %}
+                            <li class="page-item {% if page >= pages_count %}disabled{% endif %}">
+                                <a class="page-link" href="{{ path('app_interim_index', app.request.query.all|merge({'page': page + 1})) }}">Suivant</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

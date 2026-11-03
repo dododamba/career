@@ -1,0 +1,110 @@
+{{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+
+<div class="alert alert-info mb-4 d-flex align-items-center">
+    <i class="fas fa-info-circle fs-3 me-3 text-info"></i>
+    <div>
+        <strong>Formulaire Poste :</strong>
+        Renseignez la nomenclature, les missions et les compétences du poste. Les champs marqués d'un astérisque (<span class="text-danger">*</span>) sont obligatoires.
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- 1. Identification & Rattachement -->
+    <div class="col-lg-6">
+        <div class="card border shadow-sm mb-4 h-100">
+            <div class="card-header bg-light py-3">
+                <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-id-card text-primary me-2"></i> Identification du Poste</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ form_label(form.reference, 'Référence du poste *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.reference) }}
+                        {{ form_errors(form.reference) }}
+                        <div class="form-text small">Code unique (ex: PST-DGA-001).</div>
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_label(form.statut, 'Statut initial *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.statut) }}
+                        {{ form_errors(form.statut) }}
+                    </div>
+                    <div class="col-12">
+                        {{ form_label(form.intitule, 'Intitulé du poste *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.intitule) }}
+                        {{ form_errors(form.intitule) }}
+                    </div>
+                    <div class="col-12">
+                        {{ form_label(form.niveau, 'Niveau de responsabilité', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.niveau) }}
+                        {{ form_errors(form.niveau) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_label(form.date_creation, 'Date de création *', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.date_creation) }}
+                        {{ form_errors(form.date_creation) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_label(form.date_fermeture, 'Date de fermeture', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.date_fermeture) }}
+                        {{ form_errors(form.date_fermeture) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Organisation & Compétences -->
+    <div class="col-lg-6">
+        <div class="card border shadow-sm mb-4 h-100">
+            <div class="card-header bg-light py-3">
+                <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-sitemap text-warning me-2"></i> Rattachement & Métier</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        {{ form_label(form.structure, 'Structure de rattachement', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.structure) }}
+                        {{ form_errors(form.structure) }}
+                        <div class="form-text small">Direction, département, division ou agence.</div>
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_label(form.service, 'Service d\'affectation', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.service) }}
+                        {{ form_errors(form.service) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_label(form.fonction, 'Fonction / Métier associé', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.fonction) }}
+                        {{ form_errors(form.fonction) }}
+                    </div>
+                    <div class="col-12">
+                        {{ form_label(form.description, 'Missions & Activités principales', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.description) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    <div class="col-12">
+                        {{ form_label(form.competences_requises, 'Compétences & Profil recherché', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(form.competences_requises) }}
+                        {{ form_errors(form.competences_requises) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+    <a href="{{ path('app_poste_index') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Annuler
+    </a>
+    <div class="d-flex gap-2">
+        <button type="reset" class="btn btn-secondary">
+            <i class="fas fa-undo me-1"></i> Réinitialiser
+        </button>
+        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+            <i class="fas fa-save me-1"></i> {{ button_label|default('Enregistrer le poste') }}
+        </button>
+    </div>
+</div>
+
+{{ form_end(form) }}

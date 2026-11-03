@@ -1,0 +1,29 @@
+{% extends 'auth.html.twig' %}
+
+{% block title %}Vérifiez vos Emails — PRIMATECH{% endblock %}
+
+{% block body %}
+<div class="text-center d-flex flex-column align-items-center py-4">
+    <div class="symbol symbol-65px symbol-circle bg-light-primary mb-4">
+        <span class="symbol-label text-primary">
+            <i class="ki-outline ki-sms fs-2tx text-primary"></i>
+        </span>
+    </div>
+
+    <h2 class="text-gray-900 fw-bolder fs-2 mb-2">Vérifiez votre boîte de réception</h2>
+    <p class="text-gray-600 fs-7 mb-4">
+        Si un compte correspond à l'adresse indiquée, un courrier contenant un lien sécurisé de réinitialisation vient de vous être envoyé.
+    </p>
+
+    <div class="alert alert-light-info d-flex align-items-center p-3 mb-6 rounded text-start w-100">
+        <i class="ki-outline ki-information-5 fs-3 text-info me-3"></i>
+        <span class="fs-8 text-gray-700">
+            Ce lien expirera dans <strong>1 heure</strong>. Pensez à vérifier vos courriers indésirables (spams).
+        </span>
+    </div>
+
+    <a class="btn btn-mci-primary w-100 py-3" href="{{ path('app_login') }}">
+        <i class="ki-outline ki-arrow-left fs-6 me-1"></i> Retour à la page de connexion
+    </a>
+</div>
+{% endblock %}

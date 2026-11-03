@@ -1,0 +1,191 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Registre des Présences — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Registre Institutionnel des Présences
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Contrôle et validation des présences effectives</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Registre des présences</li>
+{% endblock %}
+
+{% block page_actions %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_presence_new') }}" class="btn btn-sm btn-mci-primary">
+            <i class="ki-duotone ki-plus-circle fs-4 me-1">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+            Nouvelle entrée
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- Bannière Institutionnelle -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body p-6">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px symbol-circle me-4 bg-light-primary text-primary d-flex align-items-center justify-content-center">
+                        <i class="ki-duotone ki-calendar-tick fs-1 text-primary">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                            <span class="path4"></span>
+                            <span class="path5"></span>
+                            <span class="path6"></span>
+                        </i>
+                    </div>
+                    <div>
+                        <h2 class="fs-2 fw-bold text-gray-900 mb-1">Registre Officiel des Présences</h2>
+                        <div class="text-muted fs-7">
+                            Historique des émargements et validations de présence au Ministère du Commerce et de l'Industrie.
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge badge-light-primary fw-bold py-2 px-3 fs-7">
+                        Total enregistré : {{ presences|length }} entrées
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card card-flush border-0 shadow-sm">
+        <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+            <div class="card-title">
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                    <input type="text" data-kt-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Rechercher une présence..." />
+                </div>
+            </div>
+            <div class="card-toolbar">
+                <span class="text-muted fs-7">{{ presences|length }} fiches trouvées</span>
+            </div>
+        </div>
+
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table class="table align-middle table-row-dashed fs-6 gy-4">
+                    <thead>
+                        <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                            <th>Collaborateur</th>
+                            <th>Date de présence</th>
+                            <th class="text-center">Heure d'entrée</th>
+                            <th class="text-center">Heure de sortie</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 fw-semibold">
+                        {% for presence in presences %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="symbol symbol-40px symbol-circle me-3 bg-light-primary text-primary fw-bolder d-flex align-items-center justify-content-center">
+                                            {% if presence.employe %}
+                                                {{ presence.employe.nom ? presence.employe.nom|first|upper : 'E' }}{{ presence.employe.prenom ? presence.employe.prenom|first|upper : 'M' }}
+                                            {% else %}
+                                                <i class="ki-duotone ki-user fs-4 text-primary"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            {% if presence.employe %}
+                                                <span class="text-gray-900 fw-bold fs-6">
+                                                    {{ presence.employe.nomComplet }}
+                                                </span>
+                                                <span class="text-muted fs-8">
+                                                    Matricule : {{ presence.employe.matricule|default('N/D') }}
+                                                    {% if presence.employe.service %}
+                                                        &bull; {{ presence.employe.service.nom }}
+                                                    {% endif %}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted fst-italic">Agent non assigné</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="fw-bold text-gray-900">
+                                    <i class="ki-duotone ki-calendar fs-6 text-primary me-2"></i>
+                                    {{ presence.datePresence ? presence.datePresence|date('d/m/Y') : '—' }}
+                                </td>
+                                <td class="text-center">
+                                    {% if presence.heureEntree %}
+                                        <span class="badge badge-light-success font-monospace fw-bold fs-7">
+                                            {{ presence.heureEntree|date('H:i') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if presence.heureSortie %}
+                                        <span class="badge badge-light-primary font-monospace fw-bold fs-7">
+                                            {{ presence.heureSortie|date('H:i') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if presence.statut %}
+                                        <span class="badge badge-light-success fw-bold py-2 px-3">
+                                            <i class="ki-duotone ki-check fs-7 text-success me-1"></i> Validé
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-light-warning fw-bold py-2 px-3">
+                                            <i class="ki-duotone ki-timer fs-7 text-warning me-1"></i> En cours
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ path('app_presence_show', {'id': presence.id}) }}" class="btn btn-icon btn-light btn-active-color-primary btn-sm" title="Détails">
+                                            <i class="ki-duotone ki-eye fs-4 text-primary"></i>
+                                        </a>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_presence_edit', {'id': presence.id}) }}" class="btn btn-icon btn-light btn-active-color-warning btn-sm" title="Modifier">
+                                                <i class="ki-duotone ki-pencil fs-4 text-warning"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-10">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="ki-duotone ki-calendar-tick fs-3x text-muted mb-2"></i>
+                                        <div class="text-gray-600 fs-5 fw-bold mb-1">Aucune présence enregistrée</div>
+                                        <div class="text-muted fs-7">Le registre ne contient aucune fiche de présence pour l'instant.</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

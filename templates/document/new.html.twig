@@ -1,0 +1,218 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Verser un nouveau document RH — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Verser une Pièce au Coffre-fort RH
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Numérisation et intégrité numérique</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_document_index') }}" class="text-muted text-hover-primary">Coffre-fort</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Nouveau versement</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        {% if presetEmploye %}
+            <a href="{{ path('app_employe_show', {'id': presetEmploye.id}) }}" class="btn btn-sm btn-light">
+                <i class="ki-duotone ki-arrow-left fs-4 me-1">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                </i>
+                Dossier {{ presetEmploye.nomComplet }}
+            </a>
+        {% elseif presetAffectation %}
+            <a href="{{ path('app_affectation_show', {'id': presetAffectation.id}) }}" class="btn btn-sm btn-light">
+                <i class="ki-duotone ki-arrow-left fs-4 me-1">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                </i>
+                Mouvement {{ presetAffectation.reference }}
+            </a>
+        {% endif %}
+        <a href="{{ path('app_document_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-folder fs-4 me-1">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+            Retour au coffre-fort
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- Si un agent ou une affectation est présélectionné -->
+    {% if presetEmploye %}
+        <div class="card card-mci border-0 shadow-sm bg-light-primary">
+            <div class="card-body p-5">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px symbol-circle me-4 bg-primary text-white d-flex align-items-center justify-content-center fs-3 fw-bolder">
+                        {{ presetEmploye.prenom|slice(0, 1)|upper }}{{ presetEmploye.nom|slice(0, 1)|upper }}
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1 text-gray-900">Rattachement automatique : {{ presetEmploye.nomComplet }}</h4>
+                        <div class="text-muted fs-7">
+                            <span>Matricule : <strong class="text-gray-800">{{ presetEmploye.matricule ?: 'N/C' }}</strong></span> &bull;
+                            <span>Poste : <strong class="text-gray-800">{{ presetEmploye.poste ? presetEmploye.poste.intitule : 'Sans poste' }}</strong></span> &bull;
+                            <span>Structure : <strong class="text-gray-800">{{ presetEmploye.structure ? presetEmploye.structure.nom : 'Non affecté' }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elseif presetAffectation %}
+        <div class="card card-mci border-0 shadow-sm bg-light-info">
+            <div class="card-body p-5">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px symbol-circle me-4 bg-info text-white d-flex align-items-center justify-content-center fs-2">
+                        <i class="ki-duotone ki-route text-white fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1 text-gray-900">Rattachement à l'acte : {{ presetAffectation.reference }} ({{ presetAffectation.typeMouvementLabel }})</h4>
+                        <div class="text-muted fs-7">
+                            <span>Agent : <strong class="text-gray-800">{{ presetAffectation.employe ? presetAffectation.employe.nomComplet : 'N/A' }}</strong></span> &bull;
+                            <span>Acte : <strong class="text-gray-800">{{ presetAffectation.referenceActe ?: 'Sans référence' }}</strong></span> &bull;
+                            <span>Date d'effet : <strong class="text-gray-800">{{ presetAffectation.dateEffet ? presetAffectation.dateEffet|date('d/m/Y') : 'N/A' }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Formulaire d'upload -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-header border-0 pt-6">
+            <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bold fs-4 text-gray-900">Téléversement &amp; Métadonnées Documentaires</span>
+                <span class="text-muted mt-1 fw-semibold fs-7">Calcul automatique d'empreinte SHA-256 et horodatage certifié</span>
+            </h3>
+        </div>
+        <div class="card-body p-8">
+            {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+
+            <div class="row g-5">
+                <!-- Section 1 : Sélection du fichier -->
+                <div class="col-12">
+                    <div class="p-5 rounded bg-light-primary border border-primary border-dashed">
+                        {{ form_label(form.fichier, 'Fichier numérique à téléverser *', {'label_attr': {'class': 'form-label fw-bold fs-6 text-gray-900'}}) }}
+                        {{ form_widget(form.fichier, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        {{ form_errors(form.fichier) }}
+                        <div class="text-muted fs-8 mt-2">{{ form.fichier.vars.help }}</div>
+                    </div>
+                </div>
+
+                <!-- Section 2 : Identification -->
+                <div class="col-12">
+                    <div class="separator separator-dashed my-2"></div>
+                    <h5 class="fw-bold text-gray-900 mb-4 d-flex align-items-center">
+                        <span class="badge badge-circle badge-primary me-2">1</span>
+                        Identification &amp; Classification
+                    </h5>
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_label(form.titre, 'Titre ou désignation du document *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.titre, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Ex: Contrat de travail initial'}}) }}
+                    {{ form_errors(form.titre) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_label(form.categorie, 'Catégorie de pièce *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.categorie, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.categorie) }}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form_label(form.niveau_confidentialite, 'Niveau de confidentialité *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.niveau_confidentialite, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.niveau_confidentialite) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.reference, 'Numéro / Référence de la pièce', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.reference, {'attr': {'class': 'form-control form-control-solid', 'placeholder': 'Ex: REF-2026-001'}}) }}
+                    {{ form_errors(form.reference) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.date_document, 'Date d\'émission / Signature', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.date_document, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                    {{ form_errors(form.date_document) }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form_label(form.statut, 'Statut de validation *', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.statut, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.statut) }}
+                </div>
+
+                <!-- Section 3 : Rattachement -->
+                <div class="col-12">
+                    <div class="separator separator-dashed my-2"></div>
+                    <h5 class="fw-bold text-gray-900 mb-4 d-flex align-items-center">
+                        <span class="badge badge-circle badge-primary me-2">2</span>
+                        Rattachement au Dossier RH
+                    </h5>
+                </div>
+
+                {% if not presetEmploye %}
+                    <div class="col-md-6">
+                        {{ form_label(form.employe, 'Agent concerné (optionnel)', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                        {{ form_widget(form.employe, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                        {{ form_errors(form.employe) }}
+                        <div class="text-muted fs-8 mt-1">Laisser vide s'il s'agit d'un document d'intérêt institutionnel général.</div>
+                    </div>
+                {% endif %}
+
+                <div class="col-md-6">
+                    {{ form_label(form.affectation, 'Mouvement / Affectation lié(e) (optionnel)', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.affectation, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                    {{ form_errors(form.affectation) }}
+                </div>
+
+                <div class="col-12">
+                    {{ form_label(form.description, 'Observations & Description du document', {'label_attr': {'class': 'form-label fw-semibold fs-7'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control form-control-solid', 'rows': 3, 'placeholder': 'Précisions complémentaires...'}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-8 pt-6 border-top">
+                <a href="{{ presetEmploye ? path('app_employe_show', {'id': presetEmploye.id}) : path('app_document_index') }}" class="btn btn-light">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-mci-primary px-6">
+                    <i class="ki-duotone ki-check-circle fs-4 me-1">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                    Téléverser et enregistrer la pièce
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

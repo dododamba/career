@@ -1,0 +1,98 @@
+security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    role_hierarchy:
+        ROLE_MANAGER: [ROLE_USER]
+        ROLE_ADMIN: [ROLE_MANAGER, ROLE_USER]
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\WebAuthentificatorAuthenticator
+            user_checker: App\Security\UserChecker
+
+            login_throttling:
+                max_attempts: 5
+                interval: '1 minute'
+
+            two_factor:
+                auth_form_path: 2fa_login
+                check_path: 2fa_login_check
+                post_only: true
+                default_target_path: app_dashboard
+
+            logout:
+                path: app_logout
+                target: app_login
+                invalidate_session: true
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+                always_remember_me: false
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # Public access
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+        - { path: ^/register-as-partner$, roles: PUBLIC_ACCESS }
+
+        # 2FA challenge authentication
+        - { path: ^/2fa$, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+
+        # Admin only areas
+        - { path: ^/admin/user, roles: ROLE_ADMIN }
+        - { path: ^/admin/institution, roles: ROLE_ADMIN }
+        - { path: ^/admin/type-institution, roles: ROLE_ADMIN }
+        - { path: ^/admin/service, roles: ROLE_ADMIN }
+        - { path: ^/admin/fonction, roles: ROLE_ADMIN }
+        - { path: ^/admin/role, roles: ROLE_ADMIN }
+        - { path: ^/admin/dashboard, roles: ROLE_ADMIN }
+        - { path: ^/log, roles: ROLE_ADMIN }
+
+        # Management areas
+        - { path: ^/admin/statistique, roles: ROLE_MANAGER }
+        - { path: ^/admin/employe, roles: ROLE_MANAGER }
+
+        # Operational areas accessible to authenticated employees
+        - { path: ^/admin/conges, roles: ROLE_USER }
+        - { path: ^/admin/pointage, roles: ROLE_USER }
+        - { path: ^/admin/presence, roles: ROLE_USER }
+        - { path: ^/admin/visite, roles: ROLE_USER }
+
+        # Any other /admin path requires at least ROLE_MANAGER
+        - { path: ^/admin, roles: ROLE_MANAGER }
+
+        # General authenticated sections
+        - { path: ^/dashboard, roles: ROLE_USER }
+        - { path: ^/account, roles: ROLE_USER }
+
+        # Default fallback
+        - { path: ^/, roles: ROLE_USER }
+
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

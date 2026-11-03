@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Type : {{ type_institution.nom }} — PRIMATECH{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-6">
+
+    <!-- Header & Action Toolbar -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body py-5 px-6">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge badge-light-primary fw-bold text-uppercase px-3 py-2">
+                            <i class="ki-outline ki-setting-2 fs-7 me-1 text-primary"></i> Typologie Institutionnelle
+                        </span>
+                    </div>
+                    <h1 class="text-gray-900 fw-bolder fs-2 mb-1">{{ type_institution.nom }}</h1>
+                    <p class="text-gray-600 fs-7 mb-0">Identifiant technique : <span class="font-monospace text-gray-800">{{ type_institution.slug|default('N/A') }}</span></p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ path('app_type_institution_index') }}" class="btn btn-sm btn-light">
+                        <i class="ki-outline ki-arrow-left fs-6 me-1"></i> Retour à la liste
+                    </a>
+                    <a href="{{ path('app_type_institution_edit', {'id': type_institution.id}) }}" class="btn btn-sm btn-light-warning">
+                        <i class="ki-outline ki-pencil fs-6 me-1"></i> Modifier
+                    </a>
+                    {{ include('type_institution/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Détails & Institutions Liées -->
+    <div class="row g-6">
+        <div class="col-lg-4">
+            <div class="card card-mci border-0 shadow-sm h-100">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="ki-outline ki-information-2 fs-3 text-primary me-2"></i>
+                        <span class="fw-bolder fs-5 text-gray-900">Fiche Technique</span>
+                    </div>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="d-flex flex-column gap-4">
+                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <span class="text-gray-500 fs-7">Identifiant Base (#)</span>
+                            <span class="font-monospace text-gray-800 fw-bold">{{ type_institution.id }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <span class="text-gray-500 fs-7">Nom du Type</span>
+                            <span class="text-gray-900 fw-bolder">{{ type_institution.nom }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <span class="text-gray-500 fs-7">Slug URL</span>
+                            <span class="badge badge-light-secondary font-monospace">{{ type_institution.slug|default('-') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-3">
+                            <span class="text-gray-500 fs-7">Institutions actives</span>
+                            <span class="badge badge-light-primary fw-bolder fs-7">{{ institution_count|default(institutions|default([])|length) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card card-mci border-0 shadow-sm h-100">
+                <div class="card-header border-0 pt-6">
+                    <div class="card-title">
+                        <i class="ki-outline ki-bank fs-3 text-primary me-2"></i>
+                        <span class="fw-bolder fs-5 text-gray-900">Institutions Rattachées à cette Typologie</span>
+                    </div>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle table-row-dashed fs-7 gy-3">
+                            <thead>
+                                <tr class="text-start text-gray-400 fw-bolder fs-8 text-uppercase gs-0">
+                                    <th>Institution</th>
+                                    <th>Code / Sigle</th>
+                                    <th>Localisation</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-semibold text-gray-600">
+                                {% for institution in institutions|default([]) %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="symbol symbol-30px symbol-circle bg-light-primary me-2">
+                                                <span class="symbol-label text-primary fw-bold fs-8">
+                                                    {{ institution.nom|slice(0, 2)|upper }}
+                                                </span>
+                                            </div>
+                                            <a href="{{ path('app_institution_show', {'id': institution.id}) }}" class="text-gray-900 fw-bold text-hover-primary">
+                                                {{ institution.nom }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-light-dark font-monospace fs-8">{{ institution.code|default(institution.sigle|default('-')) }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted fs-8">{{ institution.adresse|default(institution.ville|default('N/D')) }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{ path('app_institution_show', {'id': institution.id}) }}" class="btn btn-icon btn-light-primary btn-sm" title="Voir l'institution">
+                                            <i class="ki-outline ki-eye fs-7"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        <i class="ki-outline ki-bank fs-2 text-muted mb-2 d-block"></i>
+                                        Aucune institution n'est actuellement rattachée à cette typologie.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

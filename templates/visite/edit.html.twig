@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Visite #{{ visite.id }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Mettre à jour la Visite #{{ visite.id }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Modification de la fiche d'accueil</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_visite_index') }}" class="text-muted text-hover-primary">Visites</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Édition #{{ visite.id }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_visite_show', {'id': visite.id}) }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-eye fs-4 me-1"></i> Voir la fiche
+        </a>
+        <a href="{{ path('app_visite_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour à la liste
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        <div class="card card-flush border-0 shadow-sm">
+            <div class="card-header pt-6">
+                <div class="card-title">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-45px symbol-circle me-3 bg-light-warning text-warning d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-pencil fs-2 text-warning">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                        </div>
+                        <div>
+                            <h2 class="fs-4 fw-bold text-gray-900 mb-0">Modifier la fiche : {{ visite.visiteur }}</h2>
+                            <span class="text-muted fs-7">Visite enregistrée le {{ visite.arrivee ? visite.arrivee|date('d/m/Y') : '' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body pt-5">
+                {{ form_start(form, {'attr': {'class': 'form d-flex flex-column gap-6'}}) }}
+
+                <div class="row g-5">
+                    <div class="col-md-6">
+                        <label class="form-label required fw-semibold fs-6 text-gray-700">Nom du visiteur</label>
+                        {{ form_widget(form.visiteur, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.visiteur) }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required fw-semibold fs-6 text-gray-700">Collaborateur rencontré</label>
+                        {{ form_widget(form.employe, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.employe) }}</div>
+                    </div>
+                </div>
+
+                <div class="row g-5">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold fs-6 text-gray-700">Numéro de téléphone</label>
+                        {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.telephone) }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold fs-6 text-gray-700">Adresse email</label>
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.email) }}</div>
+                    </div>
+                </div>
+
+                <div class="row g-5">
+                    <div class="col-md-4">
+                        <label class="form-label required fw-semibold fs-6 text-gray-700">Arrivée</label>
+                        {{ form_widget(form.arrivee, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.arrivee) }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold fs-6 text-gray-700">Départ</label>
+                        {{ form_widget(form.depart, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.depart) }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold fs-6 text-gray-700">N° Badge</label>
+                        {{ form_widget(form.badge, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.badge) }}</div>
+                    </div>
+                </div>
+
+                <div class="row g-5 align-items-center">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center justify-content-between p-4 rounded bg-light border border-dashed border-gray-300">
+                            <div>
+                                <label class="form-check-label fw-bold text-gray-800 fs-6" for="{{ form.statut.vars.id }}">Visite terminée</label>
+                                <div class="text-muted fs-8">Cochez si le visiteur a quitté les locaux</div>
+                            </div>
+                            <div class="form-check form-switch form-check-custom form-check-solid">
+                                {{ form_widget(form.statut, {'attr': {'class': 'form-check-input h-25px w-45px'}}) }}
+                            </div>
+                        </div>
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.statut) }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold fs-6 text-gray-700">Objet de la visite</label>
+                        {{ form_widget(form.objet, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.objet) }}</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label fw-semibold fs-6 text-gray-700">Observations</label>
+                    {{ form_widget(form.commentaires, {'attr': {'class': 'form-control form-control-solid', 'rows': 3}}) }}
+                    <div class="text-danger fs-7 mt-1">{{ form_errors(form.commentaires) }}</div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                    <a href="{{ path('app_visite_index') }}" class="btn btn-light">Annuler</a>
+                    <button type="submit" class="btn btn-mci-primary">
+                        <i class="ki-duotone ki-check fs-4 me-1"></i> Mettre à jour
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

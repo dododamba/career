@@ -1,0 +1,139 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Pointage #{{ pointage.id }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Mettre à jour le Pointage #{{ pointage.id }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Modification de l'émargement</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_pointage_index') }}" class="text-muted text-hover-primary">Pointages</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">Édition #{{ pointage.id }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-eye fs-4 me-1"></i> Voir la fiche
+        </a>
+        <a href="{{ path('app_pointage_index') }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-arrow-left fs-4 me-1"></i> Retour à la liste
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        <div class="card card-flush border-0 shadow-sm">
+            <div class="card-header pt-6">
+                <div class="card-title">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-45px symbol-circle me-3 bg-light-warning text-warning d-flex align-items-center justify-content-center">
+                            <i class="ki-duotone ki-pencil fs-2 text-warning">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                        </div>
+                        <div>
+                            <h2 class="fs-4 fw-bold text-gray-900 mb-0">
+                                Modifier l'émargement : {{ pointage.employe ? pointage.employe.nomComplet : 'Agent' }}
+                            </h2>
+                            <span class="text-muted fs-7">Date enregistrée : {{ pointage.date ? pointage.date|date('d/m/Y') : '' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body pt-5">
+                {{ form_start(form, {'attr': {'class': 'form d-flex flex-column gap-6'}}) }}
+
+                <div class="row g-5">
+                    <div class="col-md-6">
+                        <label class="form-label required fw-semibold fs-6 text-gray-700">Collaborateur / Agent</label>
+                        {{ form_widget(form.employe, {'attr': {'class': 'form-select form-select-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.employe) }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required fw-semibold fs-6 text-gray-700">Date</label>
+                        {{ form_widget(form.date, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.date) }}</div>
+                    </div>
+                </div>
+
+                <div class="row g-5">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold fs-6 text-gray-700">Heure d'arrivée</label>
+                        {{ form_widget(form.heureArrivee, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.heureArrivee) }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold fs-6 text-gray-700">Heure de départ</label>
+                        {{ form_widget(form.heureDepart, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.heureDepart) }}</div>
+                    </div>
+                </div>
+
+                <div class="separator separator-dashed my-2"></div>
+
+                <div class="row g-5 align-items-center">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center justify-content-between p-4 rounded bg-light border border-dashed border-gray-300">
+                            <div>
+                                <label class="form-check-label fw-bold text-gray-800 fs-6" for="{{ form.estPresent.vars.id }}">Statut présent</label>
+                                <div class="text-muted fs-8">Présence physique constatée</div>
+                            </div>
+                            <div class="form-check form-switch form-check-custom form-check-solid">
+                                {{ form_widget(form.estPresent, {'attr': {'class': 'form-check-input h-25px w-45px'}}) }}
+                            </div>
+                        </div>
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.estPresent) }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold fs-6 text-gray-700">Statut administratif</label>
+                        {{ form_widget(form.status, {'attr': {'class': 'form-control form-control-solid'}}) }}
+                        <div class="text-danger fs-7 mt-1">{{ form_errors(form.status) }}</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label fw-semibold fs-6 text-gray-700">Motif d'absence</label>
+                    {{ form_widget(form.motifAbsence, {'attr': {'class': 'form-control form-control-solid', 'rows': 2, 'placeholder': 'Motif déclaré si absent...'}}) }}
+                    <div class="text-danger fs-7 mt-1">{{ form_errors(form.motifAbsence) }}</div>
+                </div>
+
+                <div>
+                    <label class="form-label fw-semibold fs-6 text-gray-700">Observations / Commentaire</label>
+                    {{ form_widget(form.commentaire, {'attr': {'class': 'form-control form-control-solid', 'rows': 3, 'placeholder': 'Commentaires...'}}) }}
+                    <div class="text-danger fs-7 mt-1">{{ form_errors(form.commentaire) }}</div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 pt-4 border-top">
+                    <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}" class="btn btn-light">Annuler</a>
+                    <button type="submit" class="btn btn-mci-primary">
+                        <i class="ki-duotone ki-check fs-4 me-1"></i> Mettre à jour
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

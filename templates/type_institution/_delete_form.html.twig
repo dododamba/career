@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('app_type_institution_delete', {'id': type_institution.id}) }}" onsubmit="return confirm('Confirmez-vous la suppression de ce type d\'institution ? Cette action est irréversible.');" class="d-inline-block">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ type_institution.id) }}">
+    <button type="submit" class="btn btn-sm btn-light-danger">
+        <i class="ki-outline ki-trash fs-6 me-1"></i> Supprimer
+    </button>
+</form>

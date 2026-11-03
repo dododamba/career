@@ -1,0 +1,211 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique Pointages — {{ employe.nomComplet }} — MCI e-Circuit{% endblock %}
+
+{% block page_title %}
+    <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        Historique d'Assiduité : {{ employe.nomComplet }}
+        <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
+        <small class="text-muted fs-7 fw-semibold my-1 ms-1">Relevé chronologique des émargements</small>
+    </h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-muted">
+        <a href="{{ path('app_pointage_index') }}" class="text-muted text-hover-primary">Pointages</a>
+    </li>
+    <li class="breadcrumb-item">
+        <span class="bullet bg-gray-300 w-5px h-2px"></span>
+    </li>
+    <li class="breadcrumb-item text-gray-900">{{ employe.nomComplet }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ path('app_employe_show', {'id': employe.id}) }}" class="btn btn-sm btn-light">
+            <i class="ki-duotone ki-user fs-4 me-1"></i> Dossier Agent 360°
+        </a>
+        {% if is_granted('POINTAGE_CREATE') %}
+            <a href="{{ path('app_pointage_new') }}" class="btn btn-sm btn-mci-primary">
+                <i class="ki-duotone ki-plus-circle fs-4 me-1"></i> Nouveau pointage
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column gap-5">
+
+    <!-- Fiche Collaborateur Banner -->
+    <div class="card card-mci border-0 shadow-sm">
+        <div class="card-body p-6">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-65px symbol-circle me-4 bg-light-primary text-primary fw-bolder fs-1 d-flex align-items-center justify-content-center">
+                        {{ employe.nom ? employe.nom|first|upper : 'E' }}{{ employe.prenom ? employe.prenom|first|upper : 'M' }}
+                    </div>
+                    <div>
+                        <h2 class="fs-2 fw-bold text-gray-900 mb-1">{{ employe.nomComplet }}</h2>
+                        <div class="d-flex flex-wrap gap-3 text-muted fs-7">
+                            <span>Matricule : <strong class="text-gray-800">{{ employe.matricule|default('N/D') }}</strong></span>
+                            <span>&bull;</span>
+                            <span>Service : <strong class="text-gray-800">{{ employe.service ? employe.service.nom : 'Non affecté' }}</strong></span>
+                            <span>&bull;</span>
+                            <span>Fonction : <strong class="text-gray-800">{{ employe.fonction ? employe.fonction.libelle : 'Non définie' }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge badge-light-{{ employe.actif ? 'success' : 'danger' }} fw-bold py-2 px-3 fs-7">
+                        {{ employe.actif ? 'Actif en service' : 'Inactif' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Assiduité Mois Courant -->
+    <div class="row g-5">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <span class="text-muted fw-semibold fs-7 text-uppercase">Présences du mois</span>
+                    <div class="fs-2hx fw-bolder text-success mt-1">{{ stats.presences_mois|default(0) }} j</div>
+                    <span class="text-muted fs-8">Jours d'émargement effectif</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <span class="text-muted fw-semibold fs-7 text-uppercase">Absences constatées</span>
+                    <div class="fs-2hx fw-bolder text-danger mt-1">{{ stats.absences_mois|default(0) }} j</div>
+                    <span class="text-muted fs-8">Absences non justifiées</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <span class="text-muted fw-semibold fs-7 text-uppercase">Retards du mois</span>
+                    <div class="fs-2hx fw-bolder text-warning mt-1">{{ stats.retards_mois|default(0) }} j</div>
+                    <span class="text-muted fs-8">Arrivées au-delà de 09h00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 card-mci">
+                <div class="card-body p-5">
+                    <span class="text-muted fw-semibold fs-7 text-uppercase">Taux d'assiduité</span>
+                    <div class="fs-2hx fw-bolder text-primary mt-1">{{ stats.taux_presence|default(0) }}%</div>
+                    <span class="text-muted fs-8">Régularité globale au poste</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Historique -->
+    <div class="card card-flush border-0 shadow-sm">
+        <div class="card-header pt-5">
+            <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bold fs-3 text-gray-900">Relevé Exhaustif des Pointages</span>
+                <span class="text-muted mt-1 fw-semibold fs-7">{{ pointages|length }} enregistrements au dossier</span>
+            </h3>
+        </div>
+
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table class="table align-middle table-row-dashed fs-6 gy-4">
+                    <thead>
+                        <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                            <th>Date</th>
+                            <th class="text-center">Arrivée</th>
+                            <th class="text-center">Départ</th>
+                            <th class="text-center">Statut</th>
+                            <th>Motif / Remarque</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 fw-semibold">
+                        {% for pointage in pointages %}
+                            <tr>
+                                <td class="fw-bold text-gray-900">
+                                    <i class="ki-duotone ki-calendar fs-6 text-primary me-2"></i>
+                                    {{ pointage.date ? pointage.date|date('d/m/Y') : '—' }}
+                                </td>
+                                <td class="text-center">
+                                    {% if pointage.heureArrivee %}
+                                        <span class="badge badge-light-success font-monospace fw-bold fs-7">
+                                            {{ pointage.heureArrivee|date('H:i') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if pointage.heureDepart %}
+                                        <span class="badge badge-light-primary font-monospace fw-bold fs-7">
+                                            {{ pointage.heureDepart|date('H:i') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% set st = pointage.status|default(pointage.isEstPresent ? 'Présent' : 'Absent') %}
+                                    {% if st in ['Présent', 'Present'] %}
+                                        <span class="badge badge-light-success fw-bold py-2 px-3">Présent</span>
+                                    {% elseif st in ['Absent'] %}
+                                        <span class="badge badge-light-danger fw-bold py-2 px-3">Absent</span>
+                                    {% elseif st in ['En retard', 'Retard'] %}
+                                        <span class="badge badge-light-warning fw-bold py-2 px-3">Retard</span>
+                                    {% else %}
+                                        <span class="badge badge-light-secondary fw-bold py-2 px-3">{{ st }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if pointage.motifAbsence %}
+                                        <span class="text-gray-800 fs-7">{{ pointage.motifAbsence }}</span>
+                                    {% elseif pointage.commentaire %}
+                                        <span class="text-muted fs-7 fst-italic">{{ pointage.commentaire }}</span>
+                                    {% else %}
+                                        <span class="text-muted fs-8">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}" class="btn btn-icon btn-light btn-sm" title="Détails">
+                                            <i class="ki-duotone ki-eye fs-4 text-primary"></i>
+                                        </a>
+                                        {% if is_granted('POINTAGE_EDIT') or is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_pointage_edit', {'id': pointage.id}) }}" class="btn btn-icon btn-light btn-sm" title="Modifier">
+                                                <i class="ki-duotone ki-pencil fs-4 text-warning"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-muted">
+                                    <i class="ki-duotone ki-time fs-3x text-muted mb-2"></i>
+                                    <div>Aucun émargement enregistré pour cet agent.</div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
