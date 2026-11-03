@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Statistiques & Indicateurs RH — {{ app.user.institution.nom|default('MCI e-Circuit') }}{% endblock %}
+{% block title %}Statistiques & Indicateurs RH — {{ app.user.institution.nom|default(app_institution) }}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}

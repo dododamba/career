@@ -1,9 +1,9 @@
 <div class="footer py-4 d-flex flex-lg-column" id="kt_footer">
-    <div class="container-fluid d-flex flex-column flex-md-row align-items-center justify-content-between">
-        <div class="text-dark order-2 order-md-1">
+    <div class="container-fluid d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
+        <div class="text-dark order-2 order-md-1 text-center text-md-start">
             <span class="text-muted fw-bold me-1">&copy; {{ "now"|date("Y") }}</span>
-            <a href="{{ path('app_dashboard') }}" target="_blank" class="text-gray-800 text-hover-primary fw-bolder">PRIMATECH</a>
-            <span class="text-muted ms-2">Système de Gestion RH & Administrative</span>
+            <a href="{{ path('app_dashboard') }}" class="text-gray-800 text-hover-primary fw-bolder">{{ app_name }}</a>
+            <span class="text-muted ms-1">— {{ app_institution }} • {{ app_country }}</span>
         </div>
         <ul class="menu menu-gray-600 menu-hover-primary fw-bold order-1">
             <li class="menu-item">

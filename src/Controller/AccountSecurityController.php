@@ -80,7 +80,7 @@ class AccountSecurityController extends AbstractController
 
         $totp = TOTP::generate();
         $totp->setLabel($user->getEmail());
-        $totp->setIssuer('PRIMATECH');
+        $totp->setIssuer((string) $this->getParameter('app.name'));
 
         $secret = $totp->getSecret();
         $request->getSession()->set('2fa_setup_secret', $secret);

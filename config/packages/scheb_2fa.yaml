@@ -5,8 +5,8 @@ scheb_two_factor:
         - Symfony\Component\Security\Http\Authenticator\Token\RememberMeToken
     totp:
         enabled: true
-        server_name: 'PRIMATECH'
-        issuer: 'PRIMATECH'
+        server_name: 'Suivi des Carrières'
+        issuer: 'Suivi des Carrières'
         template: 'security/2fa_form.html.twig'
     backup_codes:
         enabled: true

@@ -8,6 +8,8 @@ use App\Repository\PasswordResetTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -23,7 +25,11 @@ class PasswordResetService
         private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly SecurityAuditService $auditService,
-        private readonly ?LoggerInterface $logger = null
+        private readonly ?LoggerInterface $logger = null,
+        #[Autowire('%app.name%')]
+        private readonly string $appName = 'Suivi des Carrières',
+        #[Autowire('%app.mailer_from%')]
+        private readonly string $mailerFrom = 'email@career-host.com'
     ) {
     }
 
@@ -53,18 +59,19 @@ class PasswordResetService
         );
 
         $email = (new Email())
-            ->from('no-reply@primatech.io')
+            ->from(new Address($this->mailerFrom, $this->appName))
             ->to((string) $user->getEmail())
-            ->subject('PRIMATECH — Réinitialisation de votre mot de passe')
+            ->subject($this->appName . ' — Réinitialisation de votre mot de passe')
             ->html(sprintf(
                 '<h2>Réinitialisation de votre mot de passe</h2>' .
                 '<p>Bonjour %s,</p>' .
-                '<p>Une demande de réinitialisation de mot de passe a été effectuée pour votre compte PRIMATECH.</p>' .
-                '<p><a href="%s" style="display:inline-block;padding:10px 20px;background-color:#4e73df;color:#fff;text-decoration:none;border-radius:4px;">Réinitialiser mon mot de passe</a></p>' .
+                '<p>Une demande de réinitialisation de mot de passe a été effectuée pour votre compte %s.</p>' .
+                '<p><a href="%s" style="display:inline-block;padding:10px 20px;background-color:#002664;color:#fff;text-decoration:none;border-radius:4px;">Réinitialiser mon mot de passe</a></p>' .
                 '<p>Ce lien est valable pendant 1 heure et ne peut être utilisé qu\'une seule fois.</p>' .
                 '<p>Si vous n\'avez pas demandé cette réinitialisation, veuillez ignorer cet email.</p>' .
                 '<p style="color:#888;font-size:12px;">URL directe: %s</p>',
                 htmlspecialchars($user->getFullName() ?: $user->getUserIdentifier()),
+                htmlspecialchars($this->appName),
                 htmlspecialchars($resetUrl),
                 htmlspecialchars($resetUrl)
             ));

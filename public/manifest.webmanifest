@@ -1,0 +1,14 @@
+{
+  "name": "Suivi des Carrières",
+  "short_name": "Suivi Carrières",
+  "description": "Plateforme de gestion des agents et de suivi de leur vie administrative et professionnelle — Ministère du Commerce et de l'Industrie, République du Tchad.",
+  "lang": "fr",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F8F9FA",
+  "theme_color": "#002664",
+  "icons": [
+    { "src": "/assets/media/logos/armoirie_tchad.png", "sizes": "any", "type": "image/png", "purpose": "any" }
+  ]
+}

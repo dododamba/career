@@ -415,8 +415,8 @@ class CongesTest extends WebTestCase
         $conge = $this->congeService->demanderConge(
             employe: $this->employeA,
             typeConge: $this->typeAnnuel,
-            dateDebut: new \DateTime('+80 days'),
-            dateFin: new \DateTime('+82 days'), // 3 jours
+            dateDebut: new \DateTime('+10 days'),
+            dateFin: new \DateTime('+12 days'), // 3 jours
             demandeur: $this->agentA
         );
 

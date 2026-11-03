@@ -47,7 +47,7 @@
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <span class="badge" style="background: rgba(254, 203, 0, 0.2); color: var(--mci-gold); border: 1px solid rgba(254, 203, 0, 0.4); font-size: 0.8rem; font-weight: 700;">
                             <i class="bi bi-shield-check me-1" style="color: var(--mci-gold);"></i>
-                            MCI e-Circuit • République du Tchad
+                            {{ app_name }} • {{ app_country }}
                         </span>
                         <span class="badge bg-white bg-opacity-20 text-white fs-8 fw-semibold">
                             {% if app.user.hasRole('ROLE_ADMIN') %}

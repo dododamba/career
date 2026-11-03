@@ -1,6 +1,11 @@
 twig:
     file_name_pattern: '*.twig'
     form_themes: ['bootstrap_5_layout.html.twig']
+    globals:
+        app_name: '%app.name%'
+        app_institution: 'Ministère du Commerce et de l''Industrie'
+        app_country: 'République du Tchad'
+        app_description: 'Plateforme de gestion des agents et de suivi de leur vie administrative et professionnelle.'
 
 when@test:
     twig:

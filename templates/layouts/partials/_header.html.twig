@@ -11,8 +11,8 @@
         <!--begin::Mobile logo-->
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
             <a href="{{ path('app_dashboard') }}" class="d-lg-none d-flex align-items-center text-white text-decoration-none">
-                <img alt="MCI e-Circuit" src="{{ asset('assets/media/logos/armoirie_tchad.png') }}" class="h-32px me-2"/>
-                <span class="fw-bolder fs-4 text-white">MCI e-Circuit</span>
+                <img alt="Armoirie de la République du Tchad" src="{{ asset('assets/media/logos/armoirie_tchad.png') }}" class="h-32px w-auto me-2 flex-shrink-0"/>
+                <span class="fw-bolder fs-5 text-white text-truncate">{{ app_name }}</span>
             </a>
         </div>
         <!--end::Mobile logo-->
@@ -27,8 +27,8 @@
                             <span class="fs-4 fw-bolder text-white d-flex align-items-center">
                                 <img src="{{ asset('assets/media/logos/armoirie_tchad.png') }}" alt="Armoirie Tchad" class="h-38px me-3 d-none d-lg-inline-block" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));" />
                                 <span class="d-flex flex-column justify-content-center">
-                                    <span class="text-white fw-bolder fs-4 lh-1">MCI e-Circuit</span>
-                                    <span class="d-none d-xl-inline text-white-50 fs-8 fw-semibold pt-1">Ministère du Commerce et de l'Industrie • République du Tchad</span>
+                                    <span class="text-white fw-bolder fs-4 lh-1">{{ app_name }}</span>
+                                    <span class="d-none d-xl-inline fs-8 fw-semibold pt-1" style="color: rgba(255,255,255,.78);">{{ app_institution }} • {{ app_country }}</span>
                                 </span>
                                 {% if app.user and app.user.institution %}
                                     <span class="badge ms-4 fs-8 fw-bold py-1 px-3 d-none d-sm-inline-flex align-items-center" style="background-color: var(--mci-gold); color: #002664 !important; border-radius: 6px;">

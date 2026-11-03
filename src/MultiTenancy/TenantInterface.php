@@ -3,7 +3,7 @@
 namespace App\MultiTenancy;
 
 /**
- * Interface that must be implemented by any entity acting as a Tenant in PRIMATECH.
+ * Interface that must be implemented by any entity acting as a Tenant in Suivi des Carrières.
  */
 interface TenantInterface
 {
