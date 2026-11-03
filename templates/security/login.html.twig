@@ -3,25 +3,28 @@
 {% block title %}Connexion{% endblock %}
 
 {% block body %}
-<div class="text-center mb-6">
-    <div class="auth-icon-badge">
-        <i class="bi bi-shield-lock-fill"></i>
+<div class="text-center mb-5">
+    <div class="auth-institution-pill">
+        <span class="auth-dot-gold"></span>
+        <span>{{ app_institution }} &bull; {{ app_country }}</span>
     </div>
-    <div class="text-muted fw-medium fs-7">
-        Accédez à votre espace institutionnel de gestion des carrières.
-    </div>
+    <h1 class="text-gray-900 fw-bold fs-2 mb-1">Connexion</h1>
+    <p class="text-muted fs-7 mb-0">Renseignez vos identifiants pour accéder à votre espace</p>
 </div>
 
-<form class="form w-100 validate-form" method="post" action="{{ path('app_login') }}" id="kt_sign_in_form">
+<form class="form w-100" method="post" action="{{ path('app_login') }}" data-turbo="false" id="kt_sign_in_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
     <!-- Champ Email institutionnel -->
-    <div class="fv-row mb-6">
+    <div class="fv-row mb-5">
         <label class="form-label fs-7 fw-bold text-gray-900 mb-2 required" for="email">
             Adresse email institutionnelle
         </label>
         <div class="position-relative">
-            <input class="form-control form-control-mci h-48px fs-6" 
+            <span class="position-absolute top-50 translate-middle-y ms-4 text-gray-400 fs-5 pointer-events-none">
+                <i class="bi bi-envelope"></i>
+            </span>
+            <input class="form-control auth-form-control ps-12 fs-6" 
                    type="email" 
                    value="{{ last_username|default('') }}" 
                    name="email" 
@@ -35,16 +38,19 @@
 
     <!-- Champ Mot de passe -->
     <div class="fv-row mb-6">
-        <div class="d-flex flex-stack justify-content-between align-items-center mb-2">
+        <div class="d-flex justify-content-between align-items-center mb-2">
             <label class="form-label fw-bold text-gray-900 fs-7 mb-0 required" for="password">
                 Mot de passe
             </label>
-            <a href="{{ path('app_forgot_password_request') }}" class="link-primary fs-8 fw-semibold text-hover-primary">
+            <a href="{{ path('app_forgot_password_request') }}" class="link-primary fs-8 fw-semibold text-hover-primary text-decoration-none">
                 Mot de passe oublié ?
             </a>
         </div>
         <div class="position-relative">
-            <input class="form-control form-control-mci h-48px fs-6 pe-12" 
+            <span class="position-absolute top-50 translate-middle-y ms-4 text-gray-400 fs-5 pointer-events-none">
+                <i class="bi bi-lock"></i>
+            </span>
+            <input class="form-control auth-form-control ps-12 pe-12 fs-6" 
                    type="password" 
                    name="password" 
                    id="password" 
@@ -61,23 +67,17 @@
         </div>
     </div>
 
-    <!-- Bouton de connexion avec présence forte et indicateur de chargement -->
+    <!-- Bouton de connexion -->
     <div class="d-grid mb-6">
-        <button type="submit" class="btn btn-mci-primary h-50px fs-6 fw-bold shadow-sm" id="kt_sign_in_submit">
-            <span class="indicator-label d-inline-flex align-items-center justify-content-center">
-                <i class="bi bi-box-arrow-in-right fs-4 me-2"></i>
-                Se connecter
-            </span>
-            <span class="indicator-progress d-none align-items-center justify-content-center">
-                <span class="spinner-border spinner-border-sm align-middle me-2"></span>
-                Connexion en cours...
-            </span>
+        <button type="submit" class="btn auth-submit-btn" id="kt_sign_in_submit">
+            <i class="bi bi-box-arrow-in-right fs-4 me-2"></i>
+            Se connecter
         </button>
     </div>
 
     <!-- Mention institutionnelle confidentielle -->
-    <div class="auth-institution-notice p-3 rounded-2 text-center text-gray-600 fs-8">
-        <i class="bi bi-shield-lock me-1 text-primary"></i>
+    <div class="auth-security-notice text-center">
+        <i class="bi bi-shield-lock text-primary me-1"></i>
         Plateforme réservée aux agents habilités du Ministère du Commerce et de l'Industrie de la République du Tchad.
     </div>
 </form>
@@ -86,7 +86,6 @@
 {% block javascripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Toggle affichage / masquage mot de passe
         const toggleBtn = document.getElementById('toggle_password');
         const passwordInput = document.getElementById('password');
         const toggleIcon = document.getElementById('toggle_password_icon');
@@ -98,24 +97,6 @@
                 passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
                 toggleIcon.classList.toggle('bi-eye', !isPassword);
                 toggleIcon.classList.toggle('bi-eye-slash', isPassword);
-            });
-        }
-
-        // Gestion de l'état de chargement lors de la soumission
-        const form = document.getElementById('kt_sign_in_form');
-        const submitBtn = document.getElementById('kt_sign_in_submit');
-        if (form && submitBtn) {
-            form.addEventListener('submit', function () {
-                if (form.checkValidity()) {
-                    const label = submitBtn.querySelector('.indicator-label');
-                    const progress = submitBtn.querySelector('.indicator-progress');
-                    if (label && progress) {
-                        label.classList.add('d-none');
-                        progress.classList.remove('d-none');
-                        progress.classList.add('d-inline-flex');
-                    }
-                    submitBtn.setAttribute('disabled', 'disabled');
-                }
             });
         }
     });
