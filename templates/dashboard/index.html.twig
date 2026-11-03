@@ -97,7 +97,7 @@
 
     {# Alertes et actions en attente #}
     {% if stats.congesEnAttente > 0 or stats.visitesEnAttente > 0 %}
-    <div class="alert alert-mci alert-mci-warning d-flex align-items-center justify-content-between p-5 mb-0">
+    <div class="alert alert-mci alert-mci-warning d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 p-5 mb-0">
         <div class="d-flex align-items-center">
             <i class="bi bi-exclamation-triangle-fill fs-2 me-4 text-warning"></i>
             <div class="d-flex flex-column">

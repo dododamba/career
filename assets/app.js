@@ -2,7 +2,8 @@ import './bootstrap.js';
 import './styles/app.css';
 
 /**
- * PRIMATECH — Cycle de vie Frontend : Réconciliation Turbo Drive & Metronic 8
+ * Suivi des Carrières — Cycle de vie Frontend : Réconciliation Turbo Drive & Metronic 8
+ * Ministère du Commerce et de l'Industrie — République du Tchad
  */
 
 // Avant la mise en cache Turbo : nettoyer les éléments volatiles pour éviter les doublons/orphelins
@@ -112,4 +113,19 @@ document.addEventListener('turbo:load', () => {
             }
         });
     }
+
+    // 4. Fermeture automatique du menu latéral mobile lors du clic sur un lien
+    document.querySelectorAll('#kt_aside .menu-link').forEach((link) => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 992 && window.KTDrawer) {
+                const asideEl = document.getElementById('kt_aside');
+                if (asideEl) {
+                    const drawer = window.KTDrawer.getInstance(asideEl);
+                    if (drawer) {
+                        drawer.hide();
+                    }
+                }
+            }
+        });
+    });
 });

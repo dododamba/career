@@ -87,7 +87,7 @@
     <div class="card card-mci">
         <div class="card-body p-6">
             <form method="GET" action="{{ path('app_interim_index') }}" class="row g-3 align-items-center">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select name="status" class="form-select form-select-solid fs-7">
                         <option value="all">Tous les statuts</option>
                         <option value="0" {% if current_status is defined and current_status == '0' %}selected{% endif %}>Brouillon</option>
@@ -123,11 +123,11 @@
                 <div class="col-md-3">
                     <div class="position-relative">
                         <i class="bi bi-search position-absolute top-50 translate-middle-y ms-4 text-muted fs-6"></i>
-                        <input type="text" name="search" value="{{ search ?? '' }}" class="form-control form-control-solid ps-12 fs-7" placeholder="Réf, motif, agent, poste...">
+                        <input type="text" name="search" value="{{ search ?? '' }}" class="form-control form-control-solid ps-12 fs-7" placeholder="Rechercher...">
                     </div>
                 </div>
 
-                <div class="col-md-1 d-flex gap-2">
+                <div class="col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-mci-primary btn-sm flex-grow-1" title="Filtrer">
                         <i class="bi bi-funnel-fill"></i>
                     </button>

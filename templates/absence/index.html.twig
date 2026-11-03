@@ -98,10 +98,10 @@
     <div class="card card-mci">
         <div class="card-body p-6">
             <form method="get" action="{{ path('app_absence_index') }}" class="row g-3 align-items-center">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="position-relative">
                         <i class="bi bi-search position-absolute top-50 translate-middle-y ms-4 text-muted fs-5"></i>
-                        <input type="text" name="search" class="form-control form-control-solid ps-12 fs-7" placeholder="Rechercher agent ou motif..." value="{{ search }}">
+                        <input type="text" name="search" class="form-control form-control-solid ps-12 fs-7" placeholder="Rechercher..." value="{{ search }}">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -129,7 +129,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-1 d-flex gap-2">
+                <div class="col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-mci-primary btn-sm flex-grow-1" title="Filtrer">
                         <i class="bi bi-funnel-fill"></i>
                     </button>

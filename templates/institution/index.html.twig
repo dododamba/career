@@ -189,10 +189,10 @@
                         <i class="bi bi-building fs-2 text-mci-blue me-3"></i>
                         <h3 class="fw-bolder text-dark mb-0 fs-4">Liste des institutions</h3>
                     </div>
-                    <div class="card-toolbar">
-                        <div class="d-flex align-items-center gap-2">
-                            <input type="text" class="form-control form-control-solid form-control-sm fs-7" placeholder="Rechercher..." id="search-input" style="width: 180px;">
-                            <select id="type-filter" class="form-select form-select-solid form-select-sm fs-7" style="width: 160px;">
+                    <div class="card-toolbar w-100 w-sm-auto mt-2 mt-sm-0">
+                        <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 w-100">
+                            <input type="text" class="form-control form-control-solid form-control-sm fs-7 w-100 w-sm-180px" placeholder="Rechercher..." id="search-input">
+                            <select id="type-filter" class="form-select form-select-solid form-select-sm fs-7 w-100 w-sm-160px">
                                 <option value="all">Tous les types</option>
                                 {% for type in types_institution %}
                                     <option value="{{ type.nom }}">{{ type.nom }}</option>

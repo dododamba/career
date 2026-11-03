@@ -2,33 +2,33 @@
     <div class="container-fluid d-flex align-items-center justify-content-between">
         <!--begin::Aside mobile toggle-->
         <div class="d-flex align-items-center d-lg-none ms-n3 me-1" title="Afficher le menu">
-            <div class="btn btn-icon btn-active-color-white" id="kt_aside_mobile_toggle">
+            <div class="btn btn-icon btn-active-color-white" id="kt_aside_mobile_toggle" role="button" aria-label="Afficher le menu de navigation" tabindex="0">
                 <i class="bi bi-list fs-1 text-white"></i>
             </div>
         </div>
         <!--end::Aside mobile toggle-->
 
         <!--begin::Mobile logo-->
-        <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
-            <a href="{{ path('app_dashboard') }}" class="d-lg-none d-flex align-items-center text-white text-decoration-none">
-                <img alt="Armoirie de la République du Tchad" src="{{ asset('assets/media/logos/armoirie_tchad.png') }}" class="h-32px w-auto me-2 flex-shrink-0"/>
+        <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0 min-w-0 overflow-hidden">
+            <a href="{{ path('app_dashboard') }}" class="d-lg-none d-flex align-items-center text-white text-decoration-none min-w-0">
+                <img alt="Armoirie de la République du Tchad" src="{{ asset('images/brand/armoirie-96.png') }}" class="me-2 flex-shrink-0" style="height: 32px; width: 32px; object-fit: contain;"/>
                 <span class="fw-bolder fs-5 text-white text-truncate">{{ app_name }}</span>
             </a>
         </div>
         <!--end::Mobile logo-->
 
         <!--begin::Wrapper-->
-        <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1">
+        <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1 min-w-0">
             <!--begin::Navbar / Search-->
-            <div class="d-flex align-items-stretch" id="kt_header_nav">
-                <div class="header-menu align-items-stretch">
-                    <div class="menu menu-lg-rounded menu-column menu-lg-row menu-state-bg menu-title-gray-700 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-400 fw-bold my-5 my-lg-0 align-items-stretch">
-                        <div class="menu-item me-lg-1 d-flex align-items-center">
-                            <span class="fs-4 fw-bolder text-white d-flex align-items-center">
-                                <img src="{{ asset('assets/media/logos/armoirie_tchad.png') }}" alt="Armoirie Tchad" class="h-38px me-3 d-none d-lg-inline-block" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));" />
-                                <span class="d-flex flex-column justify-content-center">
-                                    <span class="text-white fw-bolder fs-4 lh-1">{{ app_name }}</span>
-                                    <span class="d-none d-xl-inline fs-8 fw-semibold pt-1" style="color: rgba(255,255,255,.78);">{{ app_institution }} • {{ app_country }}</span>
+            <div class="d-flex align-items-stretch min-w-0" id="kt_header_nav">
+                <div class="header-menu align-items-stretch min-w-0">
+                    <div class="menu menu-lg-rounded menu-column menu-lg-row menu-state-bg menu-title-gray-700 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-400 fw-bold my-5 my-lg-0 align-items-stretch min-w-0">
+                        <div class="menu-item me-lg-1 d-flex align-items-center min-w-0">
+                            <span class="fs-4 fw-bolder text-white d-flex align-items-center min-w-0">
+                                <img src="{{ asset('images/brand/armoirie-96.png') }}" alt="Armoirie Tchad" class="me-3 d-none d-lg-inline-block flex-shrink-0" style="height: 38px; width: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));" />
+                                <span class="d-flex flex-column justify-content-center min-w-0">
+                                    <span class="text-white fw-bolder fs-4 lh-1 text-truncate">{{ app_name }}</span>
+                                    <span class="d-none d-xl-inline fs-8 fw-semibold pt-1 text-truncate" style="color: rgba(255,255,255,.78);">{{ app_institution }} • {{ app_country }}</span>
                                 </span>
                                 {% if app.user and app.user.institution %}
                                     <span class="badge ms-4 fs-8 fw-bold py-1 px-3 d-none d-sm-inline-flex align-items-center" style="background-color: var(--mci-gold); color: #002664 !important; border-radius: 6px;">
