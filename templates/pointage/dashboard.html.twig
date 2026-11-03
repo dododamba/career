@@ -4,6 +4,7 @@
 
 {% block page_title %}
     <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        <i class="bi bi-speedometer2 text-primary fs-2 me-2"></i>
         Tableau de Bord Assiduité &amp; Présences
         <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
         <small class="text-muted fs-7 fw-semibold my-1 ms-1">Indicateurs de ponctualité et présence des effectifs</small>
@@ -12,28 +13,34 @@
 
 {% block breadcrumb %}
     <li class="breadcrumb-item text-muted">
-        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">
+            <i class="bi bi-house-door me-1"></i>Accueil
+        </a>
     </li>
     <li class="breadcrumb-item">
         <span class="bullet bg-gray-300 w-5px h-2px"></span>
     </li>
     <li class="breadcrumb-item text-muted">
-        <a href="{{ path('app_pointage_index') }}" class="text-muted text-hover-primary">Pointages</a>
+        <a href="{{ path('app_pointage_index') }}" class="text-muted text-hover-primary">
+            <i class="bi bi-clock-history me-1"></i>Pointages
+        </a>
     </li>
     <li class="breadcrumb-item">
         <span class="bullet bg-gray-300 w-5px h-2px"></span>
     </li>
-    <li class="breadcrumb-item text-gray-900">Dashboard</li>
+    <li class="breadcrumb-item text-gray-900">
+        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+    </li>
 {% endblock %}
 
 {% block page_actions %}
     <div class="d-flex align-items-center gap-2">
         <a href="{{ path('app_pointage_index') }}" class="btn btn-sm btn-light">
-            <i class="ki-duotone ki-element-11 fs-4 me-1"></i> Registre journalier
+            <i class="bi bi-journal-check fs-5 me-1 text-primary"></i> Registre journalier
         </a>
         {% if is_granted('POINTAGE_CREATE') %}
             <a href="{{ path('app_pointage_new') }}" class="btn btn-sm btn-mci-primary">
-                <i class="ki-duotone ki-plus-circle fs-4 me-1"></i> Nouveau pointage
+                <i class="bi bi-plus-circle fs-5 me-1"></i> Nouveau pointage
             </a>
         {% endif %}
     </div>
@@ -48,23 +55,20 @@
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
                 <div class="d-flex align-items-center">
                     <div class="symbol symbol-50px symbol-circle me-4 bg-light-primary text-primary d-flex align-items-center justify-content-center">
-                        <i class="ki-duotone ki-chart-line-up fs-1 text-primary">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                        </i>
+                        <i class="bi bi-bar-chart-line-fill fs-1 text-primary"></i>
                     </div>
                     <div>
                         <h2 class="fs-2 fw-bold text-gray-900 mb-1">Baromètre d'Assiduité Institutionnelle</h2>
                         <div class="text-muted fs-7">
-                            Vue synthétique des présences, absences et retards au Ministère du Commerce et de l'Industrie.
-                            Situation au <span class="fw-bold text-gray-800">{{ date_actuelle|date('d/m/Y') }}</span>.
+                            Vue synthétique des présences, absences et retards à {{ app.user.institution.nom|default(app_institution) }}.
+                            Situation au <span class="fw-bold text-gray-800"><i class="bi bi-calendar3 me-1 text-primary"></i>{{ date_actuelle|date('d/m/Y') }}</span>.
                         </div>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     {% set total_emp = stats.total_employes|default(0) %}
                     <span class="badge badge-light-primary fw-bold py-2 px-3 fs-7">
-                        <i class="ki-duotone ki-people fs-6 text-primary me-1"></i>
+                        <i class="bi bi-people-fill fs-6 text-primary me-1"></i>
                         Effectif recensé : {{ total_emp }} agents
                     </span>
                 </div>
@@ -89,7 +93,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="text-muted fw-semibold fs-7 text-uppercase">Présents aujourd'hui</span>
                         <div class="symbol symbol-45px bg-light-success text-success d-flex align-items-center justify-content-center">
-                            <i class="ki-duotone ki-check fs-2 text-success"></i>
+                            <i class="bi bi-person-check-fill fs-2 text-success"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-baseline gap-2 mb-2">
@@ -119,7 +123,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="text-muted fw-semibold fs-7 text-uppercase">Congés &amp; Missions</span>
                         <div class="symbol symbol-45px bg-light-info text-info d-flex align-items-center justify-content-center">
-                            <i class="ki-duotone ki-calendar fs-2 text-info"></i>
+                            <i class="bi bi-calendar2-range-fill fs-2 text-info"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-baseline gap-2 mb-2">
@@ -145,7 +149,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="text-muted fw-semibold fs-7 text-uppercase">Absences injustifiées</span>
                         <div class="symbol symbol-45px bg-light-danger text-danger d-flex align-items-center justify-content-center">
-                            <i class="ki-duotone ki-cross fs-2 text-danger"></i>
+                            <i class="bi bi-person-x-fill fs-2 text-danger"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-baseline gap-2 mb-2">
@@ -175,7 +179,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="text-muted fw-semibold fs-7 text-uppercase">Retards constatés</span>
                         <div class="symbol symbol-45px bg-light-warning text-warning d-flex align-items-center justify-content-center">
-                            <i class="ki-duotone ki-timer fs-2 text-warning"></i>
+                            <i class="bi bi-stopwatch-fill fs-2 text-warning"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-baseline gap-2 mb-2">
@@ -206,7 +210,9 @@
             <div class="card card-flush border-0 shadow-sm h-100">
                 <div class="card-header pt-5">
                     <h3 class="card-title align-items-start flex-column">
-                        <span class="card-label fw-bold fs-3 text-gray-900">Évolution Mensuelle des Pointages</span>
+                        <span class="card-label fw-bold fs-3 text-gray-900">
+                            <i class="bi bi-graph-up-arrow text-primary me-2"></i>Évolution Mensuelle des Pointages
+                        </span>
                         <span class="text-muted mt-1 fw-semibold fs-7">Historique consolidé de l'année en cours</span>
                     </h3>
                 </div>
@@ -216,7 +222,7 @@
                             {{ render_chart(chart) }}
                         {% else %}
                             <div class="d-flex align-items-center justify-content-center h-250px text-muted">
-                                Données graphiques en cours de consolidation.
+                                <i class="bi bi-bar-chart me-2"></i>Données graphiques en cours de consolidation.
                             </div>
                         {% endif %}
                     </div>
@@ -229,7 +235,9 @@
             <div class="card card-flush border-0 shadow-sm h-100">
                 <div class="card-header pt-5">
                     <h3 class="card-title align-items-start flex-column">
-                        <span class="card-label fw-bold fs-3 text-gray-900">Exemplarité &amp; Assiduité</span>
+                        <span class="card-label fw-bold fs-3 text-gray-900">
+                            <i class="bi bi-award-fill text-warning me-2"></i>Exemplarité &amp; Assiduité
+                        </span>
                         <span class="text-muted mt-1 fw-semibold fs-7">Collaborateurs les plus réguliers</span>
                     </h3>
                 </div>
@@ -249,11 +257,13 @@
                                                 <a href="{{ path('app_pointage_employe', {'id': emp.id}) }}" class="text-gray-900 text-hover-primary fw-bold fs-6">
                                                     {{ emp.nom }} {{ emp.prenom }}
                                                 </a>
-                                                <span class="text-muted fs-8">{{ emp.service ? emp.service.nom : 'Service non assigné' }}</span>
+                                                <span class="text-muted fs-8">
+                                                    <i class="bi bi-building me-1"></i>{{ emp.service ? emp.service.nom : 'Service non assigné' }}
+                                                </span>
                                             </div>
                                         </div>
                                         <span class="badge badge-light-success fw-bold fs-7 py-2 px-3">
-                                            {{ score }} pointages
+                                            <i class="bi bi-check2-all text-success me-1"></i>{{ score }} pointages
                                         </span>
                                     </div>
                                 {% endif %}
@@ -261,7 +271,7 @@
                         </div>
                     {% else %}
                         <div class="text-center py-8 text-muted">
-                            <i class="ki-duotone ki-medal-star fs-3x text-muted mb-2"></i>
+                            <i class="bi bi-trophy fs-3x text-muted mb-2 d-block"></i>
                             <div class="fs-7">Aucune donnée de classement disponible.</div>
                         </div>
                     {% endif %}
@@ -274,13 +284,16 @@
     <div class="card card-flush border-0 shadow-sm">
         <div class="card-header pt-5">
             <h3 class="card-title align-items-start flex-column">
-                <span class="card-label fw-bold fs-3 text-gray-900">Émargements du Jour</span>
+                <span class="card-label fw-bold fs-3 text-gray-900">
+                    <i class="bi bi-clock-history text-primary me-2"></i>Émargements du Jour
+                </span>
                 <span class="text-muted mt-1 fw-semibold fs-7">Pointages effectifs enregistrés aujourd'hui</span>
             </h3>
             <div class="card-toolbar">
                 <a href="{{ path('app_pointage_index') }}" class="btn btn-sm btn-light-primary">
+                    <i class="bi bi-list-check me-1"></i>
                     Voir la liste exhaustive
-                    <i class="ki-duotone ki-arrow-right fs-4 ms-1"></i>
+                    <i class="bi bi-arrow-right fs-6 ms-1"></i>
                 </a>
             </div>
         </div>
@@ -289,12 +302,12 @@
                 <table class="table align-middle table-row-dashed fs-6 gy-4">
                     <thead>
                         <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                            <th>Collaborateur</th>
-                            <th>Service</th>
-                            <th class="text-center">Heure d'arrivée</th>
-                            <th class="text-center">Heure de départ</th>
-                            <th class="text-center">Statut</th>
-                            <th class="text-end pe-4">Actions</th>
+                            <th><i class="bi bi-person me-2 text-primary"></i>Collaborateur</th>
+                            <th><i class="bi bi-building me-2 text-primary"></i>Service</th>
+                            <th class="text-center"><i class="bi bi-box-arrow-in-right me-2 text-success"></i>Heure d'arrivée</th>
+                            <th class="text-center"><i class="bi bi-box-arrow-right me-2 text-primary"></i>Heure de départ</th>
+                            <th class="text-center"><i class="bi bi-check2-circle me-2 text-info"></i>Statut</th>
+                            <th class="text-end pe-4"><i class="bi bi-gear me-2 text-muted"></i>Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-600 fw-semibold">
@@ -310,24 +323,39 @@
                                                 <a href="{{ path('app_pointage_employe', {'id': pointage.employe.id}) }}" class="text-gray-900 text-hover-primary fw-bold">
                                                     {{ pointage.employe.nom }} {{ pointage.employe.prenom }}
                                                 </a>
-                                                <span class="text-muted fs-8">Matricule: {{ pointage.employe.matricule|default('N/D') }}</span>
+                                                <span class="text-muted fs-8">
+                                                    <i class="bi bi-upc-scan me-1"></i>Matricule : {{ pointage.employe.matricule|default('N/D') }}
+                                                </span>
                                             </div>
                                         {% else %}
-                                            <span class="text-muted">Agent non affecté</span>
+                                            <span class="text-muted"><i class="bi bi-person-x me-1"></i>Agent non affecté</span>
                                         {% endif %}
                                     </div>
                                 </td>
-                                <td>{{ pointage.employe and pointage.employe.service ? pointage.employe.service.nom : '—' }}</td>
+                                <td>
+                                    {% if pointage.employe and pointage.employe.service %}
+                                        <span class="d-flex align-items-center text-gray-700">
+                                            <i class="bi bi-building me-1 text-muted fs-7"></i>
+                                            {{ pointage.employe.service.nom }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
                                 <td class="text-center">
                                     {% if pointage.heureArrivee %}
-                                        <span class="badge badge-light-success fw-bold font-monospace fs-7">{{ pointage.heureArrivee|date('H:i') }}</span>
+                                        <span class="badge badge-light-success fw-bold font-monospace fs-7">
+                                            <i class="bi bi-clock text-success me-1"></i>{{ pointage.heureArrivee|date('H:i') }}
+                                        </span>
                                     {% else %}
                                         <span class="text-muted fs-7">—</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
                                     {% if pointage.heureDepart %}
-                                        <span class="badge badge-light-primary fw-bold font-monospace fs-7">{{ pointage.heureDepart|date('H:i') }}</span>
+                                        <span class="badge badge-light-primary fw-bold font-monospace fs-7">
+                                            <i class="bi bi-clock-history text-primary me-1"></i>{{ pointage.heureDepart|date('H:i') }}
+                                        </span>
                                     {% else %}
                                         <span class="text-muted fs-7">—</span>
                                     {% endif %}
@@ -335,28 +363,33 @@
                                 <td class="text-center">
                                     {% set st = pointage.status|default('Présent') %}
                                     {% if st in ['Présent', 'Present'] %}
-                                        <span class="badge badge-light-success fw-bold py-2 px-3">Présent</span>
+                                        <span class="badge badge-light-success fw-bold py-2 px-3">
+                                            <i class="bi bi-check-circle-fill text-success me-1"></i>Présent
+                                        </span>
                                     {% elseif st in ['Absent'] %}
-                                        <span class="badge badge-light-danger fw-bold py-2 px-3">Absent</span>
+                                        <span class="badge badge-light-danger fw-bold py-2 px-3">
+                                            <i class="bi bi-x-circle-fill text-danger me-1"></i>Absent
+                                        </span>
                                     {% elseif st in ['En retard', 'Retard'] %}
-                                        <span class="badge badge-light-warning fw-bold py-2 px-3">Retard</span>
+                                        <span class="badge badge-light-warning fw-bold py-2 px-3">
+                                            <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>Retard
+                                        </span>
                                     {% else %}
-                                        <span class="badge badge-light-secondary fw-bold py-2 px-3">{{ st }}</span>
+                                        <span class="badge badge-light-secondary fw-bold py-2 px-3">
+                                            <i class="bi bi-dash-circle text-secondary me-1"></i>{{ st }}
+                                        </span>
                                     {% endif %}
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}" class="btn btn-icon btn-light btn-sm" title="Détails">
-                                        <i class="ki-duotone ki-eye fs-4 text-primary">
-                                            <span class="path1"></span>
-                                            <span class="path2"></span>
-                                            <span class="path3"></span>
-                                        </i>
+                                    <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}" class="btn btn-icon btn-light btn-sm btn-active-light-primary" title="Détails du pointage">
+                                        <i class="bi bi-eye-fill fs-5 text-primary"></i>
                                     </a>
                                 </td>
                             </tr>
                         {% else %}
                             <tr>
                                 <td colspan="6" class="text-center py-6 text-muted">
+                                    <i class="bi bi-inbox fs-2 text-muted d-block mb-2"></i>
                                     Aucun émargement enregistré aujourd'hui.
                                 </td>
                             </tr>

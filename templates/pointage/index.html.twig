@@ -4,6 +4,7 @@
 
 {% block page_title %}
     <h1 class="d-flex align-items-center text-gray-900 fw-bold my-1 fs-3">
+        <i class="bi bi-clock-history text-primary fs-2 me-2"></i>
         Suivi Quotidien des Pointages
         <span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
         <small class="text-muted fs-7 fw-semibold my-1 ms-1">Registre d'émargement et assiduité</small>
@@ -12,29 +13,27 @@
 
 {% block breadcrumb %}
     <li class="breadcrumb-item text-muted">
-        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">Accueil</a>
+        <a href="{{ path('app_dashboard') }}" class="text-muted text-hover-primary">
+            <i class="bi bi-house-door me-1"></i>Accueil
+        </a>
     </li>
     <li class="breadcrumb-item">
         <span class="bullet bg-gray-300 w-5px h-2px"></span>
     </li>
-    <li class="breadcrumb-item text-gray-900">Pointages</li>
+    <li class="breadcrumb-item text-gray-900">
+        <i class="bi bi-clock-history me-1"></i>Pointages
+    </li>
 {% endblock %}
 
 {% block page_actions %}
     <div class="d-flex align-items-center gap-2">
         <a href="{{ path('app_pointage_dashboard') }}" class="btn btn-sm btn-light-primary">
-            <i class="ki-duotone ki-chart-line fs-3 me-1">
-                <span class="path1"></span>
-                <span class="path2"></span>
-            </i>
+            <i class="bi bi-speedometer2 fs-5 me-1"></i>
             Tableau analytique
         </a>
         {% if is_granted('POINTAGE_CREATE') %}
             <a href="{{ path('app_pointage_new') }}" class="btn btn-sm btn-mci-primary">
-                <i class="ki-duotone ki-plus-circle fs-3 me-1">
-                    <span class="path1"></span>
-                    <span class="path2"></span>
-                </i>
+                <i class="bi bi-plus-circle fs-5 me-1"></i>
                 Nouveau pointage
             </a>
         {% endif %}
@@ -50,28 +49,23 @@
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
                 <div class="d-flex align-items-center">
                     <div class="symbol symbol-50px symbol-circle me-4 bg-light-primary text-primary d-flex align-items-center justify-content-center">
-                        <i class="ki-duotone ki-time fs-1 text-primary">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                        </i>
+                        <i class="bi bi-calendar2-check-fill fs-1 text-primary"></i>
                     </div>
                     <div>
                         <h2 class="fs-2 fw-bold text-gray-900 mb-1">Émargement journalier du personnel</h2>
                         <div class="text-muted fs-7">
-                            Pointages enregistrés pour la journée du <span class="fw-bold text-gray-800">{{ date_actuelle|date('d/m/Y') }}</span>
-                            au Ministère du Commerce et de l'Industrie.
+                            Pointages enregistrés pour la journée du <span class="fw-bold text-gray-800"><i class="bi bi-calendar3 me-1 text-primary"></i>{{ date_actuelle|date('d/m/Y') }}</span>
+                            à {{ app.user.institution.nom|default(app_institution) }}.
                         </div>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <span class="badge badge-light-primary fw-bold py-2 px-3">
-                        <i class="ki-duotone ki-calendar fs-6 text-primary me-1">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                        </i>
+                        <i class="bi bi-calendar-event me-1"></i>
                         {{ date_actuelle|date('d/m/Y') }}
                     </span>
                     <span class="badge badge-light-info fw-bold py-2 px-3">
+                        <i class="bi bi-people-fill me-1"></i>
                         Total effectif : {{ stats.total_employes|default(0) }}
                     </span>
                 </div>
@@ -91,6 +85,7 @@
                             <div class="fs-2 fw-bolder text-gray-900 mt-1">{{ stats.presents }}</div>
                             <div class="d-flex align-items-center mt-2">
                                 <span class="badge badge-light-success fs-8 fw-bold">
+                                    <i class="bi bi-check-circle-fill me-1 text-success"></i>
                                     {{ stats.total_employes > 0 ? (stats.presents / stats.total_employes * 100)|round : 0 }}% du total
                                 </span>
                                 {% if stats.tendance_presents is defined %}
@@ -101,10 +96,7 @@
                             </div>
                         </div>
                         <div class="symbol symbol-50px bg-light-success text-success d-flex align-items-center justify-content-center">
-                            <i class="ki-duotone ki-check-circle fs-1 text-success">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                            </i>
+                            <i class="bi bi-person-check-fill fs-1 text-success"></i>
                         </div>
                     </div>
                 </div>
@@ -121,6 +113,7 @@
                             <div class="fs-2 fw-bolder text-gray-900 mt-1">{{ stats.absents }}</div>
                             <div class="d-flex align-items-center mt-2">
                                 <span class="badge badge-light-danger fs-8 fw-bold">
+                                    <i class="bi bi-x-circle-fill me-1 text-danger"></i>
                                     {{ stats.total_employes > 0 ? (stats.absents / stats.total_employes * 100)|round : 0 }}% du total
                                 </span>
                                 {% if stats.tendance_absents is defined %}
@@ -131,10 +124,7 @@
                             </div>
                         </div>
                         <div class="symbol symbol-50px bg-light-danger text-danger d-flex align-items-center justify-content-center">
-                            <i class="ki-duotone ki-cross-circle fs-1 text-danger">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                            </i>
+                            <i class="bi bi-person-x-fill fs-1 text-danger"></i>
                         </div>
                     </div>
                 </div>
@@ -151,16 +141,13 @@
                             <div class="fs-2 fw-bolder text-gray-900 mt-1">{{ stats.retards }}</div>
                             <div class="d-flex align-items-center mt-2">
                                 <span class="badge badge-light-warning fs-8 fw-bold">
+                                    <i class="bi bi-exclamation-triangle-fill me-1 text-warning"></i>
                                     {{ stats.total_employes > 0 ? (stats.retards / stats.total_employes * 100)|round : 0 }}% du total
                                 </span>
                             </div>
                         </div>
                         <div class="symbol symbol-50px bg-light-warning text-warning d-flex align-items-center justify-content-center">
-                            <i class="ki-duotone ki-timer fs-1 text-warning">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                                <span class="path3"></span>
-                            </i>
+                            <i class="bi bi-stopwatch-fill fs-1 text-warning"></i>
                         </div>
                     </div>
                 </div>
@@ -177,15 +164,13 @@
                             <div class="fs-2 fw-bolder text-gray-900 mt-1">{{ stats.conges }}</div>
                             <div class="d-flex align-items-center mt-2">
                                 <span class="badge badge-light-info fs-8 fw-bold">
+                                    <i class="bi bi-airplane-fill me-1 text-info"></i>
                                     {{ stats.total_employes > 0 ? (stats.conges / stats.total_employes * 100)|round : 0 }}% du total
                                 </span>
                             </div>
                         </div>
                         <div class="symbol symbol-50px bg-light-info text-info d-flex align-items-center justify-content-center">
-                            <i class="ki-duotone ki-airplane fs-1 text-info">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                            </i>
+                            <i class="bi bi-calendar2-range-fill fs-1 text-info"></i>
                         </div>
                     </div>
                 </div>
@@ -198,10 +183,7 @@
         <div class="card-header align-items-center py-5 gap-2 gap-md-5">
             <div class="card-title">
                 <div class="d-flex align-items-center position-relative my-1">
-                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
-                        <span class="path1"></span>
-                        <span class="path2"></span>
-                    </i>
+                    <i class="bi bi-search fs-4 position-absolute ms-4 text-muted"></i>
                     <input type="text" data-kt-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Rechercher un pointage..." />
                 </div>
             </div>
@@ -209,10 +191,7 @@
                 <div class="d-flex align-items-center gap-2">
                     <input type="date" class="form-control form-control-solid w-175px" id="date-filter" value="{{ date_actuelle }}" />
                     <button class="btn btn-light-primary" type="button" id="filter-button">
-                        <i class="ki-duotone ki-filter fs-5 me-1">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                        </i>
+                        <i class="bi bi-funnel-fill fs-6 me-1"></i>
                         Filtrer
                     </button>
                 </div>
@@ -224,13 +203,13 @@
                 <table class="table align-middle table-row-dashed fs-6 gy-4" id="kt_pointages_table">
                     <thead>
                         <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                            <th class="min-w-200px">Collaborateur</th>
-                            <th class="min-w-150px">Structure / Service</th>
-                            <th class="min-w-100px text-center">Arrivée</th>
-                            <th class="min-w-100px text-center">Départ</th>
-                            <th class="min-w-120px text-center">Statut</th>
-                            <th class="min-w-150px">Motif / Observation</th>
-                            <th class="min-w-100px text-end pe-4">Actions</th>
+                            <th class="min-w-200px"><i class="bi bi-person me-2 text-primary"></i>Collaborateur</th>
+                            <th class="min-w-150px"><i class="bi bi-building me-2 text-primary"></i>Structure / Service</th>
+                            <th class="min-w-100px text-center"><i class="bi bi-box-arrow-in-right me-2 text-success"></i>Arrivée</th>
+                            <th class="min-w-100px text-center"><i class="bi bi-box-arrow-right me-2 text-primary"></i>Départ</th>
+                            <th class="min-w-120px text-center"><i class="bi bi-activity me-2 text-info"></i>Statut</th>
+                            <th class="min-w-150px"><i class="bi bi-chat-left-text me-2 text-muted"></i>Motif / Observation</th>
+                            <th class="min-w-100px text-end pe-4"><i class="bi bi-gear me-2 text-muted"></i>Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-600 fw-semibold">
@@ -247,15 +226,12 @@
                                                     {{ pointage.employe.nom ?: 'N/A' }} {{ pointage.employe.prenom ?: 'N/A' }}
                                                 </a>
                                                 <span class="text-muted fs-7">
-                                                    Matricule : {{ pointage.employe.matricule|default('N/D') }}
+                                                    <i class="bi bi-upc-scan me-1"></i>Matricule : {{ pointage.employe.matricule|default('N/D') }}
                                                 </span>
                                             </div>
                                         {% else %}
                                             <div class="symbol symbol-40px symbol-circle me-3 bg-light-secondary text-secondary d-flex align-items-center justify-content-center">
-                                                <i class="ki-duotone ki-user fs-4 text-secondary">
-                                                    <span class="path1"></span>
-                                                    <span class="path2"></span>
-                                                </i>
+                                                <i class="bi bi-person-x fs-4 text-secondary"></i>
                                             </div>
                                             <span class="text-muted">Agent non affecté</span>
                                         {% endif %}
@@ -263,18 +239,20 @@
                                 </td>
                                 <td>
                                     {% if pointage.employe and pointage.employe.service %}
-                                        <div class="fw-bold text-gray-800">{{ pointage.employe.service.nom }}</div>
+                                        <div class="fw-bold text-gray-800">
+                                            <i class="bi bi-building me-1 text-muted fs-7"></i>{{ pointage.employe.service.nom }}
+                                        </div>
                                         {% if pointage.employe.service.structure is defined and pointage.employe.service.structure %}
                                             <div class="text-muted fs-8">{{ pointage.employe.service.structure.nom }}</div>
                                         {% endif %}
                                     {% else %}
-                                        <span class="text-muted fs-7">Non rattaché</span>
+                                        <span class="text-muted fs-7">—</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
                                     {% if pointage.heureArrivee %}
                                         <span class="badge badge-light-success fw-bold font-monospace fs-7">
-                                            {{ pointage.heureArrivee|date('H:i') }}
+                                            <i class="bi bi-clock text-success me-1"></i>{{ pointage.heureArrivee|date('H:i') }}
                                         </span>
                                     {% else %}
                                         <span class="text-muted fs-7">—</span>
@@ -283,7 +261,7 @@
                                 <td class="text-center">
                                     {% if pointage.heureDepart %}
                                         <span class="badge badge-light-primary fw-bold font-monospace fs-7">
-                                            {{ pointage.heureDepart|date('H:i') }}
+                                            <i class="bi bi-clock-history text-primary me-1"></i>{{ pointage.heureDepart|date('H:i') }}
                                         </span>
                                     {% else %}
                                         <span class="text-muted fs-7">—</span>
@@ -293,23 +271,23 @@
                                     {% set st = pointage.status|default('Présent') %}
                                     {% if st in ['Présent', 'Present'] %}
                                         <span class="badge badge-light-success fw-bold py-2 px-3">
-                                            <i class="ki-duotone ki-check fs-7 text-success me-1"></i> Présent
+                                            <i class="bi bi-check-circle-fill text-success me-1"></i>Présent
                                         </span>
                                     {% elseif st in ['Absent', 'Non justifié'] %}
                                         <span class="badge badge-light-danger fw-bold py-2 px-3">
-                                            <i class="ki-duotone ki-cross fs-7 text-danger me-1"></i> Absent
+                                            <i class="bi bi-x-circle-fill text-danger me-1"></i>Absent
                                         </span>
                                     {% elseif st in ['En retard', 'Retard'] %}
                                         <span class="badge badge-light-warning fw-bold py-2 px-3">
-                                            <i class="ki-duotone ki-timer fs-7 text-warning me-1"></i> Retard
+                                            <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>Retard
                                         </span>
                                     {% elseif st in ['Congé', 'Conge'] %}
                                         <span class="badge badge-light-info fw-bold py-2 px-3">
-                                            <i class="ki-duotone ki-calendar fs-7 text-info me-1"></i> Congé
+                                            <i class="bi bi-airplane-fill text-info me-1"></i>Congé
                                         </span>
                                     {% else %}
                                         <span class="badge badge-light-secondary fw-bold py-2 px-3">
-                                            {{ st }}
+                                            <i class="bi bi-dash-circle text-secondary me-1"></i>{{ st }}
                                         </span>
                                     {% endif %}
                                 </td>
@@ -325,31 +303,18 @@
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
                                         <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}" class="btn btn-icon btn-light btn-active-color-primary btn-sm" title="Détails">
-                                            <i class="ki-duotone ki-eye fs-4 text-primary">
-                                                <span class="path1"></span>
-                                                <span class="path2"></span>
-                                                <span class="path3"></span>
-                                            </i>
+                                            <i class="bi bi-eye-fill fs-5 text-primary"></i>
                                         </a>
                                         {% if is_granted('POINTAGE_EDIT') or is_granted('ROLE_ADMIN') %}
                                             <a href="{{ path('app_pointage_edit', {'id': pointage.id}) }}" class="btn btn-icon btn-light btn-active-color-warning btn-sm" title="Modifier">
-                                                <i class="ki-duotone ki-pencil fs-4 text-warning">
-                                                    <span class="path1"></span>
-                                                    <span class="path2"></span>
-                                                </i>
+                                                <i class="bi bi-pencil-square fs-5 text-warning"></i>
                                             </a>
                                         {% endif %}
                                         {% if is_granted('POINTAGE_DELETE') or is_granted('ROLE_ADMIN') %}
                                             <form method="post" action="{{ path('app_pointage_delete', {'id': pointage.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce pointage ?');" class="d-inline">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ pointage.id) }}">
                                                 <button class="btn btn-icon btn-light btn-active-color-danger btn-sm" title="Supprimer">
-                                                    <i class="ki-duotone ki-trash fs-4 text-danger">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                        <span class="path3"></span>
-                                                        <span class="path4"></span>
-                                                        <span class="path5"></span>
-                                                    </i>
+                                                    <i class="bi bi-trash-fill fs-5 text-danger"></i>
                                                 </button>
                                             </form>
                                         {% endif %}
@@ -360,10 +325,7 @@
                             <tr>
                                 <td colspan="7" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-duotone ki-time fs-3x text-muted mb-3">
-                                            <span class="path1"></span>
-                                            <span class="path2"></span>
-                                        </i>
+                                        <i class="bi bi-calendar-x fs-3x text-muted mb-3"></i>
                                         <div class="text-gray-600 fs-5 fw-bold mb-1">Aucun pointage enregistré</div>
                                         <div class="text-muted fs-7">Aucun émargement pour la date sélectionnée.</div>
                                     </div>

@@ -29,17 +29,13 @@
 {% block page_actions %}
     <div class="d-flex align-items-center gap-2">
         <a href="{{ path('app_pointage_index') }}" class="btn btn-sm btn-light">
-            <i class="ki-duotone ki-arrow-left fs-4 me-1">
-                <span class="path1"></span>
-                <span class="path2"></span>
+            <i class="bi bi-arrow-left fs-4 me-1">
             </i>
             Retour à la liste
         </a>
         {% if is_granted('POINTAGE_EDIT') or is_granted('ROLE_ADMIN') %}
             <a href="{{ path('app_pointage_edit', {'id': pointage.id}) }}" class="btn btn-sm btn-mci-primary">
-                <i class="ki-duotone ki-pencil fs-4 me-1">
-                    <span class="path1"></span>
-                    <span class="path2"></span>
+                <i class="bi bi-pencil-square fs-4 me-1">
                 </i>
                 Modifier
             </a>
@@ -59,7 +55,7 @@
                         {% if pointage.employe %}
                             {{ pointage.employe.nom ? pointage.employe.nom|first|upper : 'E' }}{{ pointage.employe.prenom ? pointage.employe.prenom|first|upper : 'M' }}
                         {% else %}
-                            <i class="ki-duotone ki-user fs-1 text-primary"></i>
+                            <i class="bi bi-person-fill fs-1 text-primary"></i>
                         {% endif %}
                     </div>
                     <div>
@@ -78,15 +74,15 @@
                     {% set st = pointage.status|default(pointage.isEstPresent ? 'Présent' : 'Absent') %}
                     {% if st in ['Présent', 'Present'] %}
                         <span class="badge badge-light-success fs-7 fw-bold py-2 px-4">
-                            <i class="ki-duotone ki-check-circle fs-6 text-success me-1"></i> Présent
+                            <i class="bi bi-check-circle-fill fs-6 text-success me-1"></i> Présent
                         </span>
                     {% elseif st in ['Absent'] %}
                         <span class="badge badge-light-danger fs-7 fw-bold py-2 px-4">
-                            <i class="ki-duotone ki-cross-circle fs-6 text-danger me-1"></i> Absent
+                            <i class="bi bi-x-circle-fill fs-6 text-danger me-1"></i> Absent
                         </span>
                     {% elseif st in ['En retard', 'Retard'] %}
                         <span class="badge badge-light-warning fs-7 fw-bold py-2 px-4">
-                            <i class="ki-duotone ki-timer fs-6 text-warning me-1"></i> En retard
+                            <i class="bi bi-stopwatch-fill fs-6 text-warning me-1"></i> En retard
                         </span>
                     {% else %}
                         <span class="badge badge-light-info fs-7 fw-bold py-2 px-4">{{ st }}</span>
@@ -113,7 +109,7 @@
                                 <tr>
                                     <td class="text-muted min-w-150px">Date du pointage</td>
                                     <td class="fw-bold text-gray-900">
-                                        <i class="ki-duotone ki-calendar fs-5 text-primary me-2"></i>
+                                        <i class="bi bi-calendar3 fs-5 text-primary me-2"></i>
                                         {{ pointage.date ? pointage.date|date('d/m/Y') : '—' }}
                                     </td>
                                 </tr>
@@ -122,7 +118,7 @@
                                     <td>
                                         {% if pointage.heureArrivee %}
                                             <span class="badge badge-light-success fw-bold font-monospace fs-6 px-3 py-2">
-                                                <i class="ki-duotone ki-time fs-6 text-success me-1"></i>
+                                                <i class="bi bi-clock fs-6 text-success me-1"></i>
                                                 {{ pointage.heureArrivee|date('H:i') }}
                                             </span>
                                         {% else %}
@@ -135,7 +131,7 @@
                                     <td>
                                         {% if pointage.heureDepart %}
                                             <span class="badge badge-light-primary fw-bold font-monospace fs-6 px-3 py-2">
-                                                <i class="ki-duotone ki-time fs-6 text-primary me-1"></i>
+                                                <i class="bi bi-clock fs-6 text-primary me-1"></i>
                                                 {{ pointage.heureDepart|date('H:i') }}
                                             </span>
                                         {% else %}
@@ -168,7 +164,7 @@
                     <div class="d-flex flex-column gap-4">
                         {% if pointage.motifAbsence %}
                             <div class="alert alert-light-warning d-flex align-items-center p-4 border border-warning border-dashed rounded">
-                                <i class="ki-duotone ki-information-5 fs-2x text-warning me-3"></i>
+                                <i class="bi bi-info-circle-fill fs-2x text-warning me-3"></i>
                                 <div>
                                     <h5 class="text-warning fw-bold mb-1">Motif d'absence déclaré</h5>
                                     <div class="text-gray-800">{{ pointage.motifAbsence }}</div>
@@ -195,7 +191,7 @@
                                 <form method="post" action="{{ path('app_pointage_delete', {'id': pointage.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce pointage ?');" class="d-inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ pointage.id) }}">
                                     <button class="btn btn-sm btn-light-danger">
-                                        <i class="ki-duotone ki-trash fs-5 me-1"></i>
+                                        <i class="bi bi-trash-fill fs-5 me-1"></i>
                                         Supprimer ce pointage
                                     </button>
                                 </form>

@@ -29,11 +29,11 @@
 {% block page_actions %}
     <div class="d-flex align-items-center gap-2">
         <a href="{{ path('app_employe_show', {'id': employe.id}) }}" class="btn btn-sm btn-light">
-            <i class="ki-duotone ki-user fs-4 me-1"></i> Dossier Agent 360°
+            <i class="bi bi-person-badge fs-4 me-1"></i> Dossier Agent 360°
         </a>
         {% if is_granted('POINTAGE_CREATE') %}
             <a href="{{ path('app_pointage_new') }}" class="btn btn-sm btn-mci-primary">
-                <i class="ki-duotone ki-plus-circle fs-4 me-1"></i> Nouveau pointage
+                <i class="bi bi-plus-circle fs-4 me-1"></i> Nouveau pointage
             </a>
         {% endif %}
     </div>
@@ -139,7 +139,7 @@
                         {% for pointage in pointages %}
                             <tr>
                                 <td class="fw-bold text-gray-900">
-                                    <i class="ki-duotone ki-calendar fs-6 text-primary me-2"></i>
+                                    <i class="bi bi-calendar3 fs-6 text-primary me-2"></i>
                                     {{ pointage.date ? pointage.date|date('d/m/Y') : '—' }}
                                 </td>
                                 <td class="text-center">
@@ -184,11 +184,11 @@
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
                                         <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}" class="btn btn-icon btn-light btn-sm" title="Détails">
-                                            <i class="ki-duotone ki-eye fs-4 text-primary"></i>
+                                            <i class="bi bi-eye-fill fs-4 text-primary"></i>
                                         </a>
                                         {% if is_granted('POINTAGE_EDIT') or is_granted('ROLE_ADMIN') %}
                                             <a href="{{ path('app_pointage_edit', {'id': pointage.id}) }}" class="btn btn-icon btn-light btn-sm" title="Modifier">
-                                                <i class="ki-duotone ki-pencil fs-4 text-warning"></i>
+                                                <i class="bi bi-pencil-square fs-4 text-warning"></i>
                                             </a>
                                         {% endif %}
                                     </div>
@@ -197,7 +197,7 @@
                         {% else %}
                             <tr>
                                 <td colspan="6" class="text-center py-8 text-muted">
-                                    <i class="ki-duotone ki-time fs-3x text-muted mb-2"></i>
+                                    <i class="bi bi-clock-history fs-3x text-muted mb-2"></i>
                                     <div>Aucun émargement enregistré pour cet agent.</div>
                                 </td>
                             </tr>
