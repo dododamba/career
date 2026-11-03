@@ -40,35 +40,20 @@
 <div class="d-flex flex-column gap-6">
 
     {# Bannière d'accueil institutionnelle #}
-    <div class="card card-mci border-0 overflow-hidden shadow-sm" style="background: linear-gradient(135deg, var(--mci-blue-dark) 0%, var(--mci-blue) 100%);">
-        <div class="card-body p-6 p-lg-8 text-white position-relative">
+    <div class="card card-mci overflow-hidden">
+        <div class="card-body p-6 p-lg-8 position-relative">
             <div class="row align-items-center g-4">
                 <div class="col-lg-8">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="badge" style="background: rgba(254, 203, 0, 0.2); color: var(--mci-gold); border: 1px solid rgba(254, 203, 0, 0.4); font-size: 0.85rem; font-weight: 700;">
-                            <i class="bi bi-shield-check me-1" style="color: var(--mci-gold);"></i>
-                            {{ app_name }} • {{ app_country }}
-                        </span>
-                        <span class="badge bg-white bg-opacity-20 text-white fs-8 fw-semibold">
-                            {% if app.user.hasRole('ROLE_ADMIN') %}
-                                Administrateur
-                            {% elseif app.user.hasRole('ROLE_MANAGER') %}
-                                Responsable hiérarchique
-                            {% else %}
-                                Agent
-                            {% endif %}
-                        </span>
-                    </div>
-                    <h2 class="text-white fw-bolder fs-1 mb-2">
+                    <h2 class="text-dark fw-bolder fs-1 mb-2">
                         Bienvenue, {{ app.user.fullName|default(app.user.email) }}
                     </h2>
-                    <div class="d-flex flex-wrap align-items-center gap-4 text-white text-opacity-80 fs-6">
+                    <div class="d-flex flex-wrap align-items-center gap-4 text-muted fs-6">
                         <span class="d-flex align-items-center gap-2">
-                            <i class="bi bi-building fs-5 text-warning"></i>
+                            <i class="bi bi-building fs-5 text-primary"></i>
                             {{ app.user.institution.nom }}
                         </span>
                         <span class="d-flex align-items-center gap-2">
-                            <i class="bi bi-calendar3 fs-5 text-warning"></i>
+                            <i class="bi bi-calendar3 fs-5 text-primary"></i>
                             {% set days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'] %}
                             {% set months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'] %}
                             {% set now = "now"|date_modify("Africa/Ndjamena") %}
@@ -77,16 +62,17 @@
                     </div>
                 </div>
                 <div class="col-lg-4 text-lg-end">
-                    <div class="d-inline-flex flex-column align-items-lg-end bg-white bg-opacity-10 p-4 rounded-3 border border-white border-opacity-20">
-                        <span class="fs-7 text-white text-opacity-75 text-uppercase fw-semibold mb-1">Disponibilité administrative</span>
-                        <span class="fs-2 fw-bolder text-white">
+                    <div class="d-inline-flex flex-column align-items-lg-end bg-light p-4 rounded-3 border border-gray-200">
+                        <span class="fs-7 text-muted text-uppercase fw-semibold mb-1">Disponibilité administrative</span>
+                        <span class="fs-2 fw-bolder text-dark">
                             {% if stats.totalEmployes > 0 %}
                                 {{ ((stats.presentsAujourdhui / stats.totalEmployes) * 100)|round(1) }}%
                             {% else %}
                                 100%
                             {% endif %}
                         </span>
-                        <span class="fs-8 text-warning fw-semibold mt-1">
+                        <span class="fs-8 text-primary fw-semibold mt-1">
+                            <i class="bi bi-check-circle-fill me-1 text-success"></i>
                             {{ stats.presentsAujourdhui }} agent(s) en service aujourd'hui
                         </span>
                     </div>
