@@ -156,4 +156,52 @@ class SmokeRoutesTest extends WebTestCase
         $em->remove($institution);
         $em->flush();
     }
+
+    public function testStatistiquePageRendersIcons(): void
+    {
+        $client = static::createClient();
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+
+        $institution = new Institution();
+        $institution->setNom('Stat Test Institution ' . uniqid());
+        $institution->setCreatedAt(new \DateTimeImmutable());
+        $em->persist($institution);
+
+        $user = new User();
+        $user->setEmail('stat_test_' . uniqid() . '@example.com');
+        $user->setPassword('password123');
+        $user->setRoles(['ROLE_ADMIN']);
+        $user->setFirstname('Stat');
+        $user->setLastname('Admin');
+        $user->setCreatedAt(new \DateTimeImmutable());
+        $user->setInstitution($institution);
+        $em->persist($user);
+        $em->flush();
+
+        $client->loginUser($user);
+        $client->request('GET', '/admin/statistique/');
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+        $content = $client->getResponse()->getContent();
+
+        // Vérification de la présence des icônes Bootstrap Icons
+        $this->assertStringContainsString('bi bi-bar-chart-line-fill', $content);
+        $this->assertStringContainsString('bi bi-people-fill', $content);
+        $this->assertStringContainsString('bi bi-person-check-fill', $content);
+        $this->assertStringContainsString('bi bi-calendar2-range-fill', $content);
+        $this->assertStringContainsString('bi bi-person-x-fill', $content);
+        $this->assertStringContainsString('bi bi-download', $content);
+        $this->assertStringContainsString('bi bi-arrow-repeat', $content);
+        $this->assertStringContainsString('bi bi-search', $content);
+
+        // Vérification qu'aucune icône KeenIcons cassée n'est présente
+        $this->assertStringNotContainsString('ki-outline', $content);
+
+        // Cleanup
+        $em->remove($user);
+        $em->remove($institution);
+        $em->flush();
+    }
 }
+

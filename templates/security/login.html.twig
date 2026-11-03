@@ -3,10 +3,12 @@
 {% block title %}Connexion{% endblock %}
 
 {% block body %}
-<div class="text-center mb-5">
-    <div class="auth-institution-pill">
-        <span class="auth-dot-gold"></span>
-        <span>{{ app_institution }} &bull; {{ app_country }}</span>
+<div class="text-center mb-6">
+    <div class="mb-4">
+        <img src="{{ asset('images/brand/armoirie-192.png') }}" 
+             alt="Armoirie de la République du Tchad" 
+             style="height: 72px; width: 72px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0, 38, 100, 0.12));" 
+             loading="eager" />
     </div>
     <h1 class="text-gray-900 fw-bold fs-2 mb-1">Connexion</h1>
     <p class="text-muted fs-7 mb-0">Renseignez vos identifiants pour accéder à votre espace</p>
@@ -58,10 +60,11 @@
                    required 
                    autocomplete="current-password" />
             <button type="button" 
-                    class="btn btn-sm btn-icon position-absolute end-0 top-50 translate-middle-y me-2 text-gray-500 text-hover-primary" 
+                    class="btn btn-sm btn-icon position-absolute end-0 top-50 translate-middle-y me-1 text-gray-500 text-hover-primary" 
                     id="toggle_password" 
-                    aria-label="Afficher ou masquer le mot de passe"
-                    tabindex="-1">
+                    aria-label="Afficher le mot de passe"
+                    aria-pressed="false"
+                    style="min-width: 44px; min-height: 44px;">
                 <i class="bi bi-eye fs-4" id="toggle_password_icon"></i>
             </button>
         </div>
@@ -78,7 +81,7 @@
     <!-- Mention institutionnelle confidentielle -->
     <div class="auth-security-notice text-center">
         <i class="bi bi-shield-lock text-primary me-1"></i>
-        Plateforme réservée aux agents habilités du Ministère du Commerce et de l'Industrie de la République du Tchad.
+        Plateforme réservée aux agents habilités.
     </div>
 </form>
 {% endblock %}
@@ -95,6 +98,8 @@
                 e.preventDefault();
                 const isPassword = passwordInput.getAttribute('type') === 'password';
                 passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                toggleBtn.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+                toggleBtn.setAttribute('aria-label', isPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
                 toggleIcon.classList.toggle('bi-eye', !isPassword);
                 toggleIcon.classList.toggle('bi-eye-slash', isPassword);
             });

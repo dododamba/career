@@ -2,17 +2,17 @@
     <div class="container-fluid d-flex align-items-center justify-content-between">
         <!--begin::Aside mobile toggle-->
         <div class="d-flex align-items-center d-lg-none ms-n3 me-1" title="Afficher le menu">
-            <div class="btn btn-icon btn-active-color-white" id="kt_aside_mobile_toggle" role="button" aria-label="Afficher le menu de navigation" tabindex="0">
-                <i class="bi bi-list fs-1 text-white"></i>
+            <div class="btn btn-icon btn-active-color-primary" id="kt_aside_mobile_toggle" role="button" aria-label="Afficher le menu de navigation" tabindex="0">
+                <i class="bi bi-list fs-1" style="color: #0F172A;"></i>
             </div>
         </div>
         <!--end::Aside mobile toggle-->
 
         <!--begin::Mobile logo-->
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0 min-w-0 overflow-hidden">
-            <a href="{{ path('app_dashboard') }}" class="d-lg-none d-flex align-items-center text-white text-decoration-none min-w-0">
+            <a href="{{ path('app_dashboard') }}" class="d-lg-none d-flex align-items-center text-dark text-decoration-none min-w-0">
                 <img alt="Armoirie de la République du Tchad" src="{{ asset('images/brand/armoirie-96.png') }}" class="me-2 flex-shrink-0" style="height: 32px; width: 32px; object-fit: contain;"/>
-                <span class="fw-bolder fs-5 text-white text-truncate">{{ app_name }}</span>
+                <span class="fw-bolder fs-5 text-gray-900 text-truncate">{{ app_name }}</span>
             </a>
         </div>
         <!--end::Mobile logo-->
@@ -22,17 +22,14 @@
             <!--begin::Navbar / Search-->
             <div class="d-flex align-items-stretch min-w-0" id="kt_header_nav">
                 <div class="header-menu align-items-stretch min-w-0">
-                    <div class="menu menu-lg-rounded menu-column menu-lg-row menu-state-bg menu-title-gray-700 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-400 fw-bold my-5 my-lg-0 align-items-stretch min-w-0">
+                    <div class="menu menu-lg-rounded menu-column menu-lg-row fw-bold my-5 my-lg-0 align-items-stretch min-w-0">
                         <div class="menu-item me-lg-1 d-flex align-items-center min-w-0">
-                            <span class="fs-4 fw-bolder text-white d-flex align-items-center min-w-0">
-                                <img src="{{ asset('images/brand/armoirie-96.png') }}" alt="Armoirie Tchad" class="me-3 d-none d-lg-inline-block flex-shrink-0" style="height: 38px; width: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));" />
-                                <span class="d-flex flex-column justify-content-center min-w-0">
-                                    <span class="text-white fw-bolder fs-4 lh-1 text-truncate">{{ app_name }}</span>
-                                    <span class="d-none d-xl-inline fs-8 fw-semibold pt-1 text-truncate" style="color: rgba(255,255,255,.78);">{{ app_institution }} • {{ app_country }}</span>
-                                </span>
+                            <span class="fs-4 fw-bolder text-gray-900 d-flex align-items-center min-w-0">
+                                <img src="{{ asset('images/brand/armoirie-96.png') }}" alt="Armoirie Tchad" class="me-3 d-none d-lg-inline-block flex-shrink-0" style="height: 38px; width: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));" />
+                                <span class="text-gray-900 fw-bolder fs-4 text-truncate">{{ app_name }}</span>
                                 {% if app.user and app.user.institution %}
-                                    <span class="badge ms-4 fs-8 fw-bold py-1 px-3 d-none d-sm-inline-flex align-items-center" style="background-color: var(--mci-gold); color: #002664 !important; border-radius: 6px;">
-                                        <i class="bi bi-building me-1" style="color: #002664;"></i>{{ app.user.institution.nom }}
+                                    <span class="badge ms-4 fs-8 fw-semibold py-1 px-3 d-none d-sm-inline-flex align-items-center" style="background: rgba(0, 38, 100, 0.04); color: var(--sc-primary, #002664); border: 1px solid rgba(0, 38, 100, 0.08); border-radius: 999px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                                        <i class="bi bi-building me-1" style="color: var(--sc-primary, #002664);"></i>{{ app.user.institution.nom }}
                                     </span>
                                 {% endif %}
                             </span>
@@ -46,21 +43,30 @@
             <div class="d-flex align-items-stretch flex-shrink-0">
                 {% if app.user %}
                     <!--begin::User-->
-                    <div class="d-flex align-items-center ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
-                        <!--begin::Menu wrapper-->
-                        <div class="cursor-pointer symbol symbol-35px symbol-md-40px" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-                            <div class="symbol-label fs-5 fw-bold bg-primary text-white">
+                    <div class="d-flex align-items-center ms-1 ms-lg-3 position-relative" id="kt_header_user_menu_toggle" data-controller="dropdown">
+                        <!--begin::Menu wrapper (Bouton Accessible)-->
+                        <button type="button" 
+                                class="btn p-0 border-0 bg-transparent symbol symbol-35px symbol-md-40px cursor-pointer" 
+                                data-dropdown-target="button" 
+                                data-action="click->dropdown#toggle keydown->dropdown#onKeydown" 
+                                aria-haspopup="menu" 
+                                aria-expanded="false" 
+                                aria-label="Menu profil de {{ app.user.firstname }} {{ app.user.lastname }}">
+                            <div class="symbol-label fs-5 fw-bold" style="background: linear-gradient(135deg, #002664 0%, #001844 100%); color: #FFFFFF; box-shadow: 0 2px 8px rgba(0, 38, 100, 0.22); border-radius: 50%;">
                                 {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
                             </div>
-                        </div>
+                        </button>
                         <!--begin::Menu-->
-                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-primary fw-bold py-4 fs-6 w-275px" data-kt-menu="true">
+                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded fw-bold py-4 fs-6 w-275px" 
+                             data-dropdown-target="menu" 
+                             role="menu" 
+                             aria-orientation="vertical">
                             <!--begin::Menu item-->
                             <div class="menu-item px-3">
                                 <div class="menu-content d-flex align-items-center px-3">
                                     <!--begin::Avatar-->
                                     <div class="symbol symbol-50px me-4">
-                                        <div class="symbol-label fs-3 fw-bold bg-light-primary text-primary">
+                                        <div class="symbol-label fs-3 fw-bold" style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;">
                                             {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
                                         </div>
                                     </div>
@@ -86,37 +92,34 @@
                             </div>
                             <!--end::Menu item-->
                             <div class="separator my-2"></div>
-                            <!--begin::Menu item-->
+                            <!--begin::Menu items fonctionnels-->
                             <div class="menu-item px-5">
-                                <a href="{{ path('app_account_security') }}" class="menu-link px-5">
-                                    <i class="bi bi-shield-lock me-2 text-primary"></i> Sécurité du compte
+                                <a href="{{ path('app_account_security') }}" class="menu-link px-5" role="menuitem">
+                                    <i class="bi bi-person-badge me-2 text-gray-500"></i> Mon profil & Sécurité
                                 </a>
                             </div>
                             <div class="menu-item px-5">
-                                <a href="{{ path('app_change_password') }}" class="menu-link px-5">
-                                    <i class="bi bi-key me-2 text-warning"></i> Changer mot de passe
+                                <a href="{{ path('app_change_password') }}" class="menu-link px-5" role="menuitem">
+                                    <i class="bi bi-key me-2 text-gray-500"></i> Mot de passe
                                 </a>
                             </div>
-                            <!--end::Menu item-->
                             {% if is_granted('ROLE_ADMIN') %}
                                 <div class="separator my-2"></div>
                                 <div class="menu-item px-5">
-                                    <a href="{{ path('app_log') }}" class="menu-link px-5">
-                                        <i class="bi bi-journal-text me-2 text-info"></i> Journal d'audit
+                                    <a href="{{ path('app_log') }}" class="menu-link px-5" role="menuitem">
+                                        <i class="bi bi-journal-text me-2 text-gray-500"></i> Journal d'audit
                                     </a>
                                 </div>
                             {% endif %}
                             <div class="separator my-2"></div>
-                            <!--begin::Menu item-->
                             <div class="menu-item px-5">
-                                <a href="{{ path('app_logout') }}" class="menu-link px-5 text-danger">
-                                    <i class="bi bi-box-arrow-right me-2 text-danger"></i> Déconnexion
+                                <a href="{{ path('app_logout') }}" class="menu-link px-5 text-hover-danger" role="menuitem">
+                                    <i class="bi bi-box-arrow-right me-2 text-gray-500"></i> Se déconnecter
                                 </a>
                             </div>
                             <!--end::Menu item-->
                         </div>
                         <!--end::Menu-->
-                        <!--end::Menu wrapper-->
                     </div>
                     <!--end::User-->
                 {% else %}

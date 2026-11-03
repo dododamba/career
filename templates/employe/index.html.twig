@@ -182,7 +182,12 @@
                                     <div class="d-flex align-items-center">
                                         <div class="symbol symbol-45px symbol-circle me-3" style="background-color: var(--mci-blue-subtle);">
                                             {% if employe.photo %}
-                                                <img src="{{ asset('uploads/photos/' ~ employe.photo) }}" alt="{{ employe.nomComplet }}" />
+                                                <img src="{{ asset('uploads/photos/' ~ employe.photo) }}" 
+                                                     alt="{{ employe.nomComplet }}" 
+                                                     loading="lazy" 
+                                                     decoding="async" 
+                                                     width="45" 
+                                                     height="45" />
                                             {% else %}
                                                 <span class="symbol-label text-mci-blue fw-bolder fs-6">
                                                     {{ employe.prenom|slice(0, 1)|upper }}{{ employe.nom|slice(0, 1)|upper }}
@@ -239,15 +244,17 @@
                                         <a href="{{ path('app_employe_show', {'id': employe.id}) }}" 
                                            class="btn btn-sm btn-icon btn-mci-ghost" 
                                            title="Fiche Agent 360°" 
+                                           aria-label="Consulter la fiche 360 de {{ employe.nomComplet }}"
                                            data-bs-toggle="tooltip">
-                                            <i class="bi bi-eye fs-5"></i>
+                                            <i class="bi bi-eye fs-5" aria-hidden="true"></i>
                                         </a>
                                         {% if is_granted('ROLE_ADMIN') %}
                                             <a href="{{ path('app_employe_edit', {'id': employe.id}) }}" 
                                                class="btn btn-sm btn-icon btn-mci-ghost" 
                                                title="Modifier" 
+                                               aria-label="Modifier la fiche de {{ employe.nomComplet }}"
                                                data-bs-toggle="tooltip">
-                                                <i class="bi bi-pencil fs-5"></i>
+                                                <i class="bi bi-pencil fs-5" aria-hidden="true"></i>
                                             </a>
                                         {% endif %}
                                     </div>

@@ -53,44 +53,48 @@ document.addEventListener('turbo:before-cache', () => {
 
 // À chaque chargement de page Turbo (initial ou navigation interne)
 document.addEventListener('turbo:load', () => {
-    // 1. Réinitialisation des composants Core Metronic 8
-    if (window.KTApp && typeof window.KTApp.init === 'function') {
-        try {
-            window.KTApp.init();
-        } catch (e) {
-            console.debug('KTApp init notice:', e);
+    // 1. Initialisation unique des écouteurs globaux Metronic 8 (évite la multiplication d'écouteurs)
+    if (!window.__ktGlobalHandlersInitialized) {
+        window.__ktGlobalHandlersInitialized = true;
+        if (window.KTMenu && typeof window.KTMenu.initGlobalHandlers === 'function') {
+            try {
+                window.KTMenu.initGlobalHandlers();
+            } catch (e) {
+                console.debug('KTMenu initGlobalHandlers notice:', e);
+            }
         }
     }
 
-    if (window.KTMenu && typeof window.KTMenu.init === 'function') {
+    // 2. Création d'instances fraîches pour les nouveaux éléments DOM (sans réattacher d'écouteurs globaux)
+    if (window.KTMenu && typeof window.KTMenu.createInstances === 'function') {
         try {
-            window.KTMenu.init();
+            window.KTMenu.createInstances();
         } catch (e) {
-            console.debug('KTMenu init notice:', e);
+            console.debug('KTMenu createInstances notice:', e);
         }
     }
 
-    if (window.KTDrawer && typeof window.KTDrawer.init === 'function') {
+    if (window.KTDrawer && typeof window.KTDrawer.createInstances === 'function') {
         try {
-            window.KTDrawer.init();
+            window.KTDrawer.createInstances();
         } catch (e) {
-            console.debug('KTDrawer init notice:', e);
+            console.debug('KTDrawer createInstances notice:', e);
         }
     }
 
-    if (window.KTScroll && typeof window.KTScroll.init === 'function') {
+    if (window.KTScroll && typeof window.KTScroll.createInstances === 'function') {
         try {
-            window.KTScroll.init();
+            window.KTScroll.createInstances();
         } catch (e) {
-            console.debug('KTScroll init notice:', e);
+            console.debug('KTScroll createInstances notice:', e);
         }
     }
 
-    if (window.KTSticky && typeof window.KTSticky.init === 'function') {
+    if (window.KTSticky && typeof window.KTSticky.createInstances === 'function') {
         try {
-            window.KTSticky.init();
+            window.KTSticky.createInstances();
         } catch (e) {
-            console.debug('KTSticky init notice:', e);
+            console.debug('KTSticky createInstances notice:', e);
         }
     }
 

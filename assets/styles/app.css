@@ -28,12 +28,12 @@
 
     /* 2. Surfaces & Neutres */
     --sc-white: #FFFFFF;         /* Surfaces de cartes et modales */
-    --sc-bg: #F8F9FA;            /* Fond global des pages (Light) */
-    --sc-bg-alt: #F1F4F9;        /* Fond alternatif des conteneurs */
-    --sc-text: #111111;          /* Texte principal à haut contraste */
-    --sc-muted: #667085;         /* Texte secondaire et métadonnées */
-    --sc-border: #E2E5E9;        /* Bordures sobres */
-    --sc-border-light: #EFF2F5;  /* Séparateurs légers */
+    --sc-bg: #F8FAFC;            /* Fond global des pages (Light Premium) */
+    --sc-bg-alt: #F1F5F9;        /* Fond alternatif des conteneurs */
+    --sc-text: #0F172A;          /* Texte principal à haut contraste (Obsidian) */
+    --sc-muted: #64748B;         /* Texte secondaire et métadonnées (Slate) */
+    --sc-border: rgba(15, 23, 42, 0.06);        /* Bordures ultra-fines translucides */
+    --sc-border-light: rgba(15, 23, 42, 0.03);  /* Séparateurs légers */
 
     /* Compatibilité descendante (--mci-*) */
     --mci-blue: var(--sc-primary);
@@ -104,9 +104,10 @@ h4, .h4 {
 }
 
 .text-mci-blue { color: var(--mci-blue) !important; }
-.text-mci-gold { color: var(--mci-gold) !important; }
+.text-mci-gold { color: #996e00 !important; }
 .text-mci-red  { color: var(--mci-red) !important; }
 .text-mci-muted { color: var(--mci-text-muted) !important; }
+.text-mci-warning, .text-warning { color: var(--sc-warning, #B7791F) !important; }
 
 /* ==========================================================================
    3. CARDS RESPIRANTES ET CONFORTABLES
@@ -169,68 +170,347 @@ h4, .h4 {
 }
 
 /* ==========================================================================
-   4. SIDEBAR & NAVIGATION INSTITUTIONNELLE
+   4. SIDEBAR & NAVIGATION INSTITUTIONNELLE (LIGHT PREMIUM DESIGN)
    ========================================================================== */
-.aside.aside-dark {
-    background-color: var(--mci-blue-dark) !important;
-    box-shadow: 2px 0 15px rgba(0, 24, 68, 0.12);
+/* Positionnement et alignement structurel Desktop */
+@media (min-width: 992px) {
+    .aside,
+    .aside.aside-dark,
+    .aside.aside-light {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 265px !important;
+        z-index: 101 !important;
+        background-color: #FFFFFF !important;
+        border-right: 1px solid rgba(15, 23, 42, 0.05) !important;
+        box-shadow: 1px 0 0 rgba(0, 0, 0, 0.02), 4px 0 24px -6px rgba(0, 38, 100, 0.02) !important;
+        transition: left 0.3s ease, width 0.3s ease !important;
+    }
+
+    .wrapper {
+        padding-top: 70px !important;
+        padding-left: 265px !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    .header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 265px !important;
+        right: 0 !important;
+        height: 70px !important;
+        z-index: 100 !important;
+        transition: left 0.3s ease !important;
+    }
+
+    /* Mode Sidebar réduit (data-kt-aside-minimize="on") */
+    [data-kt-aside-minimize="on"] .aside {
+        left: -265px !important;
+    }
+    [data-kt-aside-minimize="on"] .header {
+        left: 0 !important;
+    }
+    [data-kt-aside-minimize="on"] .wrapper {
+        padding-left: 0 !important;
+    }
 }
 
-.aside-logo {
-    background-color: var(--mci-blue) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    height: 75px !important;
-    padding: 0 1.75rem !important;
+/* Comportement Mobile / Drawer */
+@media (max-width: 991.98px) {
+    .aside {
+        width: 265px !important;
+        z-index: 1050 !important;
+    }
+    .header {
+        left: 0 !important;
+        right: 0 !important;
+        height: 65px !important;
+    }
+    .wrapper {
+        padding-top: 65px !important;
+        padding-left: 0 !important;
+    }
 }
 
+.aside .menu-item .menu-link,
 .aside-dark .menu-item .menu-link {
-    padding-top: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
-    margin-bottom: 3px;
-    border-radius: var(--mci-radius-sm);
-    transition: all 0.15s ease-in-out;
+    padding: 0.65rem 1rem !important;
+    margin-bottom: 2px;
+    border-radius: 8px !important;
+    color: #334155 !important;
+    background-color: transparent !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.aside .menu-item .menu-link .menu-title,
+.aside-dark .menu-item .menu-link .menu-title {
+    color: #0F172A !important;
+    font-weight: 500;
+    font-size: 0.925rem !important;
+    letter-spacing: -0.01em;
+}
+
+.aside .menu-item .menu-link .menu-icon i,
+.aside-dark .menu-item .menu-link .menu-icon i {
+    color: #64748B !important;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.aside .menu-item .menu-link:hover,
 .aside-dark .menu-item .menu-link:hover {
-    background-color: rgba(255, 255, 255, 0.07) !important;
+    background: rgba(0, 38, 100, 0.035) !important;
 }
 
+.aside .menu-item .menu-link:hover .menu-title,
+.aside-dark .menu-item .menu-link:hover .menu-title {
+    color: var(--sc-primary, #002664) !important;
+}
+
+.aside .menu-item .menu-link:hover .menu-icon i,
+.aside-dark .menu-item .menu-link:hover .menu-icon i {
+    color: var(--sc-primary, #002664) !important;
+    transform: scale(1.06);
+}
+
+/* Flèche accordéon raffinée (masque dynamique) */
+.aside .menu-item .menu-link .menu-arrow:after {
+    -webkit-mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 9' fill='%23000'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.93537 4.57889C6.03839 4.77912 6.0191 5.0363 5.87137 5.21403L2.87153 8.82282C2.68598 9.04603 2.36951 9.06026 2.16468 8.8546C1.95985 8.64893 1.94422 8.30126 2.12977 8.07804L4.80594 4.85863L2.15586 1.93583C1.96104 1.72096 1.96165 1.37314 2.15722 1.15895C2.35279 0.944757 2.66927 0.945311 2.86409 1.16018L5.85194 4.45551C5.8859 4.49296 5.91371 4.53459 5.93537 4.57889Z'/%3e%3c/svg%3e");
+    mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 9' fill='%23000'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.93537 4.57889C6.03839 4.77912 6.0191 5.0363 5.87137 5.21403L2.87153 8.82282C2.68598 9.04603 2.36951 9.06026 2.16468 8.8546C1.95985 8.64893 1.94422 8.30126 2.12977 8.07804L4.80594 4.85863L2.15586 1.93583C1.96104 1.72096 1.96165 1.37314 2.15722 1.15895C2.35279 0.944757 2.66927 0.945311 2.86409 1.16018L5.85194 4.45551C5.8859 4.49296 5.91371 4.53459 5.93537 4.57889Z'/%3e%3c/svg%3e");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    background-image: none !important;
+    background-color: #64748B !important;
+    transition: background-color 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.aside .menu-item .menu-link:hover .menu-arrow:after,
+.aside .menu-item.show > .menu-link .menu-arrow:after,
+.aside .menu-item.here > .menu-link .menu-arrow:after {
+    background-color: var(--sc-primary, #002664) !important;
+}
+
+/* Rotation de la flèche lors de l'ouverture de l'accordéon */
+.aside .menu-item.menu-accordion.show > .menu-link .menu-arrow:after {
+    transform: rotateZ(90deg) !important;
+}
+
+.aside .menu-item .menu-link.active,
 .aside-dark .menu-item .menu-link.active {
-    background-color: rgba(254, 203, 0, 0.12) !important;
-    color: var(--mci-gold) !important;
-    font-weight: 600 !important;
-    position: relative;
+    background: linear-gradient(135deg, rgba(0, 38, 100, 0.08) 0%, rgba(0, 38, 100, 0.03) 100%) !important;
+    border: 1px solid rgba(0, 38, 100, 0.09) !important;
+    box-shadow: 0 2px 8px -1px rgba(0, 38, 100, 0.05), 0 1px 3px rgba(0, 38, 100, 0.04) !important;
 }
 
-.aside-dark .menu-item .menu-link.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 6px;
-    bottom: 6px;
-    width: 4px;
-    border-radius: 0 4px 4px 0;
-    background-color: var(--mci-gold);
+.aside .menu-item .menu-link.active .menu-title,
+.aside-dark .menu-item .menu-link.active .menu-title {
+    color: var(--sc-primary, #002664) !important;
+    font-weight: 700 !important;
 }
 
+.aside .menu-item .menu-link.active .menu-icon i,
 .aside-dark .menu-item .menu-link.active .menu-icon i {
-    color: var(--mci-gold) !important;
+    color: var(--sc-primary, #002664) !important;
+}
+
+.aside .menu-section,
+.aside-dark .menu-section {
+    color: #64748B !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase;
+}
+
+/* Gestion robuste et fluide des accordéons du Sidebar */
+.aside .menu-sub,
+.aside .menu-sub-accordion {
+    display: none;
+    flex-direction: column;
+    background: transparent !important;
+    border-left: 1.5px solid rgba(0, 38, 100, 0.08) !important;
+    margin-left: 1.5rem !important;
+    padding-left: 0.5rem !important;
+    animation: sidebar-accordion-fade 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aside .menu-item.menu-accordion.show > .menu-sub-accordion {
+    display: flex !important;
+}
+
+@keyframes sidebar-accordion-fade {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.aside .menu-sub .menu-link {
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 6px !important;
+}
+
+.aside .menu-sub .menu-link .menu-title {
+    color: #334155 !important;
+    font-weight: 500;
+}
+
+.aside .menu-sub .menu-link:hover .menu-title,
+.aside .menu-sub .menu-link.active .menu-title {
+    color: var(--sc-primary, #002664) !important;
+}
+
+.aside .menu-sub .bullet.bullet-dot {
+    width: 5px !important;
+    height: 5px !important;
+    background-color: #CBD5E1 !important;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.aside .menu-sub .menu-link.active .bullet.bullet-dot {
+    background-color: var(--sc-primary, #002664) !important;
+    box-shadow: 0 0 0 3px rgba(0, 38, 100, 0.15) !important;
+}
+
+.aside-footer {
+    border-top: 1px solid rgba(15, 23, 42, 0.05) !important;
+    background-color: #FFFFFF !important;
+    padding: 1.25rem 1rem !important;
+}
+
+.aside-footer .btn {
+    background: #FFFFFF !important;
+    color: var(--sc-primary, #002664) !important;
+    border: 1px solid rgba(0, 38, 100, 0.12) !important;
+    box-shadow: 0 2px 8px -2px rgba(0, 38, 100, 0.06) !important;
+    font-weight: 600;
+    border-radius: 8px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aside-footer .btn:hover {
+    background: rgba(0, 38, 100, 0.04) !important;
+    border-color: rgba(0, 38, 100, 0.2) !important;
+    box-shadow: 0 4px 14px -2px rgba(0, 38, 100, 0.1) !important;
+    transform: translateY(-1px);
 }
 
 /* ==========================================================================
-   5. HEADER & TOOLBAR
+   5. HEADER & TOOLBAR (LIGHT PREMIUM DESIGN)
    ========================================================================== */
 .header {
-    background-color: var(--mci-blue) !important;
-    box-shadow: 0 3px 12px rgba(0, 24, 68, 0.15);
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05) !important;
+    box-shadow: 0 4px 20px -4px rgba(0, 38, 100, 0.03) !important;
     height: 70px !important;
 }
 
-.toolbar {
-    background-color: var(--mci-white);
-    border-bottom: 1px solid var(--mci-border);
-    margin-bottom: 2rem;
-    padding: 1.25rem 2rem !important;
+/* Menu déroulant profil utilisateur Stimulus / Light Premium */
+#kt_header_user_menu_toggle {
+    position: relative !important;
+}
+
+#kt_header_user_menu_toggle .menu-sub-dropdown {
+    position: absolute !important;
+    top: calc(100% + 10px) !important;
+    right: 0 !important;
+    left: auto !important;
+    z-index: 1050 !important;
+    background: #FFFFFF !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 16px 40px -8px rgba(0, 38, 100, 0.14) !important;
+    border-radius: 12px !important;
+    min-width: 275px;
+    display: none;
+    animation: menu-sub-dropdown-fade-in 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#kt_header_user_menu_toggle .menu-sub-dropdown.show {
+    display: flex !important;
+    flex-direction: column;
+}
+
+@keyframes menu-sub-dropdown-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header .menu-sub-dropdown .menu-link {
+    color: #334155 !important;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.header .menu-sub-dropdown .menu-link i {
+    color: #64748B !important;
+    font-size: 1.1rem;
+    transition: color 0.15s ease;
+}
+
+.header .menu-sub-dropdown .menu-link:hover {
+    background-color: rgba(0, 38, 100, 0.04) !important;
+    color: var(--sc-primary, #002664) !important;
+}
+
+.header .menu-sub-dropdown .menu-link:hover i {
+    color: var(--sc-primary, #002664) !important;
+}
+
+.header .menu-sub-dropdown .menu-link.text-hover-danger:hover {
+    background-color: rgba(220, 38, 38, 0.05) !important;
+    color: #DC2626 !important;
+}
+
+.header .menu-sub-dropdown .menu-link.text-hover-danger:hover i {
+    color: #DC2626 !important;
+}
+
+.header .menu-sub-dropdown .separator {
+    border-color: rgba(15, 23, 42, 0.05) !important;
+}
+
+/* Continuité verticale fluide Navbar -> Breadcrumb -> Titre -> Contenu */
+.content, #kt_content {
+    padding-top: 0 !important;
+    padding-bottom: 2rem !important;
+}
+
+.toolbar, #kt_toolbar {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.04) !important;
+    margin-bottom: 1.25rem !important;
+    padding: 0.85rem 0 0.85rem 0 !important;
+}
+
+#kt_toolbar_container {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}
+
+.breadcrumb {
+    margin-bottom: 0.25rem !important;
+}
+
+.page-title h1, .page-title .h1 {
+    margin-bottom: 0 !important;
 }
 
 .breadcrumb-mci .breadcrumb-item {
@@ -614,14 +894,12 @@ h4, .h4 {
 }
 
 .auth-card {
-    background: #FFFFFF;
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    border-top: 3px solid #002664;
-    border-radius: 18px;
+    background: var(--sc-white, #FFFFFF);
+    border: 1px solid var(--sc-border, rgba(15, 23, 42, 0.07));
+    border-radius: var(--mci-radius-lg, 14px);
     box-shadow: 
-        0 20px 40px -15px rgba(0, 38, 100, 0.09),
-        0 4px 12px -2px rgba(0, 38, 100, 0.04),
-        0 0 0 1px rgba(0, 38, 100, 0.02);
+        0 12px 32px -4px rgba(0, 38, 100, 0.06),
+        0 2px 6px -1px rgba(0, 0, 0, 0.02);
     padding: clamp(1.75rem, 5vw, 2.5rem);
     width: 100%;
     position: relative;
@@ -849,11 +1127,13 @@ h4, .fs-4 {
         padding: 0.65rem 0.75rem !important;
         font-size: 0.85rem !important;
     }
-    .btn-action-icon {
-        width: 38px !important;
-        height: 38px !important;
-        min-width: 38px !important;
-        min-height: 38px !important;
+    .btn-action-icon,
+    .btn.btn-icon,
+    .btn-icon {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
     }
 }
 
@@ -1010,12 +1290,14 @@ a, button, input, select, textarea, [tabindex="0"] {
     outline-offset: 2px;
 }
 
-/* Respect user motion preferences */
+/* Respect user motion preferences with non-jarring state transitions */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+        transition-duration: 0.15s !important;
+        transition-property: opacity, color, background-color, border-color, box-shadow !important;
         scroll-behavior: auto !important;
+        transform: none !important;
     }
 }

@@ -1,6 +1,6 @@
 {% set current_route = app.request.attributes.get('_route')|default('') %}
 
-<div id="kt_aside" class="aside aside-dark aside-hoverable" 
+<div id="kt_aside" class="aside aside-light aside-hoverable" 
      data-kt-drawer="true" 
      data-kt-drawer-name="aside" 
      data-kt-drawer-activate="{default: true, lg: false}" 
@@ -9,39 +9,18 @@
      data-kt-drawer-direction="start" 
      data-kt-drawer-toggle="#kt_aside_mobile_toggle">
     
-    <!--begin::Brand-->
-    <div class="aside-logo flex-column-auto" id="kt_aside_logo">
-        <a href="{{ path('app_dashboard') }}" class="d-flex align-items-center text-decoration-none min-w-0">
-            <img src="{{ asset('images/brand/armoirie-96.png') }}" alt="Armoirie de la République du Tchad" class="me-3 flex-shrink-0" style="height: 38px; width: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" />
-            <div class="d-flex flex-column min-w-0">
-                <span class="fs-5 fw-bolder text-white lh-sm text-truncate">{{ app_name }}</span>
-                <span class="fs-9 text-uppercase fw-semibold pt-1" style="letter-spacing: 0.06em; color: var(--mci-gold) !important;">Rép. du Tchad</span>
-            </div>
-        </a>
-        <div id="kt_aside_toggle" class="btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle" 
-             data-kt-toggle="true" 
-             data-kt-toggle-state="active" 
-             data-kt-toggle-target="body" 
-             data-kt-toggle-name="aside-minimize">
-            <span class="svg-icon svg-icon-1 rotate-180 text-muted">
-                <i class="bi bi-chevron-double-left fs-3"></i>
-            </span>
-        </div>
-    </div>
-    <!--end::Brand-->
-
     <!--begin::Aside menu-->
     <div class="aside-menu flex-column-fluid">
         <div class="hover-scroll-overlay-y my-5 my-lg-5" id="kt_aside_menu_wrapper" 
              data-kt-scroll="true" 
              data-kt-scroll-activate="{default: false, lg: true}" 
              data-kt-scroll-height="auto" 
-             data-kt-scroll-dependencies="#kt_aside_logo, #kt_aside_footer" 
+             data-kt-scroll-dependencies="#kt_aside_footer" 
              data-kt-scroll-wrappers="#kt_aside_menu" 
              data-kt-scroll-offset="0">
             
-            <div class="menu menu-column menu-title-gray-800 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-500" 
-                 id="#kt_aside_menu" 
+            <div class="menu menu-column menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary" 
+                 id="kt_aside_menu" 
                  data-kt-menu="true">
 
                 <!-- 1. TABLEAU DE BORD -->
@@ -56,21 +35,26 @@
 
                 <div class="menu-item pt-4">
                     <div class="menu-content pb-2">
-                        <span class="menu-section text-muted text-uppercase fs-8 ls-1">Ressources Humaines</span>
+                        <span class="menu-section text-uppercase fs-8 ls-1">Ressources Humaines</span>
                     </div>
                 </div>
 
                 <!-- 2. ORGANISATION & RH -->
                 {% set isOrgActive = ('employe' in current_route or 'poste' in current_route or 'affectation' in current_route or 'structure' in current_route or 'service' in current_route or 'fonction' in current_route or 'organigramme' in current_route) %}
-                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isOrgActive %}here show{% endif %}">
-                    <span class="menu-link">
+                <div class="menu-item menu-accordion {% if isOrgActive %}here show{% endif %}" data-controller="sidebar-menu">
+                    <span class="menu-link cursor-pointer" 
+                          data-sidebar-menu-target="trigger" 
+                          data-action="click->sidebar-menu#toggle keydown->sidebar-menu#onKeydown" 
+                          role="button" 
+                          tabindex="0" 
+                          aria-expanded="{% if isOrgActive %}true{% else %}false{% endif %}">
                         <span class="menu-icon">
                             <i class="bi bi-people-fill fs-3 text-info"></i>
                         </span>
                         <span class="menu-title">Personnel & Postes</span>
                         <span class="menu-arrow"></span>
                     </span>
-                    <div class="menu-sub menu-sub-accordion {% if isOrgActive %}menu-active-bg{% endif %}">
+                    <div class="menu-sub menu-sub-accordion" data-sidebar-menu-target="submenu">
                         <div class="menu-item">
                             <a class="menu-link {% if 'employe' in current_route %}active{% endif %}" href="{{ path('app_employe_index') }}">
                                 <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
@@ -118,15 +102,20 @@
 
                 <!-- 3. TEMPS & ACTIVITES -->
                 {% set isTempsActive = ('pointage' in current_route or 'presence' in current_route or 'visite' in current_route) %}
-                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isTempsActive %}here show{% endif %}">
-                    <span class="menu-link">
+                <div class="menu-item menu-accordion {% if isTempsActive %}here show{% endif %}" data-controller="sidebar-menu">
+                    <span class="menu-link cursor-pointer" 
+                          data-sidebar-menu-target="trigger" 
+                          data-action="click->sidebar-menu#toggle keydown->sidebar-menu#onKeydown" 
+                          role="button" 
+                          tabindex="0" 
+                          aria-expanded="{% if isTempsActive %}true{% else %}false{% endif %}">
                         <span class="menu-icon">
                             <i class="bi bi-clock-history fs-3 text-warning"></i>
                         </span>
                         <span class="menu-title">Temps & Présences</span>
                         <span class="menu-arrow"></span>
                     </span>
-                    <div class="menu-sub menu-sub-accordion {% if isTempsActive %}menu-active-bg{% endif %}">
+                    <div class="menu-sub menu-sub-accordion" data-sidebar-menu-target="submenu">
                         <div class="menu-item">
                             <a class="menu-link {% if 'pointage' in current_route %}active{% endif %}" href="{{ path('app_pointage_index') }}">
                                 <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
@@ -150,15 +139,20 @@
 
                 <!-- 4. ABSENCES & MOBILITE -->
                 {% set isAbsActive = ('conges' in current_route or 'absence' in current_route or 'mission' in current_route or 'interim' in current_route) %}
-                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isAbsActive %}here show{% endif %}">
-                    <span class="menu-link">
+                <div class="menu-item menu-accordion {% if isAbsActive %}here show{% endif %}" data-controller="sidebar-menu">
+                    <span class="menu-link cursor-pointer" 
+                          data-sidebar-menu-target="trigger" 
+                          data-action="click->sidebar-menu#toggle keydown->sidebar-menu#onKeydown" 
+                          role="button" 
+                          tabindex="0" 
+                          aria-expanded="{% if isAbsActive %}true{% else %}false{% endif %}">
                         <span class="menu-icon">
                             <i class="bi bi-calendar2-week-fill fs-3 text-success"></i>
                         </span>
                         <span class="menu-title">Mobilité & Congés</span>
                         <span class="menu-arrow"></span>
                     </span>
-                    <div class="menu-sub menu-sub-accordion {% if isAbsActive %}menu-active-bg{% endif %}">
+                    <div class="menu-sub menu-sub-accordion" data-sidebar-menu-target="submenu">
                         <div class="menu-item">
                             <a class="menu-link {% if 'conges' in current_route %}active{% endif %}" href="{{ path('app_conges_index') }}">
                                 <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
@@ -188,15 +182,20 @@
 
                 <!-- 5. ACTES & DOCUMENTS -->
                 {% set isDocActive = ('document' in current_route or 'acte' in current_route) %}
-                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isDocActive %}here show{% endif %}">
-                    <span class="menu-link">
+                <div class="menu-item menu-accordion {% if isDocActive %}here show{% endif %}" data-controller="sidebar-menu">
+                    <span class="menu-link cursor-pointer" 
+                          data-sidebar-menu-target="trigger" 
+                          data-action="click->sidebar-menu#toggle keydown->sidebar-menu#onKeydown" 
+                          role="button" 
+                          tabindex="0" 
+                          aria-expanded="{% if isDocActive %}true{% else %}false{% endif %}">
                         <span class="menu-icon">
                             <i class="bi bi-folder2-open fs-3 text-primary"></i>
                         </span>
                         <span class="menu-title">Documents & Actes</span>
                         <span class="menu-arrow"></span>
                     </span>
-                    <div class="menu-sub menu-sub-accordion {% if isDocActive %}menu-active-bg{% endif %}">
+                    <div class="menu-sub menu-sub-accordion" data-sidebar-menu-target="submenu">
                         <div class="menu-item">
                             <a class="menu-link {% if 'document' in current_route %}active{% endif %}" href="{{ path('app_document_index') }}">
                                 <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
@@ -226,20 +225,25 @@
                 {% if is_granted('ROLE_ADMIN') %}
                     <div class="menu-item pt-4">
                         <div class="menu-content pb-2">
-                            <span class="menu-section text-muted text-uppercase fs-8 ls-1">Administration</span>
+                            <span class="menu-section text-uppercase fs-8 ls-1">Administration</span>
                         </div>
                     </div>
 
                     {% set isAdminActive = ('user' in current_route or 'role' in current_route or 'institution' in current_route or 'log' in current_route) %}
-                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion {% if isAdminActive %}here show{% endif %}">
-                        <span class="menu-link">
+                    <div class="menu-item menu-accordion {% if isAdminActive %}here show{% endif %}" data-controller="sidebar-menu">
+                        <span class="menu-link cursor-pointer" 
+                              data-sidebar-menu-target="trigger" 
+                              data-action="click->sidebar-menu#toggle keydown->sidebar-menu#onKeydown" 
+                              role="button" 
+                              tabindex="0" 
+                              aria-expanded="{% if isAdminActive %}true{% else %}false{% endif %}">
                             <span class="menu-icon">
-                                <i class="bi bi-gear-fill fs-3 text-white"></i>
+                                <i class="bi bi-gear-fill fs-3 text-primary"></i>
                             </span>
                             <span class="menu-title">Système & Sécurité</span>
                             <span class="menu-arrow"></span>
                         </span>
-                        <div class="menu-sub menu-sub-accordion {% if isAdminActive %}menu-active-bg{% endif %}">
+                        <div class="menu-sub menu-sub-accordion" data-sidebar-menu-target="submenu">
                             <div class="menu-item">
                                 <a class="menu-link {% if 'user' in current_route %}active{% endif %}" href="{{ path('app_user_index') }}">
                                     <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>

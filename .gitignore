@@ -31,6 +31,24 @@ yarn-error.log
 ###< phpunit/phpunit ###
 
 ###> local ###
-/graphify-out/cache/
 /public/uploads/
 ###< local ###
+
+###> ai-assistants ###
+/.agents/
+/.gemini/
+/.codex/
+/.impeccable/
+/.claude/
+/.cursor/
+/.continue/
+/.aider*
+/graphify-out/
+###< ai-assistants ###
+/doc/*
+/metronic-template-html-/
+
+DESIGN.md
+PRD_FINAL.md 
+PRODUCT.md
+
