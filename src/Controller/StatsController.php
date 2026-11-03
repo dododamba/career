@@ -448,7 +448,7 @@ class StatsController extends AbstractController
                     $pointage->getStatus()
                 ),
                 'time' => $pointage->getHeureArrivee() ?? $pointage->getDate(),
-                'color' => $pointage->getEstPresent() ? '#2ecc71' : '#e74c3c'
+                'color' => $pointage->isEstPresent() ? '#2ecc71' : '#e74c3c'
             ];
         }
         
@@ -508,7 +508,7 @@ class StatsController extends AbstractController
             if ($conge) {
                 $statutAujourdhui = 'conge';
             } elseif ($pointage) {
-                if ($pointage->getEstPresent()) {
+                if ($pointage->isEstPresent()) {
                     $statutAujourdhui = $pointage->getStatus() === 'Retard' ? 'retard' : 'present';
                 } else {
                     $statutAujourdhui = 'absent';

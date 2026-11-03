@@ -135,6 +135,11 @@ class Pointage implements TenantAwareInterface
         return $this->est_present;
     }
 
+    public function getEstPresent(): ?bool
+    {
+        return $this->est_present;
+    }
+
     public function setEstPresent(bool $est_present): self
     {
         $this->est_present = $est_present;
